@@ -23,7 +23,11 @@
                 <TextBlock Text="Proszę się zalogować"
                    FontSize="18" FontWeight="Bold" TextWrapping="Wrap" 
                    HorizontalAlignment="Center" TextAlignment="Center"
-                   Padding="10" />
+                   Padding="10" >
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="#434343" BlurRadius="10" ShadowDepth="5" Direction="320" Opacity="0.5" />
+                    </TextBlock.Effect>
+                </TextBlock>
 
                 <!-- Przyciski -->
                 <Grid VerticalAlignment="Center">
@@ -37,16 +41,24 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Height="45" Width="300" Margin="0,10"
-                               FontSize="24" HorizontalAlignment="Center" >
+                               FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               TextAlignment="Center" >
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#434343" BlurRadius="10" ShadowDepth="5" Direction="320" Opacity="0.5" />
+                        </TextBlock.Effect>
                         Username:
                     </TextBlock>
-                    <TextBox Grid.Row="1" x:Name="LoginB"/>
+                    <TextBox Grid.Row="1" x:Name="LoginB" BorderThickness="0,0,0,1"/>
                     <TextBlock Grid.Row="2" Height="45" Width="300" Margin="0,10"
-                               FontSize="24" HorizontalAlignment="Center" KeyDown="OnLoginSubmit_key">
+                               FontSize="24" HorizontalAlignment="Center" KeyDown="OnLoginSubmit_key" 
+                               TextAlignment="Center">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#434343" BlurRadius="10" ShadowDepth="5" Direction="320" Opacity="0.5" />
+                        </TextBlock.Effect>
                         Password:
                     </TextBlock>
                     <PasswordBox Grid.Row="3" x:Name="PasswordB" PasswordChanged="Password_Changed"
-                                 KeyDown="OnLoginSubmit_key"/>
+                                 KeyDown="OnLoginSubmit_key" BorderThickness="0,0,0,1"/>
                     <Button Content="Submit" x:Name="loginButton" Grid.Row="4"
                         Height="45" Width="250" Margin="0,10"
                         Background="Black" Foreground="White" 
@@ -65,8 +77,8 @@
                                         <Setter TargetName="BorderElement" Property="Background" >
                                             <Setter.Value>
                                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="Black"/>
-                                                    <GradientStop Color="LightBlue"  Offset="1"/>
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
                                                 </LinearGradientBrush>
                                             </Setter.Value>
                                         </Setter>
@@ -95,8 +107,8 @@
                                         <Setter TargetName="BorderElement" Property="Background" >
                                             <Setter.Value>
                                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="Black"/>
-                                                    <GradientStop Color="LightBlue"  Offset="1"/>
+                                                    <GradientStop Color="#434343"/>
+                                                    <GradientStop Color="#c4c4c4"  Offset="1"/>
                                                 </LinearGradientBrush>
                                             </Setter.Value>
                                         </Setter>
