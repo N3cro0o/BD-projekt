@@ -38,7 +38,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <DockPanel Background="Red" Grid.Column="0" Grid.Row="0"  Grid.RowSpan="6" Margin="0,0,5,0">
+        <DockPanel Background="Blue" Grid.Column="0" Grid.Row="0"  Grid.RowSpan="6" Margin="0,0,5,0">
             <StackPanel Margin="5">
                 <Button Content="Main page" Margin="0,0,0,5" Click="GoToMainPage_Click"/>
                 <Button Content="Login" Click="GoToLogin_Click" Margin="0,0,0,5" x:Name="loginButton"/>
