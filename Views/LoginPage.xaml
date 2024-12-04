@@ -20,6 +20,8 @@
                 <TextBlock Text="Password:" HorizontalAlignment="Center" Margin="0,25,0,10" Foreground="#dfdfdf"/>
                 <PasswordBox x:Name="PasswordB" PasswordChanged="Password_Changed" KeyDown="OnLoginSubmit_key"/>
                 <Button Content="Submit" Margin="0,30,0,0" MaxWidth="100" Click="OnLoginSubmit_click"/>
+                
+
             </StackPanel>
         </DockPanel>
     </Grid>
