@@ -47,5 +47,10 @@ namespace BD.Views
             if (e.Key == Key.Enter)
                 OnLoginSubmit_click(sender, e);
         }
+
+        private void OnGoback_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.GoBack();
+        }
     }
 }

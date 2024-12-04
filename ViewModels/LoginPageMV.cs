@@ -9,7 +9,7 @@ namespace BD.ViewModels
 {
     public class LoginPageMV : INotifyPropertyChanged
     {
-        private MainWindow _mainwindow;
+        private readonly MainWindow _mainwindow;
 
         public void Login(string login, string pass)
         {
@@ -18,6 +18,11 @@ namespace BD.ViewModels
                 _mainwindow.Logged = true;
                 _mainwindow.ChangeMainPageDataContext();
             }
+        }
+
+        public void GoBack()
+        {
+            _mainwindow.ChangeMainPageDataContext();
         }
 
         public LoginPageMV(MainWindow mw)

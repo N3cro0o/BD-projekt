@@ -16,30 +16,8 @@ namespace BD
     public partial class MainWindow : Window
     {
         public static string? _Title;
-        string str = "";
 
-        private bool _logged;
-
-        public bool Logged
-        {
-            get { return _logged; }
-            set 
-            {
-                _logged = value;
-                if (_logged)
-                {
-                    logoffButton.Visibility = Visibility.Visible;
-                    loginButton.Visibility = Visibility.Collapsed;
-                    adminPanel.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    logoffButton.Visibility = Visibility.Collapsed;
-                    loginButton.Visibility = Visibility.Visible;
-                    adminPanel.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
+        public bool Logged;
 
         public object logged_string = Visibility.Hidden;
 
@@ -49,32 +27,26 @@ namespace BD
             _Title = Title;
             Logged = false;
 
-            DataContext = new ViewModels.MainPageMV();
-        }
-
-        private void GoToMainPage_Click(object sender, RoutedEventArgs e)
-        {
             ChangeMainPageDataContext();
-            str = "Test";
         }
 
         public void ChangeMainPageDataContext()
         {
-            DataContext = new ViewModels.MainPageMV();
+            DataContext = new ViewModels.MainPageMV(this);
         }
 
-        private void GoToLogin_Click(object sender, RoutedEventArgs e)
+        public void ChangeLoginDataContext()
         {
             DataContext = new ViewModels.LoginPageMV(this);
         }
 
-        private void GoToLogoff_Click(object sender, RoutedEventArgs e)
+        public void ChangeLogoffDataContext()
         {
             Logged = false;
-            DataContext = new ViewModels.MainPageMV();
+            ChangeMainPageDataContext();
         }
 
-        private void GoToAdmin_Click(object sender, RoutedEventArgs e)
+        public void ChangeAdminPanelDataContext()
         {
             DataContext = new ViewModels.AdminPanelMV();
         }

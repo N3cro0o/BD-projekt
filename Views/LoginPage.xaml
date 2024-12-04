@@ -7,22 +7,64 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="5" >
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
+        <Border Width="350" Height="450"
+        Background="White" CornerRadius="10"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
 
-        <DockPanel Grid.Column="1" Background="#434343">
-            <StackPanel Margin="10,0,10,0">
-                <TextBlock Text="Username:" HorizontalAlignment="Center" Margin="0,60,0,10" Foreground="#dfdfdf"/>
-                <TextBox x:Name="LoginB" KeyDown="OnLoginSubmit_key"/>
-                <TextBlock Text="Password:" HorizontalAlignment="Center" Margin="0,25,0,10" Foreground="#dfdfdf"/>
-                <PasswordBox x:Name="PasswordB" PasswordChanged="Password_Changed" KeyDown="OnLoginSubmit_key"/>
-                <Button Content="Submit" Margin="0,30,0,0" MaxWidth="100" Click="OnLoginSubmit_click"/>
-                
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15"
+                          Direction="-90" 
+                          RenderingBias="Quality" 
+                          ShadowDepth="2" 
+                          Color="Gray" />
+            </Border.Effect>
+            <StackPanel Orientation="Vertical" Margin="20,20,20,30">
+                <!-- Nagłówek -->
+                <TextBlock Text="Proszę się zalogować"
+                   FontSize="18" FontWeight="Bold" TextWrapping="Wrap" 
+                   HorizontalAlignment="Center" TextAlignment="Center"
+                   Padding="10" />
+
+                <!-- Przyciski -->
+                <Grid VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Height="45" Width="300" Margin="0,10"
+                               FontSize="24" HorizontalAlignment="Center" >
+                        Username:
+                    </TextBlock>
+                    <TextBox Grid.Row="1" x:Name="LoginB"/>
+                    <TextBlock Grid.Row="2" Height="45" Width="300" Margin="0,10"
+                               FontSize="24" HorizontalAlignment="Center" KeyDown="OnLoginSubmit_key">
+                        Password:
+                    </TextBlock>
+                    <PasswordBox Grid.Row="3" x:Name="PasswordB" PasswordChanged="Password_Changed"
+                                 KeyDown="OnLoginSubmit_key"/>
+                    <Button Content="Submit" x:Name="loginButton" Grid.Row="4"
+                            Height="45" Width="250" Margin="0,10"
+                            Background="Black" Foreground="White" 
+                            FontWeight="Bold" BorderThickness="0" 
+                            Click="OnLoginSubmit_click"
+                            HorizontalAlignment="Center" />
+                    <Button Content="Go back" x:Name="gobackButton" Grid.Row="5"
+                            Height="35" Width="250" Margin="0,10"
+                            Background="#F0F0F0" Foreground="Black"
+                            BorderBrush="#D3D3D3" BorderThickness="1"
+                            FontWeight="Bold"
+                            Click="OnGoback_Click"
+                            HorizontalAlignment="Center" />
+
+                </Grid>
 
             </StackPanel>
-        </DockPanel>
+
+        </Border>
     </Grid>
 </UserControl>
