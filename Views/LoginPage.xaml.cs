@@ -41,5 +41,11 @@ namespace BD.Views
         {
             password = PasswordB.Password;   
         }
+
+        private void OnLoginSubmit_key(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                OnLoginSubmit_click(sender, e);
+        }
     }
 }
