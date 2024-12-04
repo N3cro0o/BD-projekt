@@ -4,9 +4,51 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BD"
+        xmlns:views="clr-namespace:BD.Views"
+        xmlns:viewmodels="clr-namespace:BD.ViewModels"
+        xmlns:models="clr-namespace:BD.Models"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Baza danych" Height="450" Width="800" WindowState="Normal" ResizeMode="CanResize"
+            MinHeight="450" MinWidth="800">
+    <Window.Resources>
+        <DataTemplate x:Name="MainPageTemplate" DataType="{x:Type viewmodels:MainPageMV}">
+            <views:MainPage DataContext="{Binding}"/>
+        </DataTemplate>
+        <DataTemplate x:Name="LoginPageTemplate" DataType="{x:Type viewmodels:LoginPageMV}">
+            <views:LoginPage DataContext="{Binding}"/>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid Background="DimGray" >
 
+        <Grid.RowDefinitions>
+            <RowDefinition  /> 
+            <RowDefinition  />
+            <RowDefinition  />
+            <RowDefinition  />
+            <RowDefinition  />
+            <RowDefinition  />
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition  />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Background="Aqua" Grid.Column="0" Grid.Row="0"  Grid.RowSpan="6" Margin="0,0,5,0">
+            <StackPanel>
+                <Button Content="Main page" Margin="0,0,0,5" Click="GoToMainPage_Click"/>
+                <Button Content="Login" Click="GoToLogin_Click" Margin="0,0,0,5" x:Name="loginButton"/>
+                <Button Content="Logoff" Click="GoToLogoff_Click" x:Name="logoffButton"/>
+            </StackPanel>
+        </DockPanel>
+
+        <ContentControl Content="{Binding}" Grid.Column="1" Grid.Row="0" Grid.RowSpan="6" Grid.ColumnSpan="5">                                                                                                  
+            
+        </ContentControl>
+        
     </Grid>
 </Window>
