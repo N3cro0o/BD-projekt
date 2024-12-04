@@ -48,18 +48,63 @@
                     <PasswordBox Grid.Row="3" x:Name="PasswordB" PasswordChanged="Password_Changed"
                                  KeyDown="OnLoginSubmit_key"/>
                     <Button Content="Submit" x:Name="loginButton" Grid.Row="4"
-                            Height="45" Width="250" Margin="0,10"
-                            Background="Black" Foreground="White" 
-                            FontWeight="Bold" BorderThickness="0" 
-                            Click="OnLoginSubmit_click"
-                            HorizontalAlignment="Center" />
+                        Height="45" Width="250" Margin="0,10"
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" BorderThickness="0" 
+                        Click="OnLoginSubmit_click"
+                        HorizontalAlignment="Center">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="10">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background" >
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="Black"/>
+                                                    <GradientStop Color="LightBlue"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
                     <Button Content="Go back" x:Name="gobackButton" Grid.Row="5"
                             Height="35" Width="250" Margin="0,10"
                             Background="#F0F0F0" Foreground="Black"
                             BorderBrush="#D3D3D3" BorderThickness="1"
                             FontWeight="Bold"
                             Click="OnGoback_Click"
-                            HorizontalAlignment="Center" />
+                            HorizontalAlignment="Center" >
+                     <!-- Ustawienie nie domyslnego sylu Buttona-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="10">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background" >
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="Black"/>
+                                                    <GradientStop Color="LightBlue"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
 
                 </Grid>
 
