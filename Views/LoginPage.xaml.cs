@@ -34,9 +34,9 @@ namespace BD.Views
         private void OnLoginSubmit_click(object sender, RoutedEventArgs e)
         {
             Debug.Print(password);
-            _mv.T(LoginB.Text, password);
+            _mv.Login(LoginB.Text, password);
         }
-
+        
         private void Password_Changed(object sender, RoutedEventArgs e)
         {
             password = PasswordB.Password;   

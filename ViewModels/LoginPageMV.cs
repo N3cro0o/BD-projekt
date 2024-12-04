@@ -11,7 +11,7 @@ namespace BD.ViewModels
     {
         private MainWindow _mainwindow;
 
-        public void T(string login, string pass)
+        public void Login(string login, string pass)
         {
             if (login == "Admin" && pass == "****")
             {

@@ -30,11 +30,13 @@ namespace BD
                 {
                     logoffButton.Visibility = Visibility.Visible;
                     loginButton.Visibility = Visibility.Collapsed;
+                    adminPanel.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     logoffButton.Visibility = Visibility.Collapsed;
                     loginButton.Visibility = Visibility.Visible;
+                    adminPanel.Visibility = Visibility.Collapsed;
                 }
             }
         }
@@ -48,7 +50,6 @@ namespace BD
             Logged = false;
 
             DataContext = new ViewModels.MainPageMV();
-            SayString();
         }
 
         private void GoToMainPage_Click(object sender, RoutedEventArgs e)
@@ -67,14 +68,15 @@ namespace BD
             DataContext = new ViewModels.LoginPageMV(this);
         }
 
-        public void SayString()
-        {
-            Debug.Print(str);
-        }
-
         private void GoToLogoff_Click(object sender, RoutedEventArgs e)
         {
             Logged = false;
+            DataContext = new ViewModels.MainPageMV();
+        }
+
+        private void GoToAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            DataContext = new ViewModels.AdminPanelMV();
         }
     }
 }
