@@ -9,12 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\loginimage2.png" />
+    <None Remove="Views\passwordImg2.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Elements\" />
-    <Folder Include="ImgSource\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="image\loginimage2.png" />
+    <Resource Include="image\passwordImg2.png" />
   </ItemGroup>
 
 </Project>
