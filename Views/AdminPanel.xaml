@@ -21,31 +21,25 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <DockPanel Grid.ColumnSpan="2" Grid.RowSpan="4" Background="DarkRed">
+        
+        <DockPanel Grid.ColumnSpan="2" Grid.RowSpan="3" Background="DarkRed">
             <UniformGrid Margin="5" Background="Red">
-                <Button Margin="10" Content="1"/>
-                <Button Margin="10" Content="2" Visibility="Visible"/>
-                <Button Margin="10" Content="3" Visibility="Visible"/>
-                <Button Margin="10" Content="4" Visibility="Visible"/>
-                <Button Margin="10" Content="5" Visibility="Visible"/>
-                <Button Margin="10" Content="6" Visibility="Visible"/>
-                <Button Margin="10" Content="7" Visibility="Visible"/>
-                <Button Margin="10" Content="8" Visibility="Visible"/>
-                <Button Margin="10" Content="Go back" Visibility="Visible" Click="Goback_Click"/>
+                <Button Margin="3" Content="Go back" Visibility="Visible" Click="Goback_Click"/>
+                <Button Margin="3" Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click"/>
+                
             </UniformGrid>
         </DockPanel>
-        <DockPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Background="DarkGreen">
-            <StackPanel Margin="5" Background="Green">
-                <TextBlock Text="Input 1:" HorizontalAlignment="Center" Margin="0,60,0,10" Foreground="#dfdfdf" FontSize="14"/>
-                <TextBox x:Name="AdminInput1" />
-                <TextBlock Text="Input 2:" HorizontalAlignment="Center" Margin="0,25,0,10" Foreground="#dfdfdf" FontSize="14"/>
-                <TextBox x:Name="AdminInput2" />
-                <TextBlock Text="Input 3:" HorizontalAlignment="Center" Margin="0,25,0,10" Foreground="#dfdfdf" FontSize="14"/>
-                <TextBox x:Name="AdminInput3" />
-                <TextBlock Text="Input 4:" HorizontalAlignment="Center" Margin="0,25,0,10" Foreground="#dfdfdf" FontSize="14"/>
-                <TextBox x:Name="AdminInput4" />
+        
+        <DockPanel Grid.Row="3" Grid.ColumnSpan="2" Background="DarkBlue" >
+            <TextBox Margin="5" Background="#001AA0" Foreground="#DDDDDD">
                 
-            </StackPanel>
+            </TextBox>
+        </DockPanel>
+        
+        <DockPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Background="DarkGreen">
+            <ScrollViewer Margin="5" Background="Green">
+                <TextBlock x:Name="consoleScreen" Text="SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA " TextWrapping="WrapWithOverflow" FontSize="24"/>
+            </ScrollViewer>
         </DockPanel>
     </Grid>
 </UserControl>

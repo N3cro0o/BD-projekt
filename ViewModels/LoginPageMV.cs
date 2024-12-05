@@ -20,6 +20,8 @@ namespace BD.ViewModels
 
             if (list.Count == 1)
             {
+                if (list[0]["role"].ToLower() != "admin")
+                    return false;
                 _mainwindow.Logged = true;
                 _mainwindow.ChangeMainPageDataContext();
                 return true;

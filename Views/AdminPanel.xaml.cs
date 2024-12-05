@@ -35,5 +35,10 @@ namespace BD.Views
         {
             _mv.GoBack();
         }
+
+        private void ShowAllUsers_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ReturnAllUsersFromDB(this);
+        }
     }
 }

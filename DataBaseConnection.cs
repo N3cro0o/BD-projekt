@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,15 @@ namespace BD
         {
             List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-            connection.Open();
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return list;
+            }
             using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
             using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
 
