@@ -50,7 +50,7 @@
                     </TextBlock>
                     <TextBox Grid.Row="1" x:Name="LoginB" BorderThickness="0,0,0,1" TextAlignment="Left">
                         <TextBox.Background>
-                            <ImageBrush ImageSource="D:\Users\Admin\folder\studia\beatka\grupowy\New folder\loginImg2.PNG" Stretch="None" AlignmentX="Right"/>
+                            <ImageBrush ImageSource="..\ImgSource\loginImg2.PNG" Stretch="None" AlignmentX="Right"/>
                         </TextBox.Background>
                     </TextBox>
                         <TextBlock Grid.Row="2" Height="45" Width="300" Margin="0,10"
@@ -64,7 +64,7 @@
                     <PasswordBox Grid.Row="3" x:Name="PasswordB" PasswordChanged="Password_Changed"
                                  KeyDown="OnLoginSubmit_key" BorderThickness="0,0,0,1" >
                         <PasswordBox.Background>
-                            <ImageBrush ImageSource="D:\Users\Admin\folder\studia\beatka\grupowy\New folder\passwordImg2.PNG" Stretch="None" AlignmentX="Right"/>
+                            <ImageBrush ImageSource="..\ImgSource\passwordImg2.PNG" Stretch="None" AlignmentX="Right"/>
                         </PasswordBox.Background>
                     </PasswordBox>
                         <Button Content="Submit" x:Name="loginButton" Grid.Row="4"
