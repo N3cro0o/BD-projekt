@@ -26,51 +26,9 @@
             
         </Grid.RowDefinitions>
 
-        <Border CornerRadius="10,10,10,10" Background="#82827d" Margin="5,5,5,0" 
-        Grid.Row="0" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="1">
-            <DockPanel>
-                <TextBlock Margin="0,10"
-       FontSize="30"
-       TextAlignment="Center"
-       FontWeight="Bold"
-       HorizontalAlignment="Center"
-       VerticalAlignment="Center"
-       Padding="10,0,10,10">
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="White"
-                      BlurRadius="10"
-                      ShadowDepth="5"
-                      Direction="320"
-                      Opacity="0.5" />
-                    </TextBlock.Effect>
-                    Logo
-                </TextBlock>
-            </DockPanel>
-        </Border>
-        <Border CornerRadius="10,10,10,10" Background="#82827d" Margin="5,5,5,0" 
-                Grid.Row="0" Grid.Column="5" Grid.RowSpan="1" Grid.ColumnSpan="1">
-            <DockPanel>
-                <TextBlock Margin="0,10"
-                            FontSize="30"
-                            TextAlignment="Center"
-                            FontWeight="Bold"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Padding="10,0,10,10">
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="White"
-               BlurRadius="10"
-               ShadowDepth="5"
-               Direction="320"
-               Opacity="0.5" />
-                    </TextBlock.Effect>
-             Logo
-                </TextBlock>
-            </DockPanel>
-        </Border>
 
         <Border CornerRadius="10,10,10,10" Background="#82827d" Margin="5,5,5,0" 
-                Grid.Row="0" Grid.Column="1" Grid.RowSpan="1" Grid.ColumnSpan="4">
+                Grid.Row="0" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="6">
             <DockPanel>
                 <TextBlock Margin="0,10"
                FontSize="30"
@@ -552,7 +510,7 @@
         </Grid>
         </Border>
         <Border CornerRadius="10,10,10,10" Background="#82827d" Margin="5,5,5,5" 
-        Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="1">
+        Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="4" Grid.RowSpan="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -592,110 +550,6 @@
                        TextWrapping="WrapWithOverflow" FontSize="16" Foreground="White" />
                 </ScrollViewer>
             </Grid>
-        </Border>
-
-        <Border CornerRadius="10,10,10,10" Background="#82827d" Margin="5,5,5,5"
-                Grid.Row="4"  Grid.Column="5" Grid.ColumnSpan="1" Grid.RowSpan="2">
-        <DockPanel  >
-                <UniformGrid  Rows="2" Columns="1">
-                    <Button  x:Name="buttonClear" Margin="5"
-                Background="Red" Foreground="Black"
-                BorderBrush="#D3D3D3" BorderThickness="1"
-                FontWeight="Bold" FontSize="15"
-                Content="CLEAR" Visibility="Visible" Click="Goback_Click">
-                        <!-- Ustawienie nie domyslnego sylu Buttona-->
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Grid>
-                                    <!-- Zewnętrzna ramka -->
-                                    <Border x:Name="bigBorder" Background="{TemplateBinding Background}" CornerRadius="10" Padding="5">
-                                        <!-- Wewnętrzny element zmieniający tło -->
-                                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </Border>
-                                </Grid>
-                                <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
-                                    <!-- Zmiana tlla przy najechaniu -->
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#434343"/>
-                                                    <GradientStop Color="White"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter TargetName="bigBorder" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#434343"/>
-                                                    <GradientStop Color="White"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-
-                                    </Trigger>
-                                    <!-- Zmiana po nacisniencu -->
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background" Value="#82827d"/>
-                                        <Setter TargetName="bigBorder" Property="Background" Value="#434343"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Button  x:Name="buttonEnter" Margin="5"
-                        Background="Green" Foreground="Black"
-                        BorderBrush="#D3D3D3" BorderThickness="1"
-                        FontWeight="Bold" FontSize="15"
-                        Content="ENTER" Visibility="Visible" Click="Goback_Click">
-                        <!-- Ustawienie nie domyslnego sylu Buttona-->
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Grid>
-                                    <!-- Zewnętrzna ramka -->
-                                    <Border x:Name="bigBorder" Background="{TemplateBinding Background}" CornerRadius="10" Padding="5">
-                                        <!-- Wewnętrzny element zmieniający tło -->
-                                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </Border>
-                                </Grid>
-                                <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
-                                    <!-- Zmiana tlla przy najechaniu -->
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#434343"/>
-                                                    <GradientStop Color="White"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter TargetName="bigBorder" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#434343"/>
-                                                    <GradientStop Color="White"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-
-                                    </Trigger>
-                                    <!-- Zmiana po nacisniencu -->
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background" Value="#82827d"/>
-                                        <Setter TargetName="bigBorder" Property="Background" Value="#434343"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                </UniformGrid>
-            </DockPanel>
         </Border>
     </Grid>
 </UserControl>
