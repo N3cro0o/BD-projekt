@@ -31,17 +31,7 @@ namespace BD
 
             ChangeMainPageDataContext();
 
-            string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
-            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-            connection.Open();
-            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand("SELECT * FROM \"User\"", connection);
-            using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
-
-            while (reader.Read())
-            {
-                Debug.Print(reader["login"].ToString());
-            }
-            connection.Close();
+            
         }
 
         public void ChangeMainPageDataContext()
