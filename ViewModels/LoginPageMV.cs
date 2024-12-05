@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Npgsql;
 
 namespace BD.ViewModels
 {
@@ -11,13 +13,26 @@ namespace BD.ViewModels
     {
         private readonly MainWindow _mainwindow;
 
-        public void Login(string login, string pass)
+        public bool Login(string login, string pass)
         {
-            if (login == "Admin" && pass == "****")
+            string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + pass + '\'';
+            var list = App.DBConnection.ReturnUsersList(query);
+
+            if (list.Count == 1)
             {
+                if (list[0]["role"].ToLower() != "admin")
+                    return false;
                 _mainwindow.Logged = true;
                 _mainwindow.ChangeMainPageDataContext();
+                return true;
             }
+            else if (list.Count > 1)
+                Debug.Print("Found multiple users");
+            else
+                Debug.Print("User doesn't exist");
+
+            return false;
+            
         }
 
         public void GoBack()

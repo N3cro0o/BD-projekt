@@ -34,7 +34,8 @@ namespace BD.Views
         private void OnLoginSubmit_click(object sender, RoutedEventArgs e)
         {
             Debug.Print(password);
-            _mv.Login(LoginB.Text, password);
+            if (!_mv.Login(LoginB.Text, password))
+                PasswordB.Password = "";
         }
         
         private void Password_Changed(object sender, RoutedEventArgs e)

@@ -12,19 +12,33 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BD.ViewModels;
 
 namespace BD.Views
 {
     public partial class AdminPanel : UserControl
     {
+        private readonly AdminPanelMV _mv;
         public AdminPanel()
         {
             InitializeComponent();
+
+            _mv = App.Current.MainWindow.DataContext as AdminPanelMV;
         }
 
         private void OnPanelSubmit(object sender, RoutedEventArgs e)
         {
+               
+        }
 
+        private void Goback_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.GoBack();
+        }
+
+        private void ShowAllUsers_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ReturnAllUsersFromDB(this);
         }
     }
 }

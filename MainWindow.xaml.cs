@@ -10,6 +10,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using BD.Models;
+using Npgsql;
 
 namespace BD
 {
@@ -28,6 +30,18 @@ namespace BD
             Logged = false;
 
             ChangeMainPageDataContext();
+
+            string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            connection.Open();
+            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand("SELECT * FROM \"User\"", connection);
+            using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Debug.Print(reader["login"].ToString());
+            }
+            connection.Close();
         }
 
         public void ChangeMainPageDataContext()
@@ -48,7 +62,7 @@ namespace BD
 
         public void ChangeAdminPanelDataContext()
         {
-            DataContext = new ViewModels.AdminPanelMV();
+            DataContext = new ViewModels.AdminPanelMV(this);
         }
     }
 }
