@@ -31,7 +31,7 @@
                 <Button Margin="10" Content="6" Visibility="Visible"/>
                 <Button Margin="10" Content="7" Visibility="Visible"/>
                 <Button Margin="10" Content="8" Visibility="Visible"/>
-                <Button Margin="10" Content="9" Visibility="Visible"/>
+                <Button Margin="10" Content="Go back" Visibility="Visible" Click="Goback_Click"/>
             </UniformGrid>
         </DockPanel>
         <DockPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Background="DarkGreen">

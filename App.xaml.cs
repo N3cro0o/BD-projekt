@@ -10,6 +10,7 @@ namespace BD
     public partial class App : Application
     {
         public bool logged = true;
+        public readonly static DataBaseConnection DBConnection = new DataBaseConnection();
     }
 
 }
