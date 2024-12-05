@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using System.Windows.Controls;
 
 namespace BD.Models
 {
@@ -21,28 +22,28 @@ namespace BD.Models
         string[] names = { "Staszek", "Mathew" , "Franio", "Domino", "Karol"};
 
         [JsonInclude]
-        int ID { get; set; }
+        int ID;
 
         [JsonInclude]
-        string Login { get; set; }
+        string login;
 
         [JsonInclude]
-        string Password { get; set; }
+        string password;
 
         [JsonInclude]
-        public string FirstName { get; set; }
+        public string FirstName;
 
-        public string LastName { get; set; }
-
-        [JsonInclude]
-        string Email { get; set; }
-
-        public TYPE UserType { get; set; } = TYPE.Guest;
+        public string LastName;
 
         [JsonInclude]
-        List<int> Courses { get; set; } = new List<int>();
+        string email;
 
-        string Token { get; set; } = "";
+        public TYPE UserType = TYPE.Guest;
+
+        [JsonInclude]
+        List<int> Courses = new List<int>();
+
+        string Token = "";
 
         public User(int id, string login, string pass, string email, string fName, string lName, TYPE type = TYPE.Guest)
         {
@@ -74,8 +75,8 @@ namespace BD.Models
 
             ID = rng.Next();
             Login = login;
-            Password = password;
-            Email = login + "@" + password + ".com";
+            this.password = password;
+            email = login + "@" + password + ".com";
             FirstName = names[rng.Next(0, 5)];
             LastName = names[rng.Next(0, 5)];
             UserType = TYPE.Guest;
@@ -97,6 +98,24 @@ namespace BD.Models
         {
             if (token != null) 
                 Token = token;
+        }
+
+        public string Login 
+        {
+            get => login;
+            set => login = value;
+        }
+
+        public string Password
+        {
+            get => password;
+            set => password = value;
+        }
+
+        public string Email
+        {
+            get => email;
+            set => email = value;
         }
     }
 }

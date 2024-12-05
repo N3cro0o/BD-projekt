@@ -26,7 +26,6 @@ namespace BD.Views
         public MainPage()
         {
             InitializeComponent();
-            //greetLabel.Text = "Witamy w panelu startowym aplikacji " + MainWindow._Title + ", życzymy miłego dnia";
 
             _mv = App.Current.MainWindow.DataContext as MainPageMV;
             _checkButtonVisibility();

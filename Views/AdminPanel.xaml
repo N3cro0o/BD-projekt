@@ -26,12 +26,13 @@
             <UniformGrid Margin="5" Background="Red">
                 <Button Margin="3" Content="Go back" Visibility="Visible" Click="Goback_Click"/>
                 <Button Margin="3" Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click"/>
+                <Button Margin="3" Content="Add user" Visibility="Visible" Click="AddNewUser_Click"/>
                 
             </UniformGrid>
         </DockPanel>
         
         <DockPanel Grid.Row="3" Grid.ColumnSpan="2" Background="DarkBlue" >
-            <TextBox Margin="5" Background="#001AA0" Foreground="#DDDDDD">
+            <TextBox x:Name="InputBox" Margin="5" Background="#001AA0" Foreground="#DDDDDD" KeyDown ="OnInputBox_KeyDown">
                 
             </TextBox>
         </DockPanel>
