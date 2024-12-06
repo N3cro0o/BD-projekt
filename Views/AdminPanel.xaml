@@ -39,7 +39,7 @@
         
         <DockPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Background="DarkGreen">
             <ScrollViewer Margin="5" Background="Green">
-                <TextBlock x:Name="consoleScreen" Text="SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA SDA " TextWrapping="WrapWithOverflow" FontSize="24"/>
+                <TextBlock x:Name="consoleScreen" Text="" TextWrapping="WrapWithOverflow" FontSize="24"/>
             </ScrollViewer>
         </DockPanel>
     </Grid>
