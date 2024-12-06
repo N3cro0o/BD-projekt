@@ -44,6 +44,23 @@ namespace BD.Models
         List<int> Courses = new List<int>();
 
         string Token = "";
+        public string Login
+        {
+            get => login;
+            set => login = value;
+        }
+
+        public string Password
+        {
+            get => password;
+            set => password = value;
+        }
+
+        public string Email
+        {
+            get => email;
+            set => email = value;
+        }
 
         public User(int id, string login, string pass, string email, string fName, string lName, TYPE type = TYPE.Guest)
         {
@@ -98,24 +115,6 @@ namespace BD.Models
         {
             if (token != null) 
                 Token = token;
-        }
-
-        public string Login 
-        {
-            get => login;
-            set => login = value;
-        }
-
-        public string Password
-        {
-            get => password;
-            set => password = value;
-        }
-
-        public string Email
-        {
-            get => email;
-            set => email = value;
         }
     }
 }

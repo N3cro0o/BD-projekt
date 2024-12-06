@@ -368,7 +368,7 @@ FontWeight="Bold" Margin="3" FontSize="10"
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="1" Margin="5" Background="#707070" Foreground="White"
+                <TextBox Grid.Row="1" Margin="5" Background="#727272" Foreground="White"
                  FontFamily="Arial" FontSize="14" Padding="10" TextWrapping="Wrap" />
             </Grid>
         </Border>
