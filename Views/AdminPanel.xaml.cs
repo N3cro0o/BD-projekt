@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,6 +40,16 @@ namespace BD.Views
         private void ShowAllUsers_Click(object sender, RoutedEventArgs e)
         {
             _mv.ReturnAllUsersFromDB(this);
+        }
+
+        private void AddNewUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewUser(this);
+        }
+
+        private void OnInputBox_KeyDown(object sender, KeyEventArgs e)
+        {
+
         }
     }
 }

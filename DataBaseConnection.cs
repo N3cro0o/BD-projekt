@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Xml.Linq;
+using BD.Models;
 using Npgsql;
 
 namespace BD
@@ -42,6 +47,26 @@ namespace BD
             }
             connection.Close();
             return list;
+        }
+
+        public void AddUser(User user)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            string query = "INSERT INTO \"User\"(login, name, surname, email, password, role) VALUES ";
+            query += string.Format("(\'{0}\', \'{1}\', \'{2}\', \'{3}\', \'{4}\', \'{5}\')", user.Login, user.FirstName, user.LastName, user.Email, user.Password, user.UserType);
+            Debug.Print(query);
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return;
+            }
+            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
+            npgsqlCommand.ExecuteNonQuery();
+            connection.Close();
         }
     }
 }
