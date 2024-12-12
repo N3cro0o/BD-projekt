@@ -19,19 +19,10 @@
                           Color="Gray" />
             </Border.Effect>
             <StackPanel Orientation="Vertical" Margin="20,20,20,30">
-                <!-- Nagłówek -->
-                <!-- TextBlock Text="Proszę się zalogować"
-                   FontSize="18" FontWeight="Bold" TextWrapping="Wrap" 
-                   HorizontalAlignment="Center" TextAlignment="Center"
-                   Padding="10" >
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="#434343" BlurRadius="10" ShadowDepth="5" Direction="320" Opacity="0.5" />
-                    </TextBlock.Effect>
-                </TextBlock -->
-
                 <!-- Przyciski -->
                 <Grid VerticalAlignment="Center">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -165,7 +156,8 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-
+                    <TextBlock x:Name="ErrorTextBlock" Foreground="Red" Grid.Row="6" TextAlignment="Center" Text="Error"
+                               FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20"/>
                 </Grid>
 
             </StackPanel>

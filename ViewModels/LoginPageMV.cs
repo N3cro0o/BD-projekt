@@ -13,25 +13,22 @@ namespace BD.ViewModels
     {
         private readonly MainWindow _mainwindow;
 
-        public bool Login(string login, string pass)
+        public (bool, string) Login(string login, string pass)
         {
-            string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + pass + '\'';
-            var list = App.DBConnection.ReturnUsersList(query);
+            var list = App.DBConnection.Login(login, pass);
 
             if (list.Count == 1)
             {
                 if (list[0]["role"].ToLower() != "admin")
-                    return false;
+                    return (false, "User does not have admin privileges");
                 _mainwindow.Logged = true;
                 _mainwindow.ChangeMainPageDataContext();
-                return true;
+                return (true, "");
             }
             else if (list.Count > 1)
-                Debug.Print("Found multiple users");
+                return (false, "More than one user");
             else
-                Debug.Print("User doesn't exist");
-
-            return false;
+                return (false, "User doesn't exist");
         }
 
         public void GoBack()

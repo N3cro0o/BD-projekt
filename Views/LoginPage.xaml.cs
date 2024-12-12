@@ -28,13 +28,21 @@ namespace BD.Views
         public LoginPage()
         {
             InitializeComponent();
+            ErrorTextBlock.Text = "";
             _mv = App.Current.MainWindow.DataContext as LoginPageMV;
         }
 
         private void OnLoginSubmit_click(object sender, RoutedEventArgs e)
         {
             Debug.Print(password);
-            if (!_mv.Login(LoginB.Text, password))
+            bool id = false;
+            string error = "";
+            (id, error) = _mv.Login(LoginB.Text, password);
+            if (!id)
+            {
+                ErrorTextBlock.Text = error;
+            }
+            else
                 PasswordB.Password = "";
         }
         

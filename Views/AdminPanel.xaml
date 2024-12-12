@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BD.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid  Background="White">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -78,11 +78,11 @@
                 </Grid.RowDefinitions>
 
                 <UniformGrid  Grid.Row="1" Rows="3" Columns="3" Margin="5">
-                    <Button  x:Name="ustawSeName" Margin="3"
+                    <Button  x:Name="ustawSeName" Margin="3" ToolTip="Add more tooltips"
                         Background="#F0F0F0" Foreground="Black"
                         BorderBrush="#D3D3D3" BorderThickness="1"
                         FontWeight="Bold" FontSize="15"
-                        Content="Go back" Visibility="Visible" Click="Goback_Click">            
+                        Content="Go back" Visibility="Visible" Click="Goback_Click">
                         <!-- Ustawienie nie domyslnego sylu Buttona-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -127,9 +127,9 @@
                         </Button.Template>
                     </Button>
                     <Button x:Name="InsertUserButton" 
-        Background="Black" Foreground="White" 
-        FontWeight="Bold" Margin="3" FontSize="10"
-        Content="Insert user" Visibility="Visible" Click="AddNewUser_Click">
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="3" FontSize="10" ToolTip="Add more tooltips"
+                        Content="Insert user" Visibility="Visible" Click="AddNewUser_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -173,55 +173,55 @@
                         </Button.Template>
                     </Button>
                     <Button x:Name="ustawSeName1" 
-Background="Black" Foreground="White" 
-FontWeight="Bold" Margin="3" FontSize="10"
- Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click">
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="3" FontSize="10" ToolTip="Add more tooltips"
+                         Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Grid>
-                                    <!-- Zewnętrzna ramka -->
-                                    <Border x:Name="bigBorder" Background="Black" CornerRadius="10" Padding="5">
-                                        <!-- Wewnętrzny element zmieniający tło -->
-                                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <!-- Zewnętrzna ramka -->
+                                <Border x:Name="bigBorder" Background="Black" CornerRadius="10" Padding="5">
+                                    <!-- Wewnętrzny element zmieniający tło -->
+                                    <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                </Grid>
-                                <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter TargetName="bigBorder" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <!-- Zmiana tlla przy najechaniu -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BorderElement" Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="#303030"/>
+                                                <GradientStop Color="#434343"  Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter TargetName="bigBorder" Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="#303030"/>
+                                                <GradientStop Color="#434343"  Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
 
-                                    </Trigger>
-                                    <!-- Zmiana po nacisniencu -->
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background" Value="#434343"/>
-                                        <Setter TargetName="bigBorder" Property="Background" Value="Black"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
+                                </Trigger>
+                                <!-- Zmiana po nacisniencu -->
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BorderElement" Property="Background" Value="#434343"/>
+                                    <Setter TargetName="bigBorder" Property="Background" Value="Black"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                     </Button>
-                    <Button x:Name="ustawSeName6" 
-                    Background="Black" Foreground="White" 
+                    <Button x:Name="DeleteUserButton" 
+                    Background="Black" Foreground="White" Click="DeleteUser_Click"
                     FontWeight="Bold" Margin="3" FontSize="10"
-                     Content="Przycisk4" Visibility="Hidden" >
+                    Content="Delete user" ToolTip="Add more tooltips" Visibility="Visible" >
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -356,7 +356,7 @@ FontWeight="Bold" Margin="3" FontSize="10"
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    
+
                 </UniformGrid>
             </Grid>
         </Border>
@@ -368,8 +368,8 @@ FontWeight="Bold" Margin="3" FontSize="10"
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="1" Margin="5" Background="#727272" Foreground="White"
-                 FontFamily="Arial" FontSize="14" Padding="10" TextWrapping="Wrap" />
+                <TextBox Grid.Row="1" x:Name="InputBox" Margin="5" Background="#727272" Foreground="White"
+                 FontFamily="Arial" FontSize="14" Padding="10" TextWrapping="Wrap" KeyDown="InputKeyDown"/>
             </Grid>
         </Border>
 

@@ -20,6 +20,8 @@ namespace BD.Views
     public partial class AdminPanel : UserControl
     {
         private readonly AdminPanelMV _mv;
+        public int EnterCounter = 0;
+
         public AdminPanel()
         {
             InitializeComponent();
@@ -50,6 +52,24 @@ namespace BD.Views
         private void OnInputBox_KeyDown(object sender, KeyEventArgs e)
         {
 
+        }
+
+        private void InputKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) {
+                if (_mv.StepMethod != null)
+                {
+                    EnterCounter++;
+                    _mv.StepMethod(this);
+                }
+                else
+                    EnterCounter = 0;
+            }
+        }
+
+        private void DeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.DeleteUser(this);
         }
     }
 }
