@@ -19,24 +19,44 @@ namespace BD.Models
             Admin = 10,
         }
 
+        public static TYPE StringToType(string s)
+        {
+            if (s.ToLower() == "student")
+            {
+                return TYPE.Student;
+            }
+            else if (s.ToLower() == "teacher")
+            {
+                return TYPE.Teacher;
+            }
+            else if (s.ToLower() == "admin")
+            {
+                return TYPE.Admin;
+            }
+            else
+            {
+                return TYPE.Guest;
+            }
+        }
+
         string[] names = { "Staszek", "Mathew" , "Franio", "Domino", "Karol"};
 
         [JsonInclude]
-        int ID;
+        int? ID;
 
         [JsonInclude]
-        string login;
+        string? login;
 
         [JsonInclude]
-        string password;
+        string? password;
 
         [JsonInclude]
-        public string FirstName;
+        public string? FirstName;
 
-        public string LastName;
+        public string? LastName;
 
         [JsonInclude]
-        string email;
+        string? email;
 
         public TYPE UserType = TYPE.Guest;
 
@@ -75,33 +95,16 @@ namespace BD.Models
 
         public User()
         {
-            Random rng = new Random();
-            int lSize = 8;
-            int pSize = 10;
-            string login = "";
-            string password = "";
-
-            for (int i = 0; i < lSize; i++)
-            {
-                login += Convert.ToChar(rng.Next(0, 26) + 65);
-            }
-            for (int i = 0; i < pSize; i++)
-            {
-                password += Convert.ToChar(rng.Next(0, 26) + 65);
-            }
-
-            ID = rng.Next();
-            Login = login;
-            this.password = password;
-            email = login + "@" + password + ".com";
-            FirstName = names[rng.Next(0, 5)];
-            LastName = names[rng.Next(0, 5)];
-            UserType = TYPE.Guest;
+            
         }
 
         public void SetID(int id)
         {
             ID = id;
+        }
+        public int? GetID()
+        {
+            return ID;
         }
 
         public bool CorrectLoginData(string login, string pass)

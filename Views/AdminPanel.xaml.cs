@@ -63,13 +63,21 @@ namespace BD.Views
                     _mv.StepMethod(this);
                 }
                 else
+                {
+                    _mv.InstrQuery(InputBox.Text, this);
                     EnterCounter = 0;
+                }
             }
         }
 
         private void DeleteUser_Click(object sender, RoutedEventArgs e)
         {
             _mv.DeleteUser(this);
+        }
+
+        private void ModifyUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ModifyUser(this);
         }
     }
 }

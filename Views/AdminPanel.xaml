@@ -35,13 +35,7 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Padding="10,0,10,10">
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="White"
-                              BlurRadius="10"
-                              ShadowDepth="5"
-                              Direction="320"
-                              Opacity="0.5" />
-                    </TextBlock.Effect>
+                    
                 Admin console panel
                 </TextBlock>
             </DockPanel>
@@ -126,10 +120,59 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
+
+                    <Button x:Name="ustawSeName1" 
+                         Background="Black" Foreground="White" 
+                         FontWeight="Bold" Margin="3" FontSize="10" ToolTip="Add more tooltips"
+                         Visibility="Visible" Click="ShowAllUsers_Click">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <!-- Zewnętrzna ramka -->
+                                    <Border x:Name="bigBorder" Background="Black" CornerRadius="10" Padding="5">
+                                        <!-- Wewnętrzny element zmieniający tło -->
+                                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter TargetName="bigBorder" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+
+                                    </Trigger>
+                                    <!-- Zmiana po nacisniencu -->
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background" Value="#434343"/>
+                                        <Setter TargetName="bigBorder" Property="Background" Value="Black"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Show all users</TextBlock>
+                    </Button>
+
                     <Button x:Name="InsertUserButton" 
                         Background="Black" Foreground="White" 
                         FontWeight="Bold" Margin="3" FontSize="10" ToolTip="Add more tooltips"
-                        Content="Insert user" Visibility="Visible" Click="AddNewUser_Click">
+                        Visibility="Visible" Click="AddNewUser_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -171,57 +214,13 @@
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
+                        <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Insert new user</TextBlock>
                     </Button>
-                    <Button x:Name="ustawSeName1" 
-                        Background="Black" Foreground="White" 
-                        FontWeight="Bold" Margin="3" FontSize="10" ToolTip="Add more tooltips"
-                         Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click">
-                        <!-- Ustawienie nie domyslnego sylu-->
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Grid>
-                                <!-- Zewnętrzna ramka -->
-                                <Border x:Name="bigBorder" Background="Black" CornerRadius="10" Padding="5">
-                                    <!-- Wewnętrzny element zmieniający tło -->
-                                    <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </Border>
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <!-- Zmiana tlla przy najechaniu -->
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="BorderElement" Property="Background">
-                                        <Setter.Value>
-                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                <GradientStop Color="#303030"/>
-                                                <GradientStop Color="#434343"  Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="bigBorder" Property="Background">
-                                        <Setter.Value>
-                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                <GradientStop Color="#303030"/>
-                                                <GradientStop Color="#434343"  Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-
-                                </Trigger>
-                                <!-- Zmiana po nacisniencu -->
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="BorderElement" Property="Background" Value="#434343"/>
-                                    <Setter TargetName="bigBorder" Property="Background" Value="Black"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                    </Button>
+                    
                     <Button x:Name="DeleteUserButton" 
                     Background="Black" Foreground="White" Click="DeleteUser_Click"
                     FontWeight="Bold" Margin="3" FontSize="10"
-                    Content="Delete user" ToolTip="Add more tooltips" Visibility="Visible" >
+                    ToolTip="Add more tooltips" Visibility="Visible" >
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -263,7 +262,57 @@
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
+                        <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Remove user</TextBlock>
                     </Button>
+                    
+                    <Button x:Name="ModifyUserButton" 
+                    Background="Black" Foreground="White" Click="ModifyUser_Click"
+                    FontWeight="Bold" Margin="3" FontSize="10"
+                    ToolTip="Add more tooltips" Visibility="Visible" >
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <!-- Zewnętrzna ramka -->
+                                    <Border x:Name="bigBorder" Background="Black" CornerRadius="10" Padding="5">
+                                        <!-- Wewnętrzny element zmieniający tło -->
+                                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter TargetName="bigBorder" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+
+                                    </Trigger>
+                                    <!-- Zmiana po nacisniencu -->
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background" Value="#434343"/>
+                                        <Setter TargetName="bigBorder" Property="Background" Value="Black"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Modify existing user</TextBlock>
+                    </Button>
+                    
                     <Button x:Name="ustawSeName5" 
                 Background="Black" Foreground="White" 
                 FontWeight="Bold" Margin="3" FontSize="10"
@@ -310,6 +359,7 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
+                    
                     <Button x:Name="ustawSeName3" 
                 Background="Black" Foreground="White" 
                 FontWeight="Bold" Margin="3" FontSize="10"
@@ -385,10 +435,6 @@
                    FontSize="18" TextAlignment="Center" FontWeight="Bold"
                    HorizontalAlignment="Left" VerticalAlignment="Center"
                    Padding="10,5,0,0" Margin="10,0,0,5" >
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="10" ShadowDepth="5"
-                                  Direction="320" Opacity="0.5" />
-                    </TextBlock.Effect>
                 </TextBlock>
 
                 <ScrollViewer Grid.Row="1" Margin="5" Background="#82827d">
