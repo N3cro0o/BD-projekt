@@ -10,40 +10,65 @@ namespace BD.Models
 {
     public class Question
     {
+        public static QUESTION_TYPE StringToType(string s)
+        {
+            switch (s.ToLower())
+            {
+                case "closed":
+                    return QUESTION_TYPE.Closed;
+                case "open":
+                    return QUESTION_TYPE.Open;
+            }
+            return QUESTION_TYPE.Invalid;
+        }
+
         public enum QUESTION_TYPE
         {
             Closed,
-            Open
+            Open,
+            Invalid
         }
 
-        [JsonInclude]
-        string Text = "";
+        public string Name = "";
 
-        [JsonInclude]
-        QUESTION_TYPE QuestionType {  get; set; }
+        public string Text = "";
 
-        [JsonInclude]
-        List<string> Answers = new List<string>();
+        public QUESTION_TYPE QuestionType { get; set; }
 
-        [JsonInclude]
-        int Points { get; set; }
+        public List<string> Answers = new List<string>();
 
-        [JsonInclude]
-        List<int> CorrectAnswers = new List<int>();
+        public string Category = "";
 
-        [JsonInclude]
+        public bool Shared = false;
+
+        public double Points { get; set; }
+
+        public List<int> CorrectAnswers = new List<int>();
+
         int ID;
-        
-        public Question(int id, string text, QUESTION_TYPE type, List<string> answ, int points, List<int> corrAnsw)
+
+        public Question(int id, string name, string text, string cat, QUESTION_TYPE type, List<string> answ, double points, List<int> corrAnsw, bool shared)
         {
             ID = id;
+            Name = name;
             Text = text;
+            Category = cat;
             QuestionType = type;
             Answers = answ;
+            Shared = shared;
             CorrectAnswers = corrAnsw;
             Points = points;
         }
 
-        
+        public void SetID(int id)
+        {
+            ID = id;
+        }
+
+        public int GetID()
+        {
+            return ID;
+        }
+
     }
 }

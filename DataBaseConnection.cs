@@ -63,6 +63,41 @@ namespace BD
             return list;
         }
 
+        public List<Question> ReturnQuestionList()
+        {
+            string query = "SELECT * FROM \"Question\"";
+            List<Question> list = new List<Question>();
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                var reader = com.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int id = reader.GetInt32("questionid");
+                    string name = reader.GetString("name");
+                    string cat = reader.GetString("category");
+                    string questionType = reader.GetString("questiontype");
+                    bool shared = reader.GetBoolean("shared");
+                    double points = reader.GetDouble("maxpoints");
+                    //int answer = reader.GetInt32("answerid");
+                    string text = reader.GetString("questiontext");
+
+                    var q = new Question(id, name, text, cat, Question.StringToType(questionType), new List<string>(), points, new List<int>(), shared);
+                    list.Add(q);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+                return list;
+            }
+
+            return list;
+        }
+
         public void AddUser(User user)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
@@ -143,27 +178,44 @@ namespace BD
             return user;
         }
 
-        public bool UpdateUser(User user)
+        public User UpdateUser(User user)
         {
             string query = string.Format("update \"User\" set \"login\" = '{0}', \"password\" = '{1}'," +
                 "\"email\" = '{2}', \"name\" = '{3}',\"surname\" = '{4}', \"role\" = '{5}' where \"userid\" = {6}",
                 user.Login, user.Password, user.Email, user.FirstName, user.LastName, user.UserType, user.GetID());
-            Debug.Print(query);
+            string queryEnd = string.Format("SELECT * FROM \"User\" WHERE \"userid\" = {0}", user.GetID());
+
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-            return false;
             try
             {
                 connection.Open();
                 using NpgsqlCommand com = new NpgsqlCommand(query, connection);
+                using NpgsqlCommand comEnd = new NpgsqlCommand(queryEnd, connection);
                 com.ExecuteNonQuery();
+                var reader = comEnd.ExecuteReader();
+
+                reader.Read(); // UBER IMPORTANT THINGY!!!!!!!!!!!!!!
+                int userID = 0;
+                string login, pass, email, fname, lname, type;
+                userID = reader.GetInt32(reader.GetOrdinal("userid"));
+                login = reader.GetString(reader.GetOrdinal("login"));
+                pass = reader.GetString(reader.GetOrdinal("password"));
+                email = reader.GetString(reader.GetOrdinal("email"));
+                fname = reader.GetString(reader.GetOrdinal("name"));
+                lname = reader.GetString(reader.GetOrdinal("surname"));
+                type = reader.GetString(reader.GetOrdinal("role"));
+                connection.Close();
+
+                user = new User(userID, login, pass, email, fname, lname, User.StringToType(type));
+
                 connection.Close();
             }
             catch
             {
                 Debug.Print("Connection failed");
-                return false;
+                return new User();
             }
-            return true;
+            return user;
         }
 
         private List<Dictionary<string, string>> getAllReaderUsers(NpgsqlDataReader r)

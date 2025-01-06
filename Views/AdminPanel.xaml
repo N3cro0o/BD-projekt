@@ -312,12 +312,12 @@
                         </Button.Template>
                         <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Modify existing user</TextBlock>
                     </Button>
-                    
-                    <Button x:Name="ustawSeName5" 
+
+                    <Button x:Name="ShowQuestionButton" 
                 Background="Black" Foreground="White" 
                 FontWeight="Bold" Margin="3" FontSize="10"
-                 Content="Przycisk3" Visibility="Hidden" >
-                        <!-- Ustawienie nie domyslnego sylu-->
+                Visibility="Visible" Click="ShowQuestions_Click">
+                        <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Show all questions</TextBlock>
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Grid>

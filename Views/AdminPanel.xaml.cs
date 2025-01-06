@@ -31,7 +31,7 @@ namespace BD.Views
 
         private void OnPanelSubmit(object sender, RoutedEventArgs e)
         {
-               
+
         }
 
         private void Goback_Click(object sender, RoutedEventArgs e)
@@ -49,14 +49,10 @@ namespace BD.Views
             _mv.AddNewUser(this);
         }
 
-        private void OnInputBox_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
         private void InputKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) {
+            if (e.Key == Key.Enter)
+            {
                 if (_mv.StepMethod != null)
                 {
                     EnterCounter++;
@@ -78,6 +74,11 @@ namespace BD.Views
         private void ModifyUser_Click(object sender, RoutedEventArgs e)
         {
             _mv.ModifyUser(this);
+        }
+
+        private void ShowQuestions_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ReturnAllQuestionsFromDB(this);
         }
     }
 }

@@ -48,10 +48,10 @@ namespace BD.ViewModels
                     case "user":
                         if (strings[2].ToLower() == "help" || strings[2].ToLower() == "h")
                         {
-                            parent.consoleScreen.Text = "Creates new user and insert them into database.\n\nHow it looks:\ncreate user <id> <login> <password> <email> <first name> <last name> <type>\nAccepted types:\n* Student\n* Teacher\n* Admin\n";
+                            parent.consoleScreen.Text = "Creates new user and insert them into database.\n\nHow it looks:\ncreate user <login> <password> <email> <first name> <last name> <type>\nAccepted types:\n* Student\n* Teacher\n* Admin\n";
                             break;
                         }
-                        if (_createUser(strings[2..strings.Count()].ToArray()))
+                        else if (_createUser(strings[2..strings.Count()].ToArray()))
                         {
                             var list = App.DBConnection.Login(strings[2], strings[3]);
                             parent.consoleScreen.Text = "";
@@ -65,7 +65,36 @@ namespace BD.ViewModels
             }
             if (strings[0].ToLower() == "show")
             {
-                ReturnAllUsersFromDB(parent);
+                switch (strings[1].ToLower())
+                {
+                    case "user":
+                        if (strings.Count < 3)
+                            break;
+
+                        if (strings[2].ToLower() == "all")
+                            ReturnAllUsersFromDB(parent);
+
+                        else if (strings[2] == "/id")
+                        {
+                            if (strings.Count != 4)
+                                break;
+                            int id = int.Parse(strings[3]);
+                            User user = App.DBConnection.GetUserByID(id);
+                            parent.consoleScreen.Text = "";
+                            _printUsers(parent, user);
+                        }
+                        else if (strings[2].ToLower() == "h" || strings[2].ToLower() == "help")
+                        {
+                            parent.consoleScreen.Text = "Shows users stored in database.\nshow user all - shows all users\nshow user /id <id> - shows users with desired id";
+                        }
+                        break;
+                    case "question":
+                        if (strings.Count < 3)
+                            break;
+                        if (strings[2].ToLower() == "all")
+                            ReturnAllQuestionsFromDB(parent);
+                        break;
+                }
             }
             if (strings[0].ToLower() == "remove")
             {
@@ -90,9 +119,9 @@ namespace BD.ViewModels
                                 " /l <login> /p <password> /e <email> /fn <first name> /ln <last name> /t <type>\n\nAccepted types:\n* Student\n* Teacher\n* Admin\n";
                             break;
                         }
-                        if (_modifyUser(strings[2..strings.Count()].ToArray()))
+                        else if (_modifyUser(parent, strings[2..strings.Count()].ToArray()))
                         {
-                            parent.consoleScreen.Text = "User updated";
+                            parent.consoleScreen.Text += "\n\nUser updated";
                         }
                         else
                         {
@@ -110,6 +139,40 @@ namespace BD.ViewModels
             parent.InputBox.Text = "";
         }
 
+        void _printUsers(AdminPanel parent, User user)
+        {
+            if (user != null)
+            {
+                parent.InputBox.Text = "";
+                parent.consoleScreen.Text += string.Format("Users:\nID: {0}, Login: {1}, Email: {2}, First name: {3}, Last name {4}, Type: {5}\n",
+                    user.GetID(), user.Login, user.Email, user.FirstName, user.LastName, user.UserType);
+            }
+        }
+        void _printUsers(AdminPanel parent, User[] users)
+        {
+            foreach (User user in users)
+            {
+                _printUsers(parent, user);
+            }
+        }
+        void _printUsers(AdminPanel parent, List<Dictionary<string, string>> list)
+        {
+            foreach (var item in list)
+            {
+                parent.consoleScreen.Text += ("ID: " + item["id"] + ", User: " + item["login"] + ", Email: " + item["email"] + ", First name: " + item["firstName"] + ", Last name: " + item["lastName"] + ", Type: " + item["role"] + "\n\n");
+            }
+        }
+
+        void _printQuestions(AdminPanel parent, List<Question> list)
+        {
+            parent.InputBox.Text = "";
+            parent.consoleScreen.Text = "";
+            foreach (Question q in list)
+            {
+                parent.consoleScreen.Text += string.Format("ID: {0}, Name: {1}, Category: {3}, Question type {4}\n Text: {2}\n",
+                    q.GetID(), q.Name, q.Text, q.Category, q.QuestionType);
+            }
+        }
         bool _createUser(string[] data)
         {
             if (data.Length != 6)
@@ -131,7 +194,7 @@ namespace BD.ViewModels
             return true;
         }
 
-        bool _modifyUser(string[] data) // for now it's only by id
+        bool _modifyUser(AdminPanel parent, string[] data) // for now it's only by id
         {
             Debug.Print(data.Length.ToString());
             int id = -1;
@@ -181,7 +244,10 @@ namespace BD.ViewModels
             if (log != "")
                 user.UserType = User.StringToType(type);
 
-            App.DBConnection.UpdateUser(user);
+            user = App.DBConnection.UpdateUser(user);
+
+            parent.consoleScreen.Text = "";
+            _printUsers(parent, user);
 
             return true;
         }
@@ -195,10 +261,14 @@ namespace BD.ViewModels
         {
             var list = App.DBConnection.ReturnUsersList();
             parent.consoleScreen.Text = "";
-            foreach (var item in list)
-            {
-                parent.consoleScreen.Text += ("ID: " + item["id"] + ", User: " + item["login"] + ", Email: " + item["email"] + ", First name: " + item["firstName"] + ", Last name: " + item["lastName"] + ", Type: " + item["role"] + "\n\n");
-            }
+            _printUsers(parent, list);
+        }
+
+        public void ReturnAllQuestionsFromDB(AdminPanel parent)
+        {
+            var list = App.DBConnection.ReturnQuestionList();
+            parent.consoleScreen.Text = "";
+            _printQuestions(parent, list);
         }
 
         public void DeleteUser(AdminPanel parent)
@@ -322,7 +392,7 @@ namespace BD.ViewModels
                     break;
                 case 7:
                     strings.Add(parent.InputBox.Text);
-                    _modifyUser(strings.ToArray());
+                    _modifyUser(parent, strings.ToArray());
 
                     StepMethod = null;
                     parent.InputBox.Text = "";
