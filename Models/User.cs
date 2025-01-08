@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace BD.Models
 {
@@ -102,6 +103,11 @@ namespace BD.Models
         public User()
         {
             
+        }
+
+        public void DebugPrintUser()
+        {
+            Debug.Print("ID {0}, Login {1}, First Name {4}, Last Name {5}\nPassword {2}, Email {3}, Type {6}", ID, Login, Password, Email, FirstName, LastName, UserType.ToString());
         }
 
         public void SetID(int id)

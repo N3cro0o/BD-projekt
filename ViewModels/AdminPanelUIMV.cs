@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics.PerformanceData;
+using System.Diagnostics;
 
 namespace BD.ViewModels
 {
@@ -28,8 +29,14 @@ namespace BD.ViewModels
 
         public void ReturnAllUsersFromDB(AdminPanelUI parent)
         {
-            parent.mainTitle.Text = "User List";
-            
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "User list";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+
+
             // Tworzymy DataGrid
             DataGrid myDataGrid = new DataGrid
             {
@@ -114,29 +121,128 @@ namespace BD.ViewModels
             Grid.SetRow(myDataGrid, 1);
         }
 
-        /*
-            INSERT INTO "User"(login, name, surname, email, password, role)
-            VALUES
-            ('Domino', 'Dominik', 'Filipiak', 'kfclover@gmail.kom', 'ColonelSanders', 'uczen')
-         */
-        public void AddNewUser(object sender, RoutedEventArgs e)
+        // Add error handling
+        public void AddNewUser(AdminPanelUI parent)
         {
-            var user = new User(0, "Domino", "ColonelSanders", "kcflover@gmail.kom", "Dominik", "Filipiak", User.TYPE.Student);
-            App.DBConnection.AddUser(user);
-            MessageBox.Show($"Dodawanie uzytkownika");
+            Debug.Print(parent.type.ToString());
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "Create new User";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+            parent.args = new List<string>([ "", "", "", "", ""]);
+            var stacking_panel = new StackPanel();
+            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+            parent.outputGrid.Children.Add(stacking_panel);
+
+            // Login
+            // Email
+            // FName
+            // LName
+            // Password
+            // Type
+            var text = new TextBlock();
+            text.Text = "Login";
+            stacking_panel.Children.Add(text);
+
+            var input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Email";
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "First name";
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Last name";
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Password";
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Type";
+            stacking_panel.Children.Add(text);
+
+            var radio_panel = new StackPanel();
+            radio_panel.Orientation = Orientation.Horizontal;
+            radio_panel.HorizontalAlignment = HorizontalAlignment.Center;
+            var radio = new RadioButton();
+            radio.Content = "Student";
+            radio.Click += (o, e) =>
+            {
+                if (o.GetType() == typeof(RadioButton))
+                {
+                    parent.type = User.TYPE.Student;
+                }
+            };
+            radio_panel.Children.Add(radio);
+            radio = new RadioButton();
+            radio.Content = "Teacher";
+            radio.Click += (o, e) =>
+            {
+                if (o.GetType() == typeof(RadioButton))
+                {
+                    parent.type = User.TYPE.Teacher;
+                }
+            };
+            radio_panel.Children.Add(radio);
+            radio = new RadioButton();
+            radio.Content = "Admin";
+            radio.Click += (o, e) =>
+            {
+                if (o.GetType() == typeof(RadioButton))
+                {
+                    parent.type = User.TYPE.Admin;
+                }
+            };
+            radio_panel.Children.Add(radio);
+            stacking_panel.Children.Add(radio_panel);
+            // Submit
+            Button bttn = new Button();
+            bttn.Content = "Submit";
+            bttn.Click += (o, e) =>
+            {
+                var login = stacking_panel.Children[1] as TextBox;
+                var email = stacking_panel.Children[3] as TextBox;
+                var fname = stacking_panel.Children[5] as TextBox;
+                var lname = stacking_panel.Children[7] as TextBox;
+                var pass = stacking_panel.Children[9] as TextBox;
+
+                // Check for more mistakes
+                if (login != null && email != null && pass != null && fname != null && lname != null)
+                {
+
+
+                    User u = new User(0, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
+                    u.DebugPrintUser();
+                    App.DBConnection.AddUser(u);
+                }
+            };
+            stacking_panel.Children.Add(bttn);
         }
-        public void AddNewCours(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show($"Dodawanie kursu");
-        }
-        public void AddNewQuestion(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show($"Dodawanie pytania");
-        }
+
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
         {
             parent.mainTitle.Text = "Courses List";
-            
+
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false, // Ręczne tworzenie kolumn
@@ -181,7 +287,7 @@ namespace BD.ViewModels
         public void ShowMenu(AdminPanelUI parent)
         {
 
-            if (showMenu==false)
+            if (showMenu == false)
             {
                 parent.showToolBox.SetValue(Grid.ColumnProperty, 0);
                 showMenu = true;
@@ -194,21 +300,21 @@ namespace BD.ViewModels
                 showMenu = false;
                 parent.menuColumn.Width = new System.Windows.GridLength(0, GridUnitType.Star);
             }
-            
+
         }
         public void ShowAllStatistics(AdminPanelUI parent)
         {
             parent.mainTitle.Text = "Statistics";
-            
-            
+
+
 
         }
         public void ShowAllQusetions(AdminPanelUI parent)
         {
             parent.mainTitle.Text = "Questions";
-            
+
         }
-        
-        
+
+
     }
 }

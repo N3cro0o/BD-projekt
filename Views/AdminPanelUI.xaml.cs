@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BD.Models;
 using BD.ViewModels;
 
 namespace BD.Views
@@ -20,6 +21,10 @@ namespace BD.Views
     public partial class AdminPanelUI : UserControl
     {
         private readonly AdminPanelUIMV _mv;
+
+        public List<string> args = new List<string>();
+        public User.TYPE type;
+
         public AdminPanelUI()
         {
             InitializeComponent();
@@ -47,11 +52,6 @@ namespace BD.Views
             _mv.ReturnAllCoursesFromDB(this);
         }
 
-        private void OnInputBox_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
         private void ShowMenu_Click(object sender, RoutedEventArgs e)
         {
             _mv.ShowMenu(this);
@@ -65,6 +65,11 @@ namespace BD.Views
         private void ShowAllQuestions_Click(object sender, RoutedEventArgs e)
         {
             _mv.ShowAllQusetions(this);
+        }
+
+        private void CreateNewUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewUser(this);
         }
     }
 }

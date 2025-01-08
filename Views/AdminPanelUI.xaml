@@ -13,9 +13,6 @@
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="3*"/>
-            
-            
-            
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -28,20 +25,16 @@
         </Grid.RowDefinitions>
         <Border CornerRadius="0" Background="#333" Margin="0" 
                 Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Grid.RowSpan="1">
-
-
             <TextBlock Text="Admin Panel" TextWrapping="WrapWithOverflow" 
                            FontSize="20" TextAlignment="Left" FontWeight="Bold"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Padding="10" Margin="10" Foreground="White">
-               
-            </TextBlock>
-            
 
+            </TextBlock>
         </Border>
         <Border CornerRadius="0" Background="#82827d" Margin="0" 
                 Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Grid.RowSpan="5">
-            <Grid x:Name="outputGrid">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="35" />
                     <RowDefinition Height="*" />
@@ -51,7 +44,9 @@
                            HorizontalAlignment="Left" VerticalAlignment="Center"
                            Padding="5" Margin="5" >
                 </TextBlock>
-
+                <Grid Grid.Row="1" x:Name="outputGrid">
+                    
+                </Grid>
             </Grid>
         </Border>
         <Border CornerRadius="0" Background="#434343" Margin="0" 
@@ -60,7 +55,7 @@
                 <UniformGrid  Grid.Row="1" Rows="3" Columns="1" >
                     <Button x:Name="buttonShowAllUsers" 
                             Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="3" FontSize="10" Height="25"
+                            FontWeight="Bold" Margin="10,3,10,0" FontSize="10" Height="25"
                             Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
@@ -86,9 +81,40 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
+
+                    <Button x:Name="buttonAddUser" 
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="10,3,10,0" FontSize="10" Height="25"
+                        Content="Add new user" Visibility="Visible" Click="CreateNewUser_Click">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+
+                                    </Trigger>
+
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Separator/>
                     <Button x:Name="buttonCourses" 
                     Background="Black" Foreground="White" 
-                    FontWeight="Bold" Margin="3" FontSize="10" Height="25"
+                    FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
                      Content="Courses" Visibility="Visible" Click="ShowAllCourses_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
@@ -115,7 +141,7 @@
                     </Button>
                     <Button x:Name="buttonQuestionPool" 
                             Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="3" FontSize="10" Height="25"
+                            FontWeight="Bold" Margin="10,3" FontSize="10" Height="25"
                              Content="Questions Pool" Visibility="Visible" Click="ShowAllQuestions_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
