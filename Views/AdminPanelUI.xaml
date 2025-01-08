@@ -52,6 +52,80 @@
                            Padding="5" Margin="5" >
                 </TextBlock>
 
+                <DataGrid x:Name="UserTable" Grid.Row="1"
+                          AutoGenerateColumns="True"
+                          HeadersVisibility="Column" 
+                          Margin="10" Visibility="Hidden"
+                          Background="#82827d" RowBackground="#82827d">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <!-- Kolory -->
+                            <Setter Property="Background" Value="#434343" />
+                            <!-- Tło nagłówków -->
+                            <Setter Property="Foreground" Value="White" />
+                            <!-- Tekst nagłówków -->
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <!-- Pogrubiony tekst -->
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <!-- Wyśrodkowanie tekstu -->
+                            <Setter Property="Height" Value="30" />
+                            <!-- Wysokość nagłówka -->
+
+                            <!-- Zmiana koloru najechania myszką -->
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridColumnHeader">
+                                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="Gray" BorderThickness="1">
+                                            <TextBlock Text="{TemplateBinding Content}" 
+                                       Foreground="{TemplateBinding Foreground}" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    
+                    
+                </DataGrid>
+                <DataGrid x:Name="CoursesTable" Grid.Row="1"
+          AutoGenerateColumns="True"
+          HeadersVisibility="Column" 
+          Margin="10" Visibility="Hidden"
+          Background="#82827d" RowBackground="#82827d">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <!-- Kolory -->
+                            <Setter Property="Background" Value="#434343" />
+                            <!-- Tło nagłówków -->
+                            <Setter Property="Foreground" Value="White" />
+                            <!-- Tekst nagłówków -->
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <!-- Pogrubiony tekst -->
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <!-- Wyśrodkowanie tekstu -->
+                            <Setter Property="Height" Value="30" />
+                            <!-- Wysokość nagłówka -->
+
+                            <!-- Zmiana koloru najechania myszką -->
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridColumnHeader">
+                                        <Border Background="{TemplateBinding Background}" 
+                BorderBrush="Gray" BorderThickness="1">
+                                            <TextBlock Text="{TemplateBinding Content}" 
+                       Foreground="{TemplateBinding Foreground}" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    
+                    
+                </DataGrid>
             </Grid>
         </Border>
         <Border CornerRadius="0" Background="#434343" Margin="0" 
