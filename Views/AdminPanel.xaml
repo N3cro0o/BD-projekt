@@ -216,7 +216,7 @@
                         </Button.Template>
                         <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Insert new user</TextBlock>
                     </Button>
-                    
+
                     <Button x:Name="DeleteUserButton" 
                     Background="Black" Foreground="White" Click="DeleteUser_Click"
                     FontWeight="Bold" Margin="3" FontSize="10"
@@ -264,7 +264,7 @@
                         </Button.Template>
                         <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Remove user</TextBlock>
                     </Button>
-                    
+
                     <Button x:Name="ModifyUserButton" 
                     Background="Black" Foreground="White" Click="ModifyUser_Click"
                     FontWeight="Bold" Margin="3" FontSize="10"
@@ -314,10 +314,11 @@
                     </Button>
 
                     <Button x:Name="ShowQuestionButton" 
-                Background="Black" Foreground="White" 
-                FontWeight="Bold" Margin="3" FontSize="10"
-                Visibility="Visible" Click="ShowQuestions_Click">
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="3" FontSize="10"
+                        Visibility="Visible" Click="ShowQuestions_Click">
                         <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Show all questions</TextBlock>
+
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Grid>
@@ -359,7 +360,62 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    
+
+                    <Button x:Name="AddQuestionButton" 
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="3" FontSize="10"
+                        Visibility="Visible" Click="AddNewQuestion_Click">
+                        <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Add new question</TextBlock>
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Menu item 1" />
+                                <MenuItem Header="Menu item 2" />
+                                <Separator />
+                                <MenuItem Header="Menu item 3" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <!-- Zewnętrzna ramka -->
+                                    <Border x:Name="bigBorder" Background="Black" CornerRadius="10" Padding="5">
+                                        <!-- Wewnętrzny element zmieniający tło -->
+                                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter TargetName="bigBorder" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+
+                                    </Trigger>
+                                    <!-- Zmiana po nacisniencu -->
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background" Value="#434343"/>
+                                        <Setter TargetName="bigBorder" Property="Background" Value="Black"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
                     <Button x:Name="ustawSeName3" 
                 Background="Black" Foreground="White" 
                 FontWeight="Bold" Margin="3" FontSize="10"

@@ -41,6 +41,7 @@ namespace BD.Views
                     // Visible buttons
                     logoffButton.Visibility = Visibility.Visible;
                     adminPanelButton.Visibility = Visibility.Visible;
+                    adminPanelV2Button.Visibility = Visibility.Visible;
                 }
                 else
                 {
@@ -48,6 +49,7 @@ namespace BD.Views
                     // Collapsed buttons
                     logoffButton.Visibility = Visibility.Collapsed;
                     adminPanelButton.Visibility = Visibility.Collapsed;
+                    adminPanelV2Button.Visibility = Visibility.Collapsed;
                 }
             }
         }
@@ -60,7 +62,7 @@ namespace BD.Views
 
         private void GoToAdminPanel_Click(object sender, RoutedEventArgs e)
         {
-            _mv.GoToAdminPanel();
+            _mv.GoToAdminConsole();
         }
 
         private void GoToLogin_Click(object sender, RoutedEventArgs e)
@@ -68,6 +70,9 @@ namespace BD.Views
             _mv.GoToLogin();
         }
 
-
+        private void GoToAdminPanelV2_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.GoToAdminPanel();
+        }
     }
 }

@@ -63,6 +63,35 @@ namespace BD
             return list;
         }
 
+        public List<User> ReturnUsersListOfUsers()
+        {
+            string query = "SELECT * FROM \"User\"";
+            List<Dictionary<string, string>> list_reader = new List<Dictionary<string, string>>();
+            List<User> list_user = new List<User>();
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return list_user;
+            }
+            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
+            using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
+
+            list_reader = getAllReaderUsers(reader);
+
+            foreach (var d in list_reader)
+            {
+                var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], User.StringToType(d["role"]));
+                list_user.Add(user);
+            }
+
+            return list_user;
+        }
+
         public List<Question> ReturnQuestionList()
         {
             string query = "SELECT * FROM \"Question\"";
@@ -85,7 +114,7 @@ namespace BD
                     //int answer = reader.GetInt32("answerid");
                     string text = reader.GetString("questiontext");
 
-                    var q = new Question(id, name, text, cat, Question.StringToType(questionType), new List<string>(), points, new List<int>(), shared);
+                    var q = new Question(name, text, Question.StringToType(questionType), new List<string>(), points, new List<int>(), cat, shared, id);
                     list.Add(q);
                 }
             }
@@ -119,6 +148,16 @@ namespace BD
             {
                 connection.Close();
             }
+        }
+
+        public void AddTest(Test test)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+
+            string query_answer = "INSERT INTO \"Answer\"";
+
+            //string query_question = "INSERT INTO \"Question\"(name, category, questiontype, shared, password, role) VALUES ";
+            //query_question += string.Format("(\'{0}\', \'{1}\', \'{2}\', \'{3}\', \'{4}\', \'{5}\')", user.Login, user.FirstName, user.LastName, user.Email, user.Password, user.UserType);
         }
 
         public bool RemoveUser(int id)

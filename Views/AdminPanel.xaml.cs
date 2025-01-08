@@ -80,5 +80,10 @@ namespace BD.Views
         {
             _mv.ReturnAllQuestionsFromDB(this);
         }
+
+        private void AddNewQuestion_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewQuestion(this);
+        }
     }
 }

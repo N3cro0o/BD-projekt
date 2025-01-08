@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 
 namespace BD.Models
@@ -47,7 +48,7 @@ namespace BD.Models
 
         int ID;
 
-        public Question(int id, string name, string text, string cat, QUESTION_TYPE type, List<string> answ, double points, List<int> corrAnsw, bool shared)
+        public Question(string name, string text, QUESTION_TYPE type, List<string> answ, double points, List<int> corrAnsw, string cat = "unknown", bool shared = false, int id = 0)
         {
             ID = id;
             Name = name;
@@ -58,6 +59,11 @@ namespace BD.Models
             Shared = shared;
             CorrectAnswers = corrAnsw;
             Points = points;
+        }
+
+        public void PrintQuestionOnConsole()
+        {
+            Debug.Print(string.Format("ID {0}, Name {1}\nText {2}\nAnswer count {3}, real answ count {4}, type {5}", ID, Name, Text, Answers.Count, CorrectAnswers.Count, QuestionType.ToString()));
         }
 
         public void SetID(int id)

@@ -42,7 +42,13 @@ namespace BD.Models
         string[] names = { "Staszek", "Mathew" , "Franio", "Domino", "Karol"};
 
         [JsonInclude]
-        int? ID;
+        int _id;
+
+        public int ID
+        {
+            get { return GetID(); }
+            set { SetID(value); }
+        }
 
         [JsonInclude]
         string? login;
@@ -100,11 +106,11 @@ namespace BD.Models
 
         public void SetID(int id)
         {
-            ID = id;
+            _id = id;
         }
-        public int? GetID()
+        public int GetID()
         {
-            return ID;
+            return _id;
         }
 
         public bool CorrectLoginData(string login, string pass)
