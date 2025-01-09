@@ -163,6 +163,29 @@ namespace BD.ViewModels
                                 ReturnAllCoursesFromDB(parent);
                             }
                             break;
+
+                        case "test":
+                        case "t":
+                            if (strings.Count < 3)
+                            {
+                                parent.consoleScreen.Text = "Not enough params";
+                                break;
+                            }
+                            else if (strings[2].ToLower() == "all")
+                            {
+                                ReturnAllTestsFromDB(parent);
+                            }
+                            else if (strings[2].ToLower() == "/id")
+                            {
+                                if (strings.Count < 4)
+                                {
+                                    parent.consoleScreen.Text = "Not enough params";
+                                    break;
+                                }
+                                int id = int.Parse(strings[3]);
+                                ReturnAllTestsFromDB(parent, id);
+                            }
+                            break;
                     }
                     break;
 
@@ -266,6 +289,7 @@ namespace BD.ViewModels
                     q.GetID(), q.Name, q.Text, q.Category, q.QuestionType);
             }
         }
+        
         void _printCourses(AdminPanel parent, List<Course> list)
         {
             parent.InputBox.Text = "";
@@ -273,6 +297,16 @@ namespace BD.ViewModels
             foreach (Course c in list)
             {
                 parent.consoleScreen.Text += $"ID: {c.ID}, Name: {c.Name}, Category: {c.Category}, Description: {c.Description}, Teacher: {c.Teachers[0].FirstName} {c.Teachers[0].LastName}\n";
+            }
+        }
+        
+        void _printTests(AdminPanel parent, List<Test> list)
+        {
+            parent.InputBox.Text = "";
+            parent.consoleScreen.Text = "";
+            foreach (Test t in list)
+            {
+                parent.consoleScreen.Text += $"ID: {t.ID}, Name: {t.Name}, Category: {t.Category}, Course: {t.CourseID}, Start date: {t.StartDate.ToLocalTime()}, Start date: {t.EndDate.ToLocalTime()}\n\n";
             }
         }
 
@@ -516,6 +550,22 @@ namespace BD.ViewModels
             var list = App.DBConnection.ReturnCoursesList();
             parent.consoleScreen.Text = "";
             _printCourses(parent, list);
+        }
+        
+        public void ReturnAllTestsFromDB(AdminPanel parent, int id = -1)
+        {
+            if (id == -1)
+            {
+                var list = App.DBConnection.ReturnTestsList();
+                parent.consoleScreen.Text = "";
+                _printTests(parent, list);
+            }
+            else
+            {
+                var list = App.DBConnection.ReturnCourseTestsList(id);
+                parent.consoleScreen.Text = "";
+                _printTests(parent, list);
+            }
         }
 
         public void DeleteUser(AdminPanel parent)

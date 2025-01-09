@@ -196,6 +196,56 @@ namespace BD
             return list;
         }
 
+        public List<Test> ReturnTestsList()
+        {
+            var list = new List<Test>();
+            string query = "SELECT * FROM \"Test\" ORDER BY testid";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    var t = new Test(r.GetInt32(0), r.GetString(1), r.GetInt32(5), new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
+                    list.Add(t);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+
+            return list;
+        }
+
+        public List<Test> ReturnCourseTestsList(int id)
+        {
+            var list = new List<Test>();
+            string query = $"SELECT * FROM \"Test\" WHERE courseid = '{id}' ORDER BY testid";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    var t = new Test(r.GetInt32(0), r.GetString(1), r.GetInt32(5), new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
+                    list.Add(t);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+
+            return list;
+        }
+
         Answer FetchAnswer(int id)
         {
             Answer answer = null;

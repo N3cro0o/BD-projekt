@@ -9,30 +9,40 @@ namespace BD.Models
 {
     public class Test
     {
-        [JsonInclude]
-        int ID { get; set; }
+        int _id;
 
-        [JsonInclude]
         List<int> Questions { get; set; } = new List<int>();
 
         public DateTime StartDate { get; set; }
 
         public DateTime EndDate { get; set; }
 
-        public int Category { get; set; }
-
-        [JsonInclude]
+        public string Category { get; set; }
+        
         List<Answer> Answers { get; set; } = new List<Answer>();
 
-        [JsonInclude]
-        int Course { get; set; }
-        
-        int CurrentQuestion = 0;
+        public int CourseID { get; set; }
 
-        public Test(int id, List<int> quest, DateTime start, DateTime end, int cat)
+        public string Name { get; set; } = "";
+
+        public int ID { get => _id; set => _id = value; }
+
+        public Test(int id, string name, int courseID, List<int> quest, DateTime start, DateTime end, string cat)
         {
             ID = id;
+            CourseID = courseID;
             Questions = quest;
+            StartDate = start;
+            Name = name;
+            EndDate = end;
+            Category = cat;
+        }
+
+        public Test (int courseID, string cat, DateTime start, DateTime end)
+        {
+            ID = 0;
+            CourseID = courseID;
+            Questions = new List<int>();
             StartDate = start;
             EndDate = end;
             Category = cat;
