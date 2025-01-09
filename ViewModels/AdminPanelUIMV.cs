@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BD.Models;
+﻿using BD.Models;
 using BD.Views;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Diagnostics.PerformanceData;
 using System.Diagnostics;
 
 namespace BD.ViewModels
@@ -72,21 +65,28 @@ namespace BD.ViewModels
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Name",
+                Header = "Passy",
+                Binding = new System.Windows.Data.Binding("Password"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "First Name",
                 Binding = new System.Windows.Data.Binding("FirstName"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Second Name",
+                Header = "Last Name",
                 Binding = new System.Windows.Data.Binding("LastName"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Role",
+                Header = "User role",
                 Binding = new System.Windows.Data.Binding("UserType"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
@@ -102,13 +102,30 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is User user)
                 {
-                    MessageBox.Show($"User ID: {user.ID}\n");
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {user.Login}?",
+                            "Remove user",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveUser(user.ID);
+                        MessageBox.Show($"User has been removed.");
+                        ReturnAllUsersFromDB(parent);
+                    }
                 }
             };
             context.Items.Add(item);
             context.Items.Add(new Separator());
             item = new MenuItem { Header = "Add new User" };
-            // Click event
+            item.Click += (s, e) => // LAMBDA SUPREMACY
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    AddNewUser(parent);
+                }
+            };
             context.Items.Add(item);
 
             var style = new Style(typeof(DataGridRow));
@@ -116,6 +133,7 @@ namespace BD.ViewModels
             myDataGrid.RowStyle = style;
 
             var list = App.DBConnection.ReturnUsersListOfUsers();
+            list[0].DebugPrintUser();
             myDataGrid.ItemsSource = list;
             parent.outputGrid.Children.Add(myDataGrid);
             Grid.SetRow(myDataGrid, 1);
@@ -131,7 +149,6 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
-            parent.args = new List<string>([ "", "", "", "", ""]);
             var stacking_panel = new StackPanel();
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
             parent.outputGrid.Children.Add(stacking_panel);
@@ -229,61 +246,21 @@ namespace BD.ViewModels
                 // Check for more mistakes
                 if (login != null && email != null && pass != null && fname != null && lname != null)
                 {
-
-
                     User u = new User(0, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
                     u.DebugPrintUser();
-                    App.DBConnection.AddUser(u);
+                    if (App.DBConnection.AddUser(u))
+                    {
+                        ReturnAllUsersFromDB(parent);
+                    }
+                    else
+                    {   // Add error handling
+                        pass.Text = "";
+                    }
                 }
             };
             stacking_panel.Children.Add(bttn);
         }
 
-        public void ReturnAllCoursesFromDB(AdminPanelUI parent)
-        {
-            parent.mainTitle.Text = "Courses List";
-
-            DataGrid myDataGrid = new DataGrid
-            {
-                AutoGenerateColumns = false, // Ręczne tworzenie kolumn
-                Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
-            };
-
-            myDataGrid.Columns.Add(new DataGridTextColumn
-            {
-                Header = "Cours Name",
-                Binding = new System.Windows.Data.Binding("Login"),
-                Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-            });
-
-            myDataGrid.Columns.Add(new DataGridTextColumn
-            {
-                Header = "Cattegory",
-                Binding = new System.Windows.Data.Binding("Email"),
-                Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-            });
-
-            myDataGrid.Columns.Add(new DataGridTextColumn
-            {
-                Header = "Owner",
-                Binding = new System.Windows.Data.Binding("FirstName"),
-                Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-            });
-
-            myDataGrid.Columns.Add(new DataGridTextColumn
-            {
-                Header = "Description",
-                Binding = new System.Windows.Data.Binding("LastName"),
-                Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-            });
-
-            parent.outputGrid.Children.Add(myDataGrid);
-            Grid.SetRow(myDataGrid, 1);
-        }
         public void ShowMenu(AdminPanelUI parent)
         {
 
@@ -302,19 +279,120 @@ namespace BD.ViewModels
             }
 
         }
-        public void ShowAllStatistics(AdminPanelUI parent)
-        {
-            parent.mainTitle.Text = "Statistics";
 
-
-
-        }
         public void ShowAllQusetions(AdminPanelUI parent)
         {
-            parent.mainTitle.Text = "Questions";
+            parent.mainTitle.Text = "Create new User";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+
+            // Tworzymy DataGrid
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false, // Ręczne tworzenie kolumn
+                Margin = new Thickness(10),
+                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
+                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
+                BorderThickness = new Thickness(2),
+                BorderBrush = System.Windows.Media.Brushes.Black
+            };
+
+            // Dodanie kolumn
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Name",
+                Binding = new System.Windows.Data.Binding("Name"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Question text",
+                Binding = new System.Windows.Data.Binding("Text"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Question category",
+                Binding = new System.Windows.Data.Binding("Category"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Points",
+                Binding = new System.Windows.Data.Binding("Points"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Shared",
+                Binding = new System.Windows.Data.Binding("Shared"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+            DataGridTemplateColumn actionColumn = new DataGridTemplateColumn
+            {
+                Header = "Action",
+                Width = new DataGridLength(10, DataGridLengthUnitType.Star)
+            };
+            var context = new ContextMenu();
+            var item = new MenuItem { Header = "Delete Question" };
+            item.Click += (s, e) => // LAMBDA SUPREMACY
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    MessageBox.Show("Nah");
+                    //MessageBoxResult result = MessageBox.Show(
+                    //        $"Do you want to remove: {user.Login}?",
+                    //        "Remove user",
+                    //        MessageBoxButton.YesNo,
+                    //        MessageBoxImage.Warning
+                    //    );
+                    //if (result == MessageBoxResult.Yes)
+                    //{
+                    //    App.DBConnection.RemoveUser(user.ID);
+                    //    MessageBox.Show($"User has been removed.");
+                    //    ReturnAllUsersFromDB(parent);
+                    //}
+                }
+            };
+            context.Items.Add(item);
+            context.Items.Add(new Separator());
+            item = new MenuItem { Header = "Add new User" };
+            item.Click += (s, e) => // LAMBDA SUPREMACY
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    AddNewUser(parent);
+                }
+            };
+            context.Items.Add(item);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+            myDataGrid.RowStyle = style;
+
+            var list = App.DBConnection.ReturnQuestionList();
+            myDataGrid.ItemsSource = list;
+            parent.outputGrid.Children.Add(myDataGrid);
+            Grid.SetRow(myDataGrid, 1);
 
         }
 
+        public void AddNewQuestion(AdminPanelUI parent)
+        {
 
+        }
     }
 }

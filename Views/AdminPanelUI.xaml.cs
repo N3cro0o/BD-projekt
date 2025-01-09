@@ -22,19 +22,13 @@ namespace BD.Views
     {
         private readonly AdminPanelUIMV _mv;
 
-        public List<string> args = new List<string>();
         public User.TYPE type;
 
         public AdminPanelUI()
         {
             InitializeComponent();
-
             _mv = App.Current.MainWindow.DataContext as AdminPanelUIMV;
-        }
-
-        private void OnPanelSubmit(object sender, RoutedEventArgs e)
-        {
-               
+            _mv.ShowMenu(this);
         }
 
         private void Goback_Click(object sender, RoutedEventArgs e)
@@ -49,17 +43,12 @@ namespace BD.Views
 
         private void ShowAllCourses_Click(object sender, RoutedEventArgs e)
         {
-            _mv.ReturnAllCoursesFromDB(this);
+            //_mv.ReturnAllCoursesFromDB(this);
         }
 
         private void ShowMenu_Click(object sender, RoutedEventArgs e)
         {
             _mv.ShowMenu(this);
-        }
-
-        private void ShowAllStatistics_Click(object sender, RoutedEventArgs e)
-        {
-            _mv.ShowAllStatistics(this);
         }
 
         private void ShowAllQuestions_Click(object sender, RoutedEventArgs e)
@@ -70,6 +59,11 @@ namespace BD.Views
         private void CreateNewUser_Click(object sender, RoutedEventArgs e)
         {
             _mv.AddNewUser(this);
+        }
+
+        private void AddQuestion_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewQuestion(this);
         }
     }
 }

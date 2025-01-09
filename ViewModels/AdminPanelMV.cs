@@ -225,8 +225,9 @@ namespace BD.ViewModels
         {
             bool answ_read_check = false;
             string name = "", text = "", cat = "", type = "", points = "";
-            List<string> answ = new List<string>();
-            List<int> corrAnsw = new List<int>();
+            string answ = "";
+            int answer_shift = 3;
+            int corrAnsw = 0;
             for (int i = 0; i < data.Length; i++)
             {
                 switch (data[i])
@@ -263,16 +264,17 @@ namespace BD.ViewModels
                         string s = data[i];
                         if (s.StartsWith("\"", StringComparison.CurrentCulture))
                         {
-                            answ.Add(s.Substring(1, s.Length - 2));
+                            answ += s.Substring(1, s.Length - 2);
                         }
                         else
                         {
-                            corrAnsw.Add(int.Parse(s));
+                            corrAnsw += int.Parse(s) << answer_shift;
+                            answer_shift--;
                         }
                         break;
                 }
             }
-            if (text.Length > 0 && name.Length > 0 && points.Length > 0 && type.Length > 0 && answ.Count == corrAnsw.Count && answ.Count > 0)
+            if (text.Length > 0 && name.Length > 0 && points.Length > 0 && type.Length > 0 && answ.Length > 0)
             {
                 double d = double.Parse(points, CultureInfo.InvariantCulture);
                 Question q;
@@ -281,6 +283,7 @@ namespace BD.ViewModels
                 else
                     q = new Question(name, text, Question.StringToType(type), answ, d, corrAnsw);
                 q.PrintQuestionOnConsole();
+                App.DBConnection.AddQuestion(q);
                 return true;
             }
             return false;

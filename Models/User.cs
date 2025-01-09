@@ -40,7 +40,7 @@ namespace BD.Models
             }
         }
 
-        string[] names = { "Staszek", "Mathew" , "Franio", "Domino", "Karol"};
+        string[] names = { "Staszek", "Mathew", "Franio", "Domino", "Karol" };
 
         [JsonInclude]
         int _id;
@@ -51,21 +51,18 @@ namespace BD.Models
             set { SetID(value); }
         }
 
-        [JsonInclude]
         string? login;
 
-        [JsonInclude]
         string? password;
 
-        [JsonInclude]
-        public string? FirstName;
+        string _firstName = "";
 
-        public string? LastName;
+        string _lastName = "";
 
         [JsonInclude]
         string? email;
 
-        public TYPE UserType = TYPE.Guest;
+        TYPE _userType = TYPE.Guest;
 
         [JsonInclude]
         List<int> Courses = new List<int>();
@@ -89,6 +86,24 @@ namespace BD.Models
             set => email = value;
         }
 
+        public string FirstName
+        {
+            get => _firstName;
+            set => _firstName = value;
+        }
+
+        public string LastName
+        {
+            get => _lastName;
+            set => _lastName = value;
+        }
+
+        public TYPE UserType 
+        { 
+            get => _userType; 
+            set => _userType = value;
+        }
+
         public User(int id, string login, string pass, string email, string fName, string lName, TYPE type = TYPE.Guest)
         {
             ID = id;
@@ -102,7 +117,7 @@ namespace BD.Models
 
         public User()
         {
-            
+
         }
 
         public void DebugPrintUser()
@@ -128,7 +143,7 @@ namespace BD.Models
 
         public void SetToken(string token)
         {
-            if (token != null) 
+            if (token != null)
                 Token = token;
         }
     }

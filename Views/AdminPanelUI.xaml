@@ -112,10 +112,10 @@
                     </Button>
 
                     <Separator/>
-                    <Button x:Name="buttonCourses" 
+                    <Button x:Name="ShowAllCoursesButton" 
                     Background="Black" Foreground="White" 
                     FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
-                     Content="Courses" Visibility="Visible" Click="ShowAllCourses_Click">
+                     Content="Show all courses" Visibility="Visible" Click="ShowAllCourses_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -139,10 +139,10 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <Button x:Name="buttonQuestionPool" 
-                            Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="10,3" FontSize="10" Height="25"
-                             Content="Questions Pool" Visibility="Visible" Click="ShowAllQuestions_Click">
+                    <Button x:Name="AddNewCourseButton" 
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                         Content="Add course" Visibility="Visible" Click="ShowAllCourses_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -166,10 +166,65 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <Button x:Name="buttonStatistics" 
+                    <Separator/>
+                    <Button x:Name="ShowQuestionsButton" 
                             Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="3" FontSize="10" Height="25"
-                             Content="Statistics" Visibility="Hidden" Click="ShowAllStatistics_Click">
+                            FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                             Content="Show available questions" Visibility="Visible" Click="ShowAllQuestions_Click">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <!-- Wewnętrzny element zmieniający tło -->
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="AddQuestionButton" 
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                         Content="Add new question" Visibility="Visible" Click="AddQuestion_Click">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <!-- Wewnętrzny element zmieniający tło -->
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ShowTestsButton" 
+                            Background="Black" Foreground="White" 
+                            FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                             Content="Show available tests" Visibility="Visible" >
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">

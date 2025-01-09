@@ -88,13 +88,14 @@ namespace BD
                 var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], User.StringToType(d["role"]));
                 list_user.Add(user);
             }
-
+            
             return list_user;
         }
 
         public List<Question> ReturnQuestionList()
         {
             string query = "SELECT * FROM \"Question\"";
+            int answer_id;
             List<Question> list = new List<Question>();
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             NpgsqlCommand com = new NpgsqlCommand(query, con);
@@ -111,10 +112,17 @@ namespace BD
                     string questionType = reader.GetString("questiontype");
                     bool shared = reader.GetBoolean("shared");
                     double points = reader.GetDouble("maxpoints");
-                    //int answer = reader.GetInt32("answerid");
+                    answer_id = reader.GetInt32("answerid");
                     string text = reader.GetString("questiontext");
 
-                    var q = new Question(name, text, Question.StringToType(questionType), new List<string>(), points, new List<int>(), cat, shared, id);
+                    Answer an = FetchAnswer(answer_id);
+                    var q = new Question(name, text, Question.StringToType(questionType), "", points, 0, cat, shared, id);
+                    if (an != null)
+                    {
+                        q.Answers = an.AnswerBody;
+                        q.CorrectAnswers = an.AnswerKey;
+
+                    }
                     list.Add(q);
                 }
             }
@@ -127,7 +135,28 @@ namespace BD
             return list;
         }
 
-        public void AddUser(User user)
+        Answer FetchAnswer(int id)
+        {
+            Answer answer = null;
+            string query1 = "SELECT * FROM \"Answer\" LIMIT 1";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query1, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    answer = new Answer(r.GetInt32(0), r.GetDouble(1), r.GetInt32(2), r.GetString(3));
+                }
+            }
+            catch (Exception e) { Debug.Print(e.ToString()); }
+
+            return answer;
+        }
+
+        public bool AddUser(User user)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             string query = "INSERT INTO \"User\"(login, name, surname, email, password, role) VALUES ";
@@ -142,22 +171,54 @@ namespace BD
             catch
             {
                 Debug.Print("Connection failed");
-                return;
+                return false;
             }
             finally
             {
                 connection.Close();
             }
+            return true;
         }
 
-        public void AddTest(Test test)
+        public async Task AddQuestion(Question quest)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            using NpgsqlConnection connection1 = new NpgsqlConnection(connection_string);
+            int answ_id = 0;
+            int key = 0;
 
-            string query_answer = "INSERT INTO \"Answer\"";
+            Debug.Print($"Key: {key}");
 
-            //string query_question = "INSERT INTO \"Question\"(name, category, questiontype, shared, password, role) VALUES ";
-            //query_question += string.Format("(\'{0}\', \'{1}\', \'{2}\', \'{3}\', \'{4}\', \'{5}\')", user.Login, user.FirstName, user.LastName, user.Email, user.Password, user.UserType);
+            string query_answer = "INSERT INTO \"Answer\"(score, answer, key, a, b, c, d) VALUES ";
+            query_answer += $"(\'{quest.Points.ToString()}\', \'{quest.Answers}\', '{quest.CorrectAnswers}', \'{(quest.CorrectAnswers & (1<<3))>>3}\'," +
+                $"\'{(quest.CorrectAnswers & (1 << 2)) >> 2}\',\'{(quest.CorrectAnswers & (1 << 1)) >> 1}\',\'{(quest.CorrectAnswers & (1 << 0)) >> 0}\');";
+            query_answer += $"SELECT * FROM \"Answer\" WHERE answer = '{quest.Answers}'";
+            Debug.Print(query_answer);
+            string query_question = "INSERT INTO \"Question\"(name, category, questiontype, shared, maxpoints, answerid, questiontext) VALUES ";
+
+            // Answer
+            try
+            {
+                connection.Open();
+                using NpgsqlCommand npgsqlCommand1 = new NpgsqlCommand(query_answer, connection);
+
+                var r = await npgsqlCommand1.ExecuteReaderAsync();
+                while (r.Read())
+                {
+                    answ_id = r.GetInt32(0);
+                }
+                connection.Close();
+                connection1.Open();
+                query_question += $"('{quest.Name}', '{quest.Category}', '{quest.QuestionType.ToString().ToLower()}','{quest.Shared}','{quest.Points}','{answ_id}','{quest.Text}')";
+                using NpgsqlCommand npgsqlCommand3 = new NpgsqlCommand(query_question, connection1);
+                await npgsqlCommand3.ExecuteNonQueryAsync();
+                connection1.Close();
+
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
         }
 
         public bool RemoveUser(int id)
