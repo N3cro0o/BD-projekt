@@ -23,6 +23,8 @@ namespace BD.Views
         private readonly AdminPanelUIMV _mv;
 
         public User.TYPE type;
+        public List<RadioButton> radios;
+        public List<int> IDs;
 
         public AdminPanelUI()
         {
@@ -59,6 +61,11 @@ namespace BD.Views
         private void CreateNewUser_Click(object sender, RoutedEventArgs e)
         {
             _mv.AddNewUser(this);
+        } 
+
+        private void CreateNewCourse_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewCourse(this);
         }
 
         private void AddQuestion_Click(object sender, RoutedEventArgs e)

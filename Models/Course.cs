@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 
 namespace BD.Models
@@ -33,12 +34,17 @@ namespace BD.Models
 
         public int ID { get => _id; set => _id = value; }
 
+        // Readonly
+        public string MainTeacherName { get; set; } = "";
+
         public Course(int id, string name, string cat, List<User> teachers)
         {
             ID = id;
             Name = name;
             Teachers = teachers;
             Category = cat;
+
+            MainTeacherName = $"{teachers[0].FirstName} {teachers[0].LastName}";
         }
 
         public Course(string name, List<User> teachers)
@@ -46,6 +52,7 @@ namespace BD.Models
             ID = 0;
             Name = name;
             Teachers = teachers;
+            MainTeacherName = $"{teachers[0].FirstName} {teachers[0].LastName}";
         }
 
         public Course() { }

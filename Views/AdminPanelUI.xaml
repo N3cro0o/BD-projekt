@@ -142,7 +142,7 @@
                     <Button x:Name="AddNewCourseButton" 
                         Background="Black" Foreground="White" 
                         FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
-                         Content="Add course" Visibility="Visible" Click="ShowAllCourses_Click">
+                         Content="Add course" Visibility="Visible" Click="CreateNewCourse_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">

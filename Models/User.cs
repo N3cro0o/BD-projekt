@@ -22,11 +22,11 @@ namespace BD.Models
 
         public static TYPE StringToType(string s)
         {
-            if (s.ToLower() == "student")
+            if (s.ToLower() == "student" || s.ToLower() == "uczen")
             {
                 return TYPE.Student;
             }
-            else if (s.ToLower() == "teacher")
+            else if (s.ToLower() == "teacher" || s.ToLower() == "nauczyciel")
             {
                 return TYPE.Teacher;
             }

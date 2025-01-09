@@ -112,16 +112,8 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
-            context.Items.Add(new Separator());
-            item = new MenuItem { Header = "Add new User" };
-            item.Click += (s, e) => // LAMBDA SUPREMACY
-            {
-                if (s is MenuItem menuItem)
-                {
-                    AddNewUser(parent);
-                }
-            };
-            context.Items.Add(item);
+
+            context = universalItems(parent, context);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
@@ -353,7 +345,7 @@ namespace BD.ViewModels
 
             var context = new ContextMenu();
             var item = new MenuItem { Header = "Delete Question" };
-            item.Click += (s, e) => // LAMBDA SUPREMACY
+            item.Click += (s, e) => 
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Question question)
                 {
@@ -373,16 +365,8 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
-            context.Items.Add(new Separator());
-            item = new MenuItem { Header = "Add new User" };
-            item.Click += (s, e) => // LAMBDA SUPREMACY
-            {
-                if (s is MenuItem menuItem)
-                {
-                    AddNewUser(parent);
-                }
-            };
-            context.Items.Add(item);
+
+            context = universalItems(parent, context);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
@@ -432,50 +416,221 @@ namespace BD.ViewModels
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Question text",
-                Binding = new System.Windows.Data.Binding("Text"),
+                Header = "Main Teacher",
+                Binding = new System.Windows.Data.Binding("MainTeacherName"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Question category",
+                Header = "Course category",
                 Binding = new System.Windows.Data.Binding("Category"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-
+            
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Points",
-                Binding = new System.Windows.Data.Binding("Points"),
+                Header = "Students count",
+                Binding = new System.Windows.Data.Binding("Students.Count"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Answer Body",
-                Binding = new System.Windows.Data.Binding("Answers"),
+                Header = "Description",
+                Binding = new System.Windows.Data.Binding("Description"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
-            myDataGrid.Columns.Add(new DataGridTextColumn
+            var context = new ContextMenu();
+            var item = new MenuItem { Header = "Delete Course" };
+            item.Click += (s, e) => 
             {
-                Header = "Correct answer key",
-                Binding = new System.Windows.Data.Binding("CorrectAnswersBinary"),
-                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
-            });
+                if (s is MenuItem menuItem && menuItem.DataContext is Course c)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {c.Name}?",
+                            "Remove user",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveCourse(c.ID);
+                        MessageBox.Show($"User has been removed.");
+                        ReturnAllCoursesFromDB(parent);
+                    }
+                }
+            };
+            context.Items.Add(item);
 
-            myDataGrid.Columns.Add(new DataGridTextColumn
+            context = universalItems(parent, context);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+            myDataGrid.RowStyle = style;
+
+            var list = App.DBConnection.ReturnCoursesList();
+            list[0].Teachers[0].DebugPrintUser();
+            Debug.Print(list[0].MainTeacherName);
+            myDataGrid.ItemsSource = list;
+            parent.outputGrid.Children.Add(myDataGrid);
+            Grid.SetRow(myDataGrid, 1);
+
+        }
+
+        public void AddNewCourse(AdminPanelUI parent)
+        {
+            Debug.Print(parent.type.ToString());
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "Create new Course";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
-                Header = "Shared",
-                Binding = new System.Windows.Data.Binding("Shared"),
-                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
-            });
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+            parent.IDs = new List<int>();
+            parent.radios = new List<RadioButton>();
+
+            var stacking_panel = new StackPanel();
+            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+            parent.outputGrid.Children.Add(stacking_panel);
+
+            /*
+                Name
+                Category
+                Desc
+                Teacher
+
+                Student
+                Test
+            */
+            var text = new TextBlock();
+            text.Text = "Course name";
+            stacking_panel.Children.Add(text);
+
+            var input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Category";
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Description";
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox();
+            stacking_panel.Children.Add(input);
+
+            text = new TextBlock();
+            text.Text = "Main teacher";
+            stacking_panel.Children.Add(text);
+
+            var scroll = new ScrollViewer();
+            var stacking_panel_inner = new StackPanel();
+            scroll.Content = stacking_panel_inner;
+            stacking_panel.Children.Add(scroll);
+
+            var list = App.DBConnection.ReturnTeacherList();
+            foreach (User u in list)
+            {
+                var radio = new RadioButton();
+                radio.Click += (s, e) => {
+                    for (int i = 0; i < parent.IDs.Count; i++)
+                    {
+                        if (parent.radios[i].IsChecked == true)
+                        {
+                            Debug.Print(parent.IDs[i].ToString());
+                        }
+                    }
+                };
+                radio.Content = $"{u.Login}, {u.FirstName} {u.LastName}";
+                parent.radios.Add(radio);
+                stacking_panel_inner.Children.Add(radio);
+                parent.IDs.Add(u.ID);
+            }
+            // Submit
+            Button bttn = new Button();
+            bttn.Content = "Submit";
+            bttn.Click += (o, e) =>
+            {
+                var name = (stacking_panel.Children[1] as TextBox);
+                var cat = (stacking_panel.Children[3] as TextBox);
+                var desc = (stacking_panel.Children[5] as TextBox);
+                int teach = -1;
+                for (int i = 0; i < parent.IDs.Count; i++)
+                {
+                    if (parent.radios[i].IsChecked == true)
+                    {
+                        teach = parent.IDs[i];
+                    }
+                }
+                if (name == null || cat == null || teach < 0)
+                    return;
+                if (string.IsNullOrEmpty(name.Text) || string.IsNullOrEmpty(cat.Text))
+                    return;
+
+                User u = App.DBConnection.GetUserByID(teach);
+                Course c = new Course(0, name.Text, cat.Text, new List<User>([u]));
+                if (desc != null && !string.IsNullOrEmpty(desc.Text)) 
+                    c.Description = desc.Text;
+
+                if (App.DBConnection.AddCourse(c))
+                {
+                    ReturnAllCoursesFromDB(parent);
+                }
+                else
+                {   // Add error handling
+                    name.Text = "";
+                    cat.Text = "";
+                }
+            };
+            stacking_panel.Children.Add(bttn);
 
         }
         public void AddNewQuestion(AdminPanelUI parent)
         {
 
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo)
+        {
+            addTo.Items.Add(new Separator()); // Users
+            var item = new MenuItem { Header = "Add new User" };
+            item.Click += (s, e) => 
+            {
+                if (s is MenuItem menuItem)
+                {
+                    AddNewUser(parent);
+                }
+            };
+            addTo.Items.Add(item);
+
+            addTo.Items.Add(new Separator()); // Courses
+            item = new MenuItem { Header = "Add new Course" };
+            item.Click += (s, e) => 
+            {
+                if (s is MenuItem menuItem)
+                {
+                    AddNewUser(parent);
+                }
+            };
+            addTo.Items.Add(item);
+
+            addTo.Items.Add(new Separator()); // Questions and tests
+            //item = new MenuItem { Header = "Add new Course" };
+            //item.Click += (s, e) => 
+            //{
+            //    if (s is MenuItem menuItem)
+            //    {
+            //        AddNewUser(parent);
+            //    }
+            //};
+            //addTo.Items.Add(item);
+            return addTo;
         }
     }
 }

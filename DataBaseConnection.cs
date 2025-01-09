@@ -92,6 +92,35 @@ namespace BD
             return list_user;
         }
 
+        public List<User> ReturnTeacherList()
+        {
+            string query = "SELECT * FROM \"User\" WHERE role = 'teacher' OR role = 'Teacher' OR role = 'nauczyciel' OR role = 'Nauczyciel' or role = 'Admin' or role = 'admin' ORDER BY userid";
+            List<Dictionary<string, string>> list_reader = new List<Dictionary<string, string>>();
+            List<User> list_user = new List<User>();
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return list_user;
+            }
+            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
+            using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
+
+            list_reader = getAllReaderUsers(reader);
+
+            foreach (var d in list_reader)
+            {
+                var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], User.StringToType(d["role"]));
+                list_user.Add(user);
+            }
+
+            return list_user;
+        }
+
         public List<Course> ReturnCoursesList()
         {
             List<Course> list = new List<Course>();
@@ -109,7 +138,9 @@ namespace BD
                     c.ID = r.GetInt32(0);
                     c.Category = r.GetString(2);
                     c.Description = r.GetString(3);
-                    c.Teachers.Add(GetUserByID(r.GetInt32(4)));
+                    var u = GetUserByID(r.GetInt32(4));
+                    c.Teachers.Add(u);
+                    c.MainTeacherName = $"{u.FirstName} {u.LastName}";
                     list.Add(c);
                 }
                 con.Close();
