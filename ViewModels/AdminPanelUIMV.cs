@@ -90,11 +90,6 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("UserType"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            DataGridTemplateColumn actionColumn = new DataGridTemplateColumn
-            {
-                Header = "Action",
-                Width = new DataGridLength(10, DataGridLengthUnitType.Star)
-            };
 
             var context = new ContextMenu();
             var item = new MenuItem { Header = "Delete User" };
@@ -121,7 +116,7 @@ namespace BD.ViewModels
             item = new MenuItem { Header = "Add new User" };
             item.Click += (s, e) => // LAMBDA SUPREMACY
             {
-                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                if (s is MenuItem menuItem)
                 {
                     AddNewUser(parent);
                 }
@@ -337,20 +332,30 @@ namespace BD.ViewModels
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
+                Header = "Answer Body",
+                Binding = new System.Windows.Data.Binding("Answers"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+            
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Correct answer key",
+                Binding = new System.Windows.Data.Binding("CorrectAnswersBinary"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
                 Header = "Shared",
                 Binding = new System.Windows.Data.Binding("Shared"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            DataGridTemplateColumn actionColumn = new DataGridTemplateColumn
-            {
-                Header = "Action",
-                Width = new DataGridLength(10, DataGridLengthUnitType.Star)
-            };
+
             var context = new ContextMenu();
             var item = new MenuItem { Header = "Delete Question" };
             item.Click += (s, e) => // LAMBDA SUPREMACY
             {
-                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                if (s is MenuItem menuItem && menuItem.DataContext is Question question)
                 {
                     MessageBox.Show("Nah");
                     //MessageBoxResult result = MessageBox.Show(
@@ -372,7 +377,7 @@ namespace BD.ViewModels
             item = new MenuItem { Header = "Add new User" };
             item.Click += (s, e) => // LAMBDA SUPREMACY
             {
-                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                if (s is MenuItem menuItem)
                 {
                     AddNewUser(parent);
                 }

@@ -40,11 +40,13 @@ namespace BD.Models
 
         public string Category { get; set; } = "";
 
-        public bool Shared = false;
+        public bool Shared { get; set; } = false;
 
         public double Points { get; set; }
 
         public int CorrectAnswers { get; set; } = 0;
+
+        public string CorrectAnswersBinary { get => CorrectAnswers.ToString("b"); }
 
         int _id;
 
