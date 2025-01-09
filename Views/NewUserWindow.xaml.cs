@@ -22,7 +22,7 @@ namespace BD.Views
     
         public partial class NewUserWindow : Window
         {
-            public User NewUser { get; private set; }
+            public User NewUser { get;  set; }
 
             public NewUserWindow()
             {

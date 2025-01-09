@@ -22,39 +22,29 @@ namespace BD.Views
     
         public partial class NewChangeRoleWindow : Window
         {
-            public User NewUser { get; private set; }
+            public User NewUser { get;  set; }
 
             public NewChangeRoleWindow()
             {
                 InitializeComponent();
             }
 
-            private void ChangeRole_Click(object sender, RoutedEventArgs e)
+        private void ChangeRole_Click(object sender, RoutedEventArgs e)
+        {
+            // Walidacja danych (upewnij się, że użytkownik wybrał typ)
+            if (TypeComboBox.SelectedItem == null)
             {
-                // Walidacja danych (możesz ją rozszerzyć według potrzeb)
-                if (
-                    TypeComboBox.SelectedItem == null)
-                {
-                    MessageBox.Show("Complete all fields.");
-                    return;
-                }
-
-                // Tworzenie nowego użytkownika
-                NewUser = new User(
-                    0,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    (TypeComboBox.SelectedIndex == 0) ? User.TYPE.Student.ToString() : User.TYPE.Teacher.ToString(),
-                    (TypeComboBox.SelectedIndex == 0) ? User.TYPE.Student : User.TYPE.Teacher
-                );
-
-                // Zamykanie okna
-                DialogResult = true;
-                Close();
+                MessageBox.Show("Please select a role.");
+                return;
             }
+
+            // Ustawienie nowej roli dla użytkownika
+            NewUser.Role = TypeComboBox.SelectedItem.ToString(); // Przypisanie nowej roli
+
+            // Zamykanie okna
+            DialogResult = true;
+            Close();
         }
+    }
     
 }

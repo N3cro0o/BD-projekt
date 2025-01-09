@@ -378,7 +378,7 @@ namespace BD
             }
             finally
             {
-                connection.Close();
+                connection.Close(); 
             }
         }
 

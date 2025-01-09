@@ -215,22 +215,34 @@ namespace BD.ViewModels
         private void OnChangeRoleButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
         {
             var button = sender as Button;
-            var user = button?.Tag; // Pobranie danych użytkownika z Tag
+            var user = button?.Tag as User; // Pobranie danych użytkownika z Tag
             if (user != null)
             {
-                var newChangeRoleWindow = new NewChangeRoleWindow();
-                newChangeRoleWindow.Title = "Change Role" + user.GetType().Name;
+                // Utworzenie okna zmiany roli
+                var newChangeRoleWindow = new NewChangeRoleWindow
+                {
+                    Title = $"Change Role for {user.FirstName} {user.LastName}",
+                    NewUser = user // Przekazanie użytkownika do okna
+                };
+
+                // Wyświetlenie okna
                 if (newChangeRoleWindow.ShowDialog() == true)
                 {
-                    var user1 = newChangeRoleWindow.NewUser;
-                    bool update = App.DBConnection.UpdateUserRole(user1);
-                    if ((update=true))
+                    // Po zamknięciu okna pobieramy zaktualizowanego użytkownika
+                    var updatedUser = newChangeRoleWindow.NewUser;
+
+                    // Aktualizacja roli w bazie danych
+                    bool updateSuccessful = App.DBConnection.UpdateUserRole(updatedUser);
+
+                    // Informowanie użytkownika o wyniku
+                    if (updateSuccessful)
                     {
-                        MessageBox.Show($"User {user1.FirstName} {user1.LastName} has been successfully changed Role to {newChangeRoleWindow.TypeComboBox.SelectedItem}.");
+                        MessageBox.Show($"User {updatedUser.FirstName} {updatedUser.LastName} has been successfully changed role to {updatedUser.Role}.");
+                        parent.UserTable.ItemsSource = App.DBConnection.ReturnUsersListOfUsers(); // Odśwież listę użytkowników
                     }
                     else
                     {
-                        MessageBox.Show($"User {user1.FirstName} {user1.LastName} has been NOT successfully changed Role to {newChangeRoleWindow.TypeComboBox.SelectedItem}.");
+                        MessageBox.Show($"Failed to change role for user {updatedUser.FirstName} {updatedUser.LastName}.");
                     }
                 }
             }

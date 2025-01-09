@@ -1,32 +1,45 @@
-﻿<Window x:Class="BD.Views.NewChangeRoleWindow"
+﻿
+<Window x:Class="BD.Views.NewUserWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Change Role" Height="120" Width="300">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <!--
-        <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" Text="Login:"/>
-        <TextBox x:Name="LoginTextBox" Grid.Row="0" Grid.Column="1" Margin="5"/>
-        -->
+        Title="Dodaj nowego użytkownika" Height="300" Width="300">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="5" Grid.Column="0" Margin="5" Text="Typ:"/>
-        <ComboBox x:Name="TypeComboBox" Grid.Row="5" Grid.Column="1" Margin="5">
-            <ComboBoxItem Content="Student" />
-            <ComboBoxItem Content="Teacher" />
-        </ComboBox>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" Text="Login:"/>
+                    <TextBox x:Name="LoginTextBox" Grid.Row="0" Grid.Column="1" Margin="5"/>
 
-        <Button Grid.Row="6" Grid.ColumnSpan="2" Margin="5" Content="Change Role"  Width="100" Height="25" Click="ChangeRole_Click"/>
-    </Grid>
-</Window>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="5" Text="Hasło:"/>
+                    <TextBox x:Name="PasswordTextBox" Grid.Row="1" Grid.Column="1" Margin="5"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Margin="5" Text="Email:"/>
+                    <TextBox x:Name="EmailTextBox" Grid.Row="2" Grid.Column="1" Margin="5"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Margin="5" Text="Imię:"/>
+                    <TextBox x:Name="FirstNameTextBox" Grid.Row="3" Grid.Column="1" Margin="5"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Margin="5" Text="Nazwisko:"/>
+                    <TextBox x:Name="LastNameTextBox" Grid.Row="4" Grid.Column="1" Margin="5"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Margin="5" Text="Typ:"/>
+                    <ComboBox x:Name="TypeComboBox" Grid.Row="5" Grid.Column="1" Margin="5">
+                        <ComboBoxItem Content="Student" />
+                        <ComboBoxItem Content="Teacher" />
+                    </ComboBox>
+
+                    <Button Grid.Row="6" Grid.ColumnSpan="2" Margin="5" Content="Dodaj"  Width="50" Height="25" Click="AddButton_Click"/>
+                </Grid>
+            </Window>
+
