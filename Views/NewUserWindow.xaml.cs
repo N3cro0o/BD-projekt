@@ -51,6 +51,7 @@ namespace BD.Views
                     EmailTextBox.Text,
                     FirstNameTextBox.Text,
                     LastNameTextBox.Text,
+                    (TypeComboBox.SelectedIndex == 0) ? User.TYPE.Student.ToString() : User.TYPE.Teacher.ToString(),
                     (TypeComboBox.SelectedIndex == 0) ? User.TYPE.Student : User.TYPE.Teacher
                 );
 

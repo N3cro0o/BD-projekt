@@ -86,7 +86,7 @@ namespace BD
 
             foreach (var d in list_reader)
             {
-                var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], User.StringToType(d["role"]));
+                var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], d["role"], User.StringToType(d["role"]));
                 list_user.Add(user);
             }
 
@@ -309,7 +309,7 @@ namespace BD
                 type = reader.GetString(reader.GetOrdinal("role"));
                 connection.Close();
 
-                user = new User(userID, login, pass, email, fname, lname, User.StringToType(type));
+                user = new User(userID, login, pass, email, fname, lname, type, User.StringToType(type));
             }
             catch
             {
@@ -346,7 +346,7 @@ namespace BD
                 type = reader.GetString(reader.GetOrdinal("role"));
                 connection.Close();
 
-                user = new User(userID, login, pass, email, fname, lname, User.StringToType(type));
+                user = new User(userID, login, pass, email, fname, lname, type, User.StringToType(type));
 
                 connection.Close();
             }

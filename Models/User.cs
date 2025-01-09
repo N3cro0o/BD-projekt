@@ -57,9 +57,11 @@ namespace BD.Models
         string? password;
 
         [JsonInclude]
-        public string? FirstName;
+        public string? firstName;
 
-        public string? LastName;
+        public string? lastName;
+
+        public string? role;
 
         [JsonInclude]
         string? email;
@@ -87,8 +89,24 @@ namespace BD.Models
             get => email;
             set => email = value;
         }
+        public string FirstName
+        {
+            get => firstName;
+            set => firstName = value;
+        }
 
-        public User(int id, string login, string pass, string email, string fName, string lName, TYPE type = TYPE.Guest)
+        public string LastName
+        {
+            get => lastName;
+            set => lastName = value;
+        }
+        public string Role
+        {
+            get => role;
+            set => role = value;
+        }
+
+        public User(int id, string login, string pass, string email, string fName, string lName, string role, TYPE type = TYPE.Guest)
         {
             ID = id;
             Login = login;
@@ -96,6 +114,7 @@ namespace BD.Models
             Email = email;
             FirstName = fName;
             LastName = lName;
+            Role = role;
             UserType = type;
         }
 

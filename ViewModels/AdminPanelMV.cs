@@ -216,7 +216,7 @@ namespace BD.ViewModels
                 return false;
             User.TYPE type = User.StringToType(data[5]);
 
-            var user = new User(0, data[0], data[1], data[2], data[3], data[4], type);
+            var user = new User(0, data[0], data[1], data[2], data[3], data[4], data[5],type);
             App.DBConnection.AddUser(user);
 
             return true;
