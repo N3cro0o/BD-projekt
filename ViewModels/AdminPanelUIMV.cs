@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Diagnostics.PerformanceData;
 using Microsoft.Windows.Themes;
 using System.Diagnostics;
+using System.Windows.Data;
 
 namespace BD.ViewModels
 {
@@ -30,18 +31,55 @@ namespace BD.ViewModels
             _mainwindow.ChangeMainPageDataContext();
         }
 
-        public void ReturnAllUsersFromDB(AdminPanelUI parent)
+        public void ReturnAllUsersFromDB(object sender, RoutedEventArgs e, AdminPanelUI parent)
         {
-           
             parent.mainTitle.Text = "User List";
 
+            // Ustaw widoczność tabel
             parent.UserTable.Visibility = Visibility.Visible;
             parent.CoursesTable.Visibility = Visibility.Hidden;
 
+            // Pobranie listy użytkowników
             var list = App.DBConnection.ReturnUsersListOfUsers();
-
             parent.UserTable.ItemsSource = list;
 
+            // Dodanie kolumn dynamicznie, jeśli jeszcze nie zostały dodane
+            if (!parent.UserTable.Columns.Any(c => c.Header.ToString() == "Actions"))
+            {
+                // Kolumna z przyciskami
+                var actionColumn = new DataGridTemplateColumn
+                {
+                    Header = "Actions",
+                    Width = 150
+                };
+
+                // Definicja przycisku w kolumnie
+                var buttonTemplate = new FrameworkElementFactory(typeof(Button));
+                buttonTemplate.SetValue(Button.ContentProperty, "Delete");
+                buttonTemplate.SetValue(Button.WidthProperty, 100.0);
+
+                // Przypisanie zdarzenia Click
+                buttonTemplate.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteButton(sender, e, parent)));
+
+
+                // Powiązanie danych z Tag przycisku
+                var binding = new Binding
+                {
+                    Path = new PropertyPath(".") // Bieżący obiekt User
+                };
+                buttonTemplate.SetBinding(Button.TagProperty, binding);
+
+                // Ustawienie szablonu komórki
+                var cellTemplate = new DataTemplate
+                {
+                    VisualTree = buttonTemplate
+                };
+
+                actionColumn.CellTemplate = cellTemplate;
+
+                // Dodanie kolumny do DataGrid
+                parent.UserTable.Columns.Add(actionColumn);
+            }
         }
 
         public void AddNewUser(object sender, RoutedEventArgs e)
@@ -98,7 +136,51 @@ namespace BD.ViewModels
             parent.mainTitle.Text = "Questions";
             
         }
-        
-        
+        public void OnDeleteButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
+        {
+            // Rzutowanie sender na Button
+            var button = sender as Button;
+            if (button == null) return;
+
+            // Pobranie użytkownika przypisanego do przycisku
+            var user = button.Tag as User;
+            if (user != null)
+            {
+                // Potwierdzenie usunięcia użytkownika
+                MessageBoxResult result = MessageBox.Show(
+                    $"Are you sure you want to delete user: {user.Login}?",
+                    "Delete Confirmation",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // Usunięcie użytkownika z bazy danych
+                    bool isDeleted = App.DBConnection.RemoveUser(user.ID); // Funkcja RemoveUser
+
+                    if (isDeleted)
+                    {
+                        MessageBox.Show($"User {user.Login} has been successfully deleted from the database.");
+
+                        // Pobranie listy użytkowników z DataGrid
+                        var list = parent.UserTable.ItemsSource as List<User>;
+                        if (list != null)
+                        {
+                            // Usunięcie użytkownika z listy
+                            list.Remove(user);
+
+                            // Odświeżenie DataGrid
+                            parent.UserTable.ItemsSource = null;
+                            parent.UserTable.ItemsSource = list;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Failed to delete user {user.Login} from the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
     }
 }

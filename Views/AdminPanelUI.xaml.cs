@@ -39,7 +39,7 @@ namespace BD.Views
 
         private void ShowAllUsers_Click(object sender, RoutedEventArgs e)
         {
-            _mv.ReturnAllUsersFromDB(this);
+            _mv.ReturnAllUsersFromDB(sender, e, this);
         }
 
         private void ShowAllCourses_Click(object sender, RoutedEventArgs e)
@@ -66,5 +66,10 @@ namespace BD.Views
         {
             _mv.ShowAllQusetions(this);
         }
+        private void OnDeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.OnDeleteButton(sender, e, this);
+        }
+        
     }
 }

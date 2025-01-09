@@ -53,7 +53,7 @@
                 </TextBlock>
 
                 <DataGrid x:Name="UserTable" Grid.Row="1"
-                          AutoGenerateColumns="True"
+                          AutoGenerateColumns="False"
                           HeadersVisibility="Column" 
                           Margin="10" Visibility="Hidden"
                           Background="#82827d" RowBackground="#82827d">
@@ -86,11 +86,19 @@
                             </Setter>
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
-                    
-                    
+                    <!-- Definicje kolumn -->
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*" />
+                        <DataGridTextColumn Header="Login" Binding="{Binding Login}" Width="*" />
+                        <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*" />
+                        <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*" />
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*" />
+                        <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="*" />
+                        <DataGridTextColumn Header="Option" Binding="{Binding Email}" Width="*" />
+                    </DataGrid.Columns>
                 </DataGrid>
                 <DataGrid x:Name="CoursesTable" Grid.Row="1"
-          AutoGenerateColumns="True"
+          AutoGenerateColumns="False"
           HeadersVisibility="Column" 
           Margin="10" Visibility="Hidden"
           Background="#82827d" RowBackground="#82827d">
@@ -123,8 +131,15 @@
                             </Setter>
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
-                    
-                    
+                    <!-- Definicje kolumn -->
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*" />
+                        <DataGridTextColumn Header="Name" Binding="{Binding Login}" Width="*" />
+                        <DataGridTextColumn Header="Cattegory" Binding="{Binding FirstName}" Width="*" />
+                        <DataGridTextColumn Header="Descripion" Binding="{Binding LastName}" Width="*" />
+                        
+
+                    </DataGrid.Columns>
                 </DataGrid>
             </Grid>
         </Border>
