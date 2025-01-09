@@ -144,7 +144,7 @@ Content="Add Course" Visibility="Hidden" Click="addCourse_Click" >
                     </DataGrid.Columns>
                 </DataGrid>
                 <DataGrid x:Name="CourseTable" Grid.Row="1"
-          AutoGenerateColumns="False"
+          AutoGenerateColumns="True"
           HeadersVisibility="Column" 
           Margin="10" Visibility="Hidden"
           Background="#82827d" RowBackground="#82827d">
@@ -183,8 +183,6 @@ Content="Add Course" Visibility="Hidden" Click="addCourse_Click" >
                         <DataGridTextColumn Header="Name" Binding="{Binding Login}" Width="*" />
                         <DataGridTextColumn Header="Cattegory" Binding="{Binding FirstName}" Width="*" />
                         <DataGridTextColumn Header="Descripion" Binding="{Binding LastName}" Width="*" />
-                        
-
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

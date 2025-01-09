@@ -62,6 +62,7 @@ namespace BD
 
             return list;
         }
+       
 
         public List<User> ReturnUsersListOfUsers()
         {
@@ -91,7 +92,62 @@ namespace BD
 
             return list_user;
         }
-        
+        public List<Course> ReturnCourseListOfCourses()
+        {
+            string query = "SELECT * FROM \"Course\"";
+            List<Dictionary<string, string>> list_reader = new List<Dictionary<string, string>>();
+            List<Course> list_courses = new List<Course>();
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return list_courses;
+            }
+
+            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
+            using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                try
+                {
+                    // Pobieranie danych z bazy i konwersja na obiekt Course
+                    int id = int.Parse(reader["id"].ToString());
+                    string name = reader["name"].ToString();
+                    int category = int.Parse(reader["category"].ToString());
+                    int owner = int.Parse(reader["owner"].ToString());
+
+                    // Konwersja list (Teachers, Students, Tests) z bazy danych, jeśli są zapisane w formacie tekstowym
+                    List<int> teachers = reader["teachers"] is string teachersStr
+                        ? teachersStr.Split(',').Select(int.Parse).ToList()
+                        : new List<int>();
+
+                    List<int> students = reader["students"] is string studentsStr
+                        ? studentsStr.Split(',').Select(int.Parse).ToList()
+                        : new List<int>();
+
+                    List<int> tests = reader["tests"] is string testsStr
+                        ? testsStr.Split(',').Select(int.Parse).ToList()
+                        : new List<int>();
+
+                    // Tworzenie obiektu Course
+                    Course course = new Course(id, name, category, teachers, students, tests);
+                    list_courses.Add(course);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print($"Error parsing course data: {ex.Message}");
+                }
+            }
+
+            return list_courses;
+        }
+
 
         public List<Question> ReturnQuestionList()
         {

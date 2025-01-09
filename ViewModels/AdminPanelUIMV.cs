@@ -118,7 +118,7 @@ namespace BD.ViewModels
             parent.addUser.Visibility = Visibility.Hidden;
             parent.addCourse.Visibility = Visibility.Visible;
 
-            var list = App.DBConnection.ReturnQuestionList();
+            var list = App.DBConnection.ReturnCourseListOfCourses();
             parent.CourseTable.ItemsSource = list;
 
             if (!parent.UserTable.Columns.Any(c => c.Header.ToString() == "Actions"))
