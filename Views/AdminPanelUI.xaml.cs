@@ -43,7 +43,7 @@ namespace BD.Views
 
         private void ShowAllCourses_Click(object sender, RoutedEventArgs e)
         {
-            //_mv.ReturnAllCoursesFromDB(this);
+            _mv.ReturnAllCoursesFromDB(this);
         }
 
         private void ShowMenu_Click(object sender, RoutedEventArgs e)

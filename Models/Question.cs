@@ -48,6 +48,8 @@ namespace BD.Models
 
         public string CorrectAnswersBinary { get => CorrectAnswers.ToString("b"); }
 
+        public int AnswerID { get; set; }
+
         int _id;
 
         public int ID { get => _id; set => _id = value; }

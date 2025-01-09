@@ -395,6 +395,84 @@ namespace BD.ViewModels
 
         }
 
+        public void ReturnAllCoursesFromDB(AdminPanelUI parent)
+        {
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "Course list";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+
+            // Tworzymy DataGrid
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false, // Ręczne tworzenie kolumn
+                Margin = new Thickness(10),
+                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
+                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
+                BorderThickness = new Thickness(2),
+                BorderBrush = System.Windows.Media.Brushes.Black
+            };
+
+            // Dodanie kolumn
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Name",
+                Binding = new System.Windows.Data.Binding("Name"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Question text",
+                Binding = new System.Windows.Data.Binding("Text"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Question category",
+                Binding = new System.Windows.Data.Binding("Category"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Points",
+                Binding = new System.Windows.Data.Binding("Points"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Answer Body",
+                Binding = new System.Windows.Data.Binding("Answers"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Correct answer key",
+                Binding = new System.Windows.Data.Binding("CorrectAnswersBinary"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Shared",
+                Binding = new System.Windows.Data.Binding("Shared"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+        }
         public void AddNewQuestion(AdminPanelUI parent)
         {
 

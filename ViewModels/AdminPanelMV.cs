@@ -85,11 +85,24 @@ namespace BD.ViewModels
                             }
                             else if (_createQuestion(strings[2..strings.Count()].ToArray()))
                             {
-                                
+
                             }
                             else
                             {
                                 parent.consoleScreen.Text = "Wrong command";
+                            }
+                            break;
+
+                        case "course":
+                        case "c":
+                            if (strings[2].ToLower() == "help" || strings[2].ToLower() == "h")
+                            {
+                                parent.consoleScreen.Text = "Add help text";
+                                break;
+                            }
+                            else if (_createCourse(strings[2..strings.Count()].ToArray()))
+                            {
+
                             }
                             break;
                     }
@@ -99,8 +112,12 @@ namespace BD.ViewModels
                     switch (strings[1].ToLower())
                     {
                         case "user":
+                        case "u":
                             if (strings.Count < 3)
+                            {
+                                parent.consoleScreen.Text = "Not enough params";
                                 break;
+                            }
 
                             if (strings[2].ToLower() == "all")
                                 ReturnAllUsersFromDB(parent);
@@ -120,10 +137,31 @@ namespace BD.ViewModels
                             }
                             break;
                         case "question":
+                        case "q":
                             if (strings.Count < 3)
+                            {
+                                parent.consoleScreen.Text = "Not enough params";
                                 break;
+                            }
                             if (strings[2].ToLower() == "all")
                                 ReturnAllQuestionsFromDB(parent);
+                            break;
+
+                        case "course":
+                        case "c":
+                            if (strings.Count < 3)
+                            {
+                                parent.consoleScreen.Text = "Not enough params";
+                                break;
+                            }
+                            if (strings[2].ToLower() == "help" || strings[2].ToLower() == "h")
+                            {
+                                parent.consoleScreen.Text = "Add help text";
+                            }
+                            else if (strings[2].ToLower() == "all")
+                            {
+                                ReturnAllCoursesFromDB(parent);
+                            }
                             break;
                     }
                     break;
@@ -132,7 +170,25 @@ namespace BD.ViewModels
                     switch (strings[1].ToLower())
                     {
                         case "user":
+                        case "u":
+                            if (strings.Count < 3)
+                            {
+                                parent.consoleScreen.Text = "Not enough params";
+                                break;
+                            }
                             if (_removeUser(strings[2..strings.Count()].ToArray()))
+                            {
+                                parent.consoleScreen.Text = "User removed";
+                            }
+                            break;
+                        case "course":
+                        case "c":
+                            if (strings.Count < 3)
+                            {
+                                parent.consoleScreen.Text = "Not enough params";
+                                break;
+                            }
+                            if (_removeCourse(strings[2..strings.Count()].ToArray()))
                             {
                                 parent.consoleScreen.Text = "User removed";
                             }
@@ -210,6 +266,16 @@ namespace BD.ViewModels
                     q.GetID(), q.Name, q.Text, q.Category, q.QuestionType);
             }
         }
+        void _printCourses(AdminPanel parent, List<Course> list)
+        {
+            parent.InputBox.Text = "";
+            parent.consoleScreen.Text = "";
+            foreach (Course c in list)
+            {
+                parent.consoleScreen.Text += $"ID: {c.ID}, Name: {c.Name}, Category: {c.Category}, Description: {c.Description}, Teacher: {c.Teachers[0].FirstName} {c.Teachers[0].LastName}\n";
+            }
+        }
+
         bool _createUser(string[] data)
         {
             if (data.Length != 6)
@@ -236,7 +302,7 @@ namespace BD.ViewModels
                         name = data[i + 1]; answ_read_check = false; i++;
                         break;
                     case "/tx":
-                        answ_read_check = false; 
+                        answ_read_check = false;
                         i++;
                         if (data[i].StartsWith("\"", StringComparison.CurrentCulture))
                         {
@@ -278,7 +344,7 @@ namespace BD.ViewModels
             {
                 double d = double.Parse(points, CultureInfo.InvariantCulture);
                 Question q;
-                if (cat.Length > 0) 
+                if (cat.Length > 0)
                     q = new Question(name, text, Question.StringToType(type), answ, d, corrAnsw, cat);
                 else
                     q = new Question(name, text, Question.StringToType(type), answ, d, corrAnsw);
@@ -288,13 +354,84 @@ namespace BD.ViewModels
             }
             return false;
         }
+
+        bool _createCourse(string[] data)
+        {
+            string name = "", desc = "", cat = "";
+            int teach = -1;
+            for (int i = 0; i < data.Length; i++)
+            {
+                switch (data[i])
+                {
+                    case "/n": // Name
+                        i++;
+                        if (data[i].StartsWith("\"", StringComparison.CurrentCulture))
+                        {
+                            name = data[i].Substring(1, data[i].Length - 2);
+                        }
+                        else
+                            name = data[i];
+                        break;
+
+                    case "/d": // Description
+                        i++; 
+                        if (data[i].StartsWith("\"", StringComparison.CurrentCulture))
+                        {
+                            desc = data[i].Substring(1, data[i].Length - 2);
+                        }
+                        else
+                            desc = data[i];
+                        break;
+
+                    case "/c": // Category
+                        cat = data[i + 1]; i++;
+                        break;
+
+                    case "/t-id": // Teacher id; must have
+                        teach = int.Parse(data[i + 1]); i++;
+                        break;
+
+                    case "/s-id": // Student id
+                        
+                        break;
+
+                    case "/te-id": // Test id
+                        
+                        break;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(name) && teach >= 0) 
+            {
+                User teachUser = App.DBConnection.GetUserByID(teach);
+                Course c = new Course(name, new List<User>([teachUser]));
+                if (!string.IsNullOrEmpty(desc))
+                {
+                    c.Description = desc;
+                }
+                if (!string.IsNullOrEmpty(cat))
+                {
+                    c.Category = cat;
+                }
+
+                return App.DBConnection.AddCourse(c);
+            }
+            return false;
+        }
         bool _removeUser(string[] data)
         {
             int id;
             string s = data[0].Trim();
             id = int.Parse(s);
-            App.DBConnection.RemoveUser(id);
-            return true;
+            return App.DBConnection.RemoveUser(id);
+        }
+
+        bool _removeCourse(string[] data)
+        {
+            int id;
+            string s = data[0].Trim();
+            id = int.Parse(s);
+            return App.DBConnection.RemoveCourse(id);
         }
 
         bool _modifyUser(AdminPanel parent, string[] data) // for now it's only by id
@@ -372,6 +509,13 @@ namespace BD.ViewModels
             var list = App.DBConnection.ReturnQuestionList();
             parent.consoleScreen.Text = "";
             _printQuestions(parent, list);
+        }
+
+        public void ReturnAllCoursesFromDB(AdminPanel parent)
+        {
+            var list = App.DBConnection.ReturnCoursesList();
+            parent.consoleScreen.Text = "";
+            _printCourses(parent, list);
         }
 
         public void DeleteUser(AdminPanel parent)

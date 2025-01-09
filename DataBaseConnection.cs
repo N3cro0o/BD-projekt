@@ -43,7 +43,7 @@ namespace BD
 
         public List<Dictionary<string, string>> ReturnUsersList()
         {
-            string query = "SELECT * FROM \"User\"";
+            string query = "SELECT * FROM \"User\" ORDER BY userid";
             List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try
@@ -65,7 +65,7 @@ namespace BD
 
         public List<User> ReturnUsersListOfUsers()
         {
-            string query = "SELECT * FROM \"User\"";
+            string query = "SELECT * FROM \"User\" ORDER BY userid";
             List<Dictionary<string, string>> list_reader = new List<Dictionary<string, string>>();
             List<User> list_user = new List<User>();
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
@@ -88,13 +88,43 @@ namespace BD
                 var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], User.StringToType(d["role"]));
                 list_user.Add(user);
             }
-            
+
             return list_user;
+        }
+
+        public List<Course> ReturnCoursesList()
+        {
+            List<Course> list = new List<Course>();
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand("SELECT * FROM \"Course\" ORDER BY courseid", con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    Course c = new Course();
+                    c.Name = r.GetString(1);
+                    c.ID = r.GetInt32(0);
+                    c.Category = r.GetString(2);
+                    c.Description = r.GetString(3);
+                    c.Teachers.Add(GetUserByID(r.GetInt32(4)));
+                    list.Add(c);
+                }
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+
+            return list;
         }
 
         public List<Question> ReturnQuestionList()
         {
-            string query = "SELECT * FROM \"Question\"";
+            string query = "SELECT * FROM \"Question\" ORDER BY questionid";
             int answer_id;
             List<Question> list = new List<Question>();
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
@@ -180,7 +210,7 @@ namespace BD
             return true;
         }
 
-        public async Task AddQuestion(Question quest)
+        public async Task<bool> AddQuestion(Question quest)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             using NpgsqlConnection connection1 = new NpgsqlConnection(connection_string);
@@ -190,7 +220,7 @@ namespace BD
             Debug.Print($"Key: {key}");
 
             string query_answer = "INSERT INTO \"Answer\"(score, answer, key, a, b, c, d) VALUES ";
-            query_answer += $"(\'{quest.Points.ToString()}\', \'{quest.Answers}\', '{quest.CorrectAnswers}', \'{(quest.CorrectAnswers & (1<<3))>>3}\'," +
+            query_answer += $"(\'{quest.Points.ToString()}\', \'{quest.Answers}\', '{quest.CorrectAnswers}', \'{(quest.CorrectAnswers & (1 << 3)) >> 3}\'," +
                 $"\'{(quest.CorrectAnswers & (1 << 2)) >> 2}\',\'{(quest.CorrectAnswers & (1 << 1)) >> 1}\',\'{(quest.CorrectAnswers & (1 << 0)) >> 0}\');";
             query_answer += $"SELECT * FROM \"Answer\" WHERE answer = '{quest.Answers}'";
             Debug.Print(query_answer);
@@ -218,13 +248,61 @@ namespace BD
             catch (Exception e)
             {
                 Debug.Print(e.ToString());
+                return false;
             }
+            return true;
+        }
+
+        public bool AddCourse(Course c)
+        {
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            string querry = "INSERT INTO \"Course\" (name, category, description, ownerid) VALUES " +
+                $"('{c.Name}','{c.Category}','{c.Description}','{c.Teachers[0].ID}')";
+            NpgsqlCommand com = new NpgsqlCommand(querry, con);
+            Debug.Print(querry);
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                Debug.Print($"Connection failed\n{e}");
+                return false;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return true;
         }
 
         public bool RemoveUser(int id)
         {
             string query = string.Format("DELETE FROM \"User\" where \"userid\" = {0}", id);
             Debug.WriteLine(query);
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
+            {
+                connection.Open();
+                using NpgsqlCommand com = new NpgsqlCommand(query, connection);
+                com.ExecuteNonQuery();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return true;
+        }
+
+        public bool RemoveCourse(int id)
+        {
+            string query = string.Format("DELETE FROM \"Course\" where \"courseid\" = {0}", id);
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try
             {
