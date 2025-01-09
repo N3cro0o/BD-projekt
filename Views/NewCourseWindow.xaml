@@ -1,0 +1,37 @@
+﻿<Window x:Class="BD.Views.NewCourseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Dodaj nowego użytkownika" Height="300" Width="300">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" Text="Name:"/>
+        <TextBox x:Name="NameTextBox" Grid.Row="0" Grid.Column="1" Margin="5"/>
+
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="5" Text="Cattegory:"/>
+        <TextBox x:Name="CattegoryTextBox" Grid.Row="2" Grid.Column="1" Margin="5"/>
+        <!--
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="5" Text="Description:"/>
+        <TextBox x:Name="DescriptionNameTextBox" Grid.Row="3" Grid.Column="1" Margin="5"/>
+        -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="5" Text="Owner Login:"/>
+        <TextBox x:Name="OwnerNameTextBox" Grid.Row="4" Grid.Column="1" Margin="5"/>
+
+        
+
+        <Button Grid.Row="6" Grid.ColumnSpan="2" Margin="5" Content="Dodaj"  Width="50" Height="25" Click="AddButton_Click"/>
+    </Grid>
+</Window>

@@ -150,6 +150,28 @@ namespace BD
                 connection.Close();
             }
         }
+        public void AddCourse(Course cours)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            string query = "INSERT INTO \"Course\"( name, cattegory, ownerid) VALUES ";
+            query += string.Format("(\'{0}\', \'{1}\', \'{2}\')", cours.Name, cours.Category, cours.Owner);
+            Debug.Print(query);
+            try
+            {
+                connection.Open();
+                using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
+                npgsqlCommand.ExecuteNonQuery();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
 
         public void AddTest(Test test)
         {
@@ -164,6 +186,28 @@ namespace BD
         public bool RemoveUser(int id)
         {
             string query = string.Format("DELETE FROM \"User\" where \"userid\" = {0}", id);
+            Debug.WriteLine(query);
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
+            {
+                connection.Open();
+                using NpgsqlCommand com = new NpgsqlCommand(query, connection);
+                com.ExecuteNonQuery();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return true;
+        }
+        public bool RemoveCourse(int id)
+        {
+            string query = string.Format("DELETE FROM \"Course\" where \"courseid\" = {0}", id);
             Debug.WriteLine(query);
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try

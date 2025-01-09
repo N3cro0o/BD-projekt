@@ -37,8 +37,9 @@ namespace BD.ViewModels
 
             // Ustaw widoczność tabel
             parent.UserTable.Visibility = Visibility.Visible;
-            parent.CoursesTable.Visibility = Visibility.Hidden;
+            parent.CourseTable.Visibility = Visibility.Hidden;
             parent.addUser.Visibility = Visibility.Visible;
+            parent.addCourse.Visibility = Visibility.Hidden;
 
             // Pobranie listy użytkowników
             var list = App.DBConnection.ReturnUsersListOfUsers();
@@ -60,7 +61,7 @@ namespace BD.ViewModels
                 buttonTemplate.SetValue(Button.WidthProperty, 100.0);
 
                 // Przypisanie zdarzenia Click
-                buttonTemplate.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteButton(sender, e, parent)));
+                buttonTemplate.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteUserButton(sender, e, parent)));
 
 
                 // Powiązanie danych z Tag przycisku
@@ -90,12 +91,19 @@ namespace BD.ViewModels
             {
                 var user = newUserWindow.NewUser;
                 App.DBConnection.AddUser(user);
-                MessageBox.Show($"Użytkownik {user.FirstName} {user.LastName} został dodany.");
+                MessageBox.Show($"User {user.FirstName} {user.LastName} has been successfully added.");
             }
         }
         public void AddNewCours(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show($"Dodawanie kursu");
+            var newCourseWindow = new NewCourseWindow();
+            if (newCourseWindow.ShowDialog() == true)
+            {
+                var course = newCourseWindow.NewCours;
+                App.DBConnection.AddCourse(course);
+                MessageBox.Show($"Cours {course.Name} has been successfully added.");
+            }
+            
         }
         public void AddNewQuestion(object sender, RoutedEventArgs e)
         {
@@ -106,11 +114,49 @@ namespace BD.ViewModels
             parent.mainTitle.Text = "Courses List";
 
             parent.UserTable.Visibility = Visibility.Hidden;
-            parent.CoursesTable.Visibility = Visibility.Visible;
+            parent.CourseTable.Visibility = Visibility.Visible;
             parent.addUser.Visibility = Visibility.Hidden;
+            parent.addCourse.Visibility = Visibility.Visible;
 
             var list = App.DBConnection.ReturnQuestionList();
-            parent.CoursesTable.ItemsSource = list;
+            parent.CourseTable.ItemsSource = list;
+
+            if (!parent.UserTable.Columns.Any(c => c.Header.ToString() == "Actions"))
+            {
+                // Kolumna z przyciskami
+                var actionColumn = new DataGridTemplateColumn
+                {
+                    Header = "Actions",
+                    Width = 150
+                };
+
+                // Definicja przycisku w kolumnie
+                var buttonTemplate = new FrameworkElementFactory(typeof(Button));
+                buttonTemplate.SetValue(Button.ContentProperty, "Delete");
+                buttonTemplate.SetValue(Button.WidthProperty, 100.0);
+
+                // Przypisanie zdarzenia Click
+                buttonTemplate.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteCoursesButton(sender, e, parent)));
+
+
+                // Powiązanie danych z Tag przycisku
+                var binding = new Binding
+                {
+                    Path = new PropertyPath(".") // Bieżący obiekt User
+                };
+                buttonTemplate.SetBinding(Button.TagProperty, binding);
+
+                // Ustawienie szablonu komórki
+                var cellTemplate = new DataTemplate
+                {
+                    VisualTree = buttonTemplate
+                };
+
+                actionColumn.CellTemplate = cellTemplate;
+
+                // Dodanie kolumny do DataGrid
+                parent.UserTable.Columns.Add(actionColumn);
+            }
         }
         public void ShowMenu(AdminPanelUI parent)
         {
@@ -142,9 +188,9 @@ namespace BD.ViewModels
             parent.mainTitle.Text = "Questions";
             
         }
-        public void OnDeleteButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
+        public void OnDeleteUserButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
         {
-            // Rzutowanie sender na Button
+            
             var button = sender as Button;
             if (button == null) return;
 
@@ -187,6 +233,49 @@ namespace BD.ViewModels
                 }
             }
         }
+        public void OnDeleteCoursesButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
+        {
+            var button = sender as Button;
+            if (button == null) return;
 
+            // Pobranie kursu przypisanego do przycisku
+            var course = button.Tag as Course;
+            if (course != null)
+            {
+                // Potwierdzenie usunięcia kursu
+                MessageBoxResult result = MessageBox.Show(
+                    $"Are you sure you want to delete the course: {course.Name}?",
+                    "Delete Confirmation",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // Usunięcie kursu z bazy danych
+                    bool isDeleted = App.DBConnection.RemoveCourse(course.ID); // Funkcja RemoveCourse
+
+                    if (isDeleted)
+                    {
+                        MessageBox.Show($"Course {course.Name} has been successfully deleted from the database.");
+
+                        // Pobranie listy kursów z DataGrid
+                        var list = parent.CourseTable.ItemsSource as List<Course>;
+                        if (list != null)
+                        {
+                            // Usunięcie kursu z listy
+                            list.Remove(course);
+
+                            // Odświeżenie DataGrid
+                            parent.CourseTable.ItemsSource = null;
+                            parent.CourseTable.ItemsSource = list;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Failed to delete the course {course.Name} from the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
     }
 }

@@ -68,12 +68,17 @@ namespace BD.Views
         }
         private void OnDeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            _mv.OnDeleteButton(sender, e, this);
+            _mv.OnDeleteUserButton(sender, e, this);
         }
         private void addUser_Click(object sender, RoutedEventArgs e)
         {
             _mv.AddNewUser(sender, e);
         }
+        private void addCourse_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewCours(sender, e);
+        }
         
+
     }
 }

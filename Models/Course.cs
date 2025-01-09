@@ -12,7 +12,7 @@ namespace BD.Models
     {
         public string? Name { get; set; }
 
-        int ID { get; set; }
+        public int ID { get; set; }
 
         [JsonInclude]
         List<int> Teachers { get; set; } = new List<int>();
@@ -27,7 +27,10 @@ namespace BD.Models
         List<int> Results { get; set; } = new List<int>();
         
         [JsonInclude]
-        int Category { get; set; }
+        public int Category { get; set; }
+
+        [JsonInclude]
+        public int Owner { get; set; }
 
 
         public Course(int id, string name, int cat, List<int> teachers, List<int> students, List<int> tests)
