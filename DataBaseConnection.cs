@@ -357,6 +357,30 @@ namespace BD
             }
             return user;
         }
+        public bool UpdateUserRole(User user)
+        {
+            string query = string.Format("UPDATE \"User\" SET \"role\" = '{0}' WHERE \"userid\" = {1}",
+                user.Role, user.GetID());
+
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
+            {
+                connection.Open();
+
+                using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+                int rowsAffected = command.ExecuteNonQuery(); 
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                return false; 
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
 
         private List<Dictionary<string, string>> getAllReaderUsers(NpgsqlDataReader r)
         {

@@ -12,6 +12,7 @@ using System.Diagnostics.PerformanceData;
 using Microsoft.Windows.Themes;
 using System.Diagnostics;
 using System.Windows.Data;
+using System.Data;
 
 namespace BD.ViewModels
 {
@@ -52,29 +53,49 @@ namespace BD.ViewModels
                 var actionColumn = new DataGridTemplateColumn
                 {
                     Header = "Actions",
-                    Width = 150
+                    Width = 200
                 };
 
-                // Definicja przycisku w kolumnie
-                var buttonTemplate = new FrameworkElementFactory(typeof(Button));
-                buttonTemplate.SetValue(Button.ContentProperty, "Delete");
-                buttonTemplate.SetValue(Button.WidthProperty, 100.0);
+                // Kontener dla przycisków
+                var panelTemplate = new FrameworkElementFactory(typeof(StackPanel));
+                panelTemplate.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
 
-                // Przypisanie zdarzenia Click
-                buttonTemplate.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteUserButton(sender, e, parent)));
+                // Definicja pierwszego przycisku (Delete)
+                var deleteButton = new FrameworkElementFactory(typeof(Button));
+                deleteButton.SetValue(Button.ContentProperty, "Delete");
+                deleteButton.SetValue(Button.WidthProperty, 100.0);
+                deleteButton.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteUserButton(sender, e, parent)));
 
-
-                // Powiązanie danych z Tag przycisku
-                var binding = new Binding
+                // Powiązanie danych z Tag przycisku (Delete)
+                var deleteBinding = new Binding
                 {
                     Path = new PropertyPath(".") // Bieżący obiekt User
                 };
-                buttonTemplate.SetBinding(Button.TagProperty, binding);
+                deleteButton.SetBinding(Button.TagProperty, deleteBinding);
+
+                // Dodanie pierwszego przycisku do kontenera
+                panelTemplate.AppendChild(deleteButton);
+
+                // Definicja drugiego przycisku (ChangeRole)
+                var changeRoleButton = new FrameworkElementFactory(typeof(Button));
+                changeRoleButton.SetValue(Button.ContentProperty, "Change Role");
+                changeRoleButton.SetValue(Button.WidthProperty, 100.0);
+                changeRoleButton.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnChangeRoleButton(sender, e, parent)));
+
+                // Powiązanie danych z Tag przycisku (ChangeRole)
+                var changeRoleBinding = new Binding
+                {
+                    Path = new PropertyPath(".") // Bieżący obiekt User
+                };
+                changeRoleButton.SetBinding(Button.TagProperty, changeRoleBinding);
+
+                // Dodanie drugiego przycisku do kontenera
+                panelTemplate.AppendChild(changeRoleButton);
 
                 // Ustawienie szablonu komórki
                 var cellTemplate = new DataTemplate
                 {
-                    VisualTree = buttonTemplate
+                    VisualTree = panelTemplate
                 };
 
                 actionColumn.CellTemplate = cellTemplate;
@@ -83,6 +104,9 @@ namespace BD.ViewModels
                 parent.UserTable.Columns.Add(actionColumn);
             }
         }
+        
+        
+        
 
         public void AddNewUser(object sender, RoutedEventArgs e)
         {
@@ -187,6 +211,29 @@ namespace BD.ViewModels
         {
             parent.mainTitle.Text = "Questions";
             
+        }
+        private void OnChangeRoleButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
+        {
+            var button = sender as Button;
+            var user = button?.Tag; // Pobranie danych użytkownika z Tag
+            if (user != null)
+            {
+                var newChangeRoleWindow = new NewChangeRoleWindow();
+                newChangeRoleWindow.Title = "Change Role" + user.GetType().Name;
+                if (newChangeRoleWindow.ShowDialog() == true)
+                {
+                    var user1 = newChangeRoleWindow.NewUser;
+                    bool update = App.DBConnection.UpdateUserRole(user1);
+                    if ((update=true))
+                    {
+                        MessageBox.Show($"User {user1.FirstName} {user1.LastName} has been successfully changed Role to {newChangeRoleWindow.TypeComboBox.SelectedItem}.");
+                    }
+                    else
+                    {
+                        MessageBox.Show($"User {user1.FirstName} {user1.LastName} has been NOT successfully changed Role to {newChangeRoleWindow.TypeComboBox.SelectedItem}.");
+                    }
+                }
+            }
         }
         public void OnDeleteUserButton(object sender, RoutedEventArgs e, AdminPanelUI parent)
         {
