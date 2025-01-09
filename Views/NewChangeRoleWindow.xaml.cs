@@ -31,15 +31,25 @@ namespace BD.Views
 
         private void ChangeRole_Click(object sender, RoutedEventArgs e)
         {
-            // Walidacja danych (upewnij się, że użytkownik wybrał typ)
+            
             if (TypeComboBox.SelectedItem == null)
             {
                 MessageBox.Show("Please select a role.");
                 return;
             }
 
-            // Ustawienie nowej roli dla użytkownika
-            NewUser.Role = TypeComboBox.SelectedItem.ToString(); // Przypisanie nowej roli
+            // Pobranie wybranego elementu z ComboBox
+            var selectedItem = TypeComboBox.SelectedItem as ComboBoxItem;
+            if (selectedItem != null)
+            {
+                
+                NewUser.Role = selectedItem.Content.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Invalid selection.");
+                return;
+            }
 
             // Zamykanie okna
             DialogResult = true;

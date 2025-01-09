@@ -361,7 +361,8 @@ namespace BD
         {
             string query = string.Format("UPDATE \"User\" SET \"role\" = '{0}' WHERE \"userid\" = {1}",
                 user.Role, user.GetID());
-
+            Debug.WriteLine($"Role: {user.Role}, UserID: {user.GetID()}");
+            Debug.WriteLine("Executing query: " + query);
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try
             {
