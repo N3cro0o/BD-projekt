@@ -38,6 +38,7 @@ namespace BD.ViewModels
             // Ustaw widoczność tabel
             parent.UserTable.Visibility = Visibility.Visible;
             parent.CoursesTable.Visibility = Visibility.Hidden;
+            parent.addUser.Visibility = Visibility.Visible;
 
             // Pobranie listy użytkowników
             var list = App.DBConnection.ReturnUsersListOfUsers();
@@ -84,9 +85,13 @@ namespace BD.ViewModels
 
         public void AddNewUser(object sender, RoutedEventArgs e)
         {
-            var user = new User(0, "Domino", "ColonelSanders", "kcflover@gmail.kom", "Dominik", "Filipiak", User.TYPE.Student);
-            App.DBConnection.AddUser(user);
-            MessageBox.Show($"Dodawanie uzytkownika");
+            var newUserWindow = new NewUserWindow();
+            if (newUserWindow.ShowDialog() == true)
+            {
+                var user = newUserWindow.NewUser;
+                App.DBConnection.AddUser(user);
+                MessageBox.Show($"Użytkownik {user.FirstName} {user.LastName} został dodany.");
+            }
         }
         public void AddNewCours(object sender, RoutedEventArgs e)
         {
@@ -102,6 +107,7 @@ namespace BD.ViewModels
 
             parent.UserTable.Visibility = Visibility.Hidden;
             parent.CoursesTable.Visibility = Visibility.Visible;
+            parent.addUser.Visibility = Visibility.Hidden;
 
             var list = App.DBConnection.ReturnQuestionList();
             parent.CoursesTable.ItemsSource = list;

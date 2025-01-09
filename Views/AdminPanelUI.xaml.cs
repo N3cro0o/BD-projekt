@@ -70,6 +70,10 @@ namespace BD.Views
         {
             _mv.OnDeleteButton(sender, e, this);
         }
+        private void addUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewUser(sender, e);
+        }
         
     }
 }
