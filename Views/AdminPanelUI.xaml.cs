@@ -78,6 +78,10 @@ namespace BD.Views
         {
             _mv.AddNewCours(sender, e);
         }
+        private void addQuestion_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewQuestion(sender, e);
+        }
         
 
     }

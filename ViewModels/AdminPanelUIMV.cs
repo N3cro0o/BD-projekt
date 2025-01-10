@@ -130,7 +130,8 @@ namespace BD.ViewModels
         }
         public void AddNewQuestion(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show($"Dodawanie pytania");
+            //MessageBox.Show($"Dodawanie pytania");
+
         }
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
         {
