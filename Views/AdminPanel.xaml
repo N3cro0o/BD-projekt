@@ -415,7 +415,7 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-
+                    
                     <Button x:Name="ustawSeName3" 
                 Background="Black" Foreground="White" 
                 FontWeight="Bold" Margin="3" FontSize="10"

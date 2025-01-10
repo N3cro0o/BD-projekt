@@ -18,19 +18,17 @@ namespace BD.Models
         public DateTime EndDate { get; set; }
 
         public string Category { get; set; }
-        
-        List<Answer> Answers { get; set; } = new List<Answer>();
 
-        public int CourseID { get; set; }
+        public Course CourseObject { get; set; }
 
         public string Name { get; set; } = "";
 
         public int ID { get => _id; set => _id = value; }
 
-        public Test(int id, string name, int courseID, List<int> quest, DateTime start, DateTime end, string cat)
+        public Test(int id, string name, Course course, List<int> quest, DateTime start, DateTime end, string cat)
         {
             ID = id;
-            CourseID = courseID;
+            CourseObject = course;
             Questions = quest;
             StartDate = start;
             Name = name;
@@ -38,10 +36,10 @@ namespace BD.Models
             Category = cat;
         }
 
-        public Test (int courseID, string cat, DateTime start, DateTime end)
+        public Test (Course course, string cat, DateTime start, DateTime end)
         {
             ID = 0;
-            CourseID = courseID;
+            CourseObject = course;
             Questions = new List<int>();
             StartDate = start;
             EndDate = end;

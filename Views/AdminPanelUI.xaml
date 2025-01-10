@@ -221,10 +221,38 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <Button x:Name="ShowTestsButton" 
+
+                    <Button x:Name="ShowAllTestsButton" 
                             Background="Black" Foreground="White" 
                             FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
-                             Content="Show available tests" Visibility="Visible" >
+                            Content="Show all running tests" Visibility="Visible" Click="ShowAllTests_Click">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <!-- Wewnętrzny element zmieniający tło -->
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Zmiana tlla przy najechaniu -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                    <GradientStop Color="#303030"/>
+                                                    <GradientStop Color="#434343"  Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="AddNewTestButton" 
+                        Background="Black" Foreground="White" 
+                        FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                        Content="Add new test" Visibility="Visible" Click="AddTest_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">

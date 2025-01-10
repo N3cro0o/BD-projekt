@@ -105,6 +105,23 @@ namespace BD.ViewModels
 
                             }
                             break;
+
+                        case "test":
+                        case "t":
+                            if (strings[2].ToLower() == "help" || strings[2].ToLower() == "h")
+                            {
+                                parent.consoleScreen.Text = "Add help text";
+                                break;
+                            }
+                            else if (_createTest(strings[2..strings.Count()].ToArray()))
+                            {
+
+                            }
+                            else
+                            {
+                                parent.consoleScreen.Text = "Wrong command";
+                            }
+                            break;
                     }
                     break;
 
@@ -285,8 +302,8 @@ namespace BD.ViewModels
             parent.consoleScreen.Text = "";
             foreach (Question q in list)
             {
-                parent.consoleScreen.Text += string.Format("ID: {0}, Name: {1}, Category: {3}, Question type {4}\n Text: {2}\n",
-                    q.GetID(), q.Name, q.Text, q.Category, q.QuestionType);
+                parent.consoleScreen.Text += string.Format("ID: {0}, Name: {1}, Category: {3}, Question type {4}\n Text: {2}, Key: {5}, Answers: {6}\n",
+                    q.GetID(), q.Name, q.Text, q.Category, q.QuestionType, q.CorrectAnswers, q.Answers);
             }
         }
         
@@ -306,7 +323,7 @@ namespace BD.ViewModels
             parent.consoleScreen.Text = "";
             foreach (Test t in list)
             {
-                parent.consoleScreen.Text += $"ID: {t.ID}, Name: {t.Name}, Category: {t.Category}, Course: {t.CourseID}, Start date: {t.StartDate.ToLocalTime()}, Start date: {t.EndDate.ToLocalTime()}\n\n";
+                parent.consoleScreen.Text += $"ID: {t.ID}, Name: {t.Name}, Category: {t.Category}, Course: {t.CourseObject.Name}, Start date: {t.StartDate.ToLocalTime()}, Start date: {t.EndDate.ToLocalTime()}\n\n";
             }
         }
 
@@ -452,6 +469,58 @@ namespace BD.ViewModels
             }
             return false;
         }
+
+        bool _createTest(string[] data)
+        {
+            int id = -1;
+            string name = "", cat = "";
+            DateTime start = DateTime.MinValue;
+            DateTime end = DateTime.MaxValue;
+            for (int i = 0; i < data.Length; i++)
+            {
+                switch (data[i])
+                {
+                    case "/id": // Course if
+                        id = int.Parse(data[i + 1]);
+                        i++;
+                        break;
+
+                    case "/q-id": // Questions id - multiple choice do it later
+                        
+                        break;
+
+                    case "/c": // Category
+                        cat = data[i + 1];
+                        i++;
+                        break;
+
+                    case "/ds": // Date start
+                        start = DateTime.Parse(data[i + 1].Substring(1, data[i + 1].Length - 2));
+                        i++;
+                        break;
+
+                    case "/de": // Date end
+                        end = DateTime.Parse(data[i + 1].Substring(1, data[i + 1].Length - 2));
+                        i++;
+                        break;
+
+                    case "/n": // Name
+                        name = data[i + 1];
+                        i++;
+                        break;
+                }
+            }
+
+            if (id > -1 && !(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(cat)))
+            {
+                Course course = App.DBConnection.ReturnCoursesListWithID(id)[0];
+                Test t = new Test(course, cat, start, end);
+                t.Name = name;
+                return App.DBConnection.AddTest(t);
+            }
+            return false;
+        }
+
         bool _removeUser(string[] data)
         {
             int id;

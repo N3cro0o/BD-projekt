@@ -153,10 +153,41 @@ namespace BD
             return list;
         }
 
+        public List<Course> ReturnCoursesListWithID(int id)
+        {
+            List<Course> list = new List<Course>();
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand($"SELECT * FROM \"Course\" WHERE courseid = '{id}' ORDER BY courseid", con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    Course c = new Course();
+                    c.Name = r.GetString(1);
+                    c.ID = r.GetInt32(0);
+                    c.Category = r.GetString(2);
+                    c.Description = r.GetString(3);
+                    var u = GetUserByID(r.GetInt32(4));
+                    c.Teachers.Add(u);
+                    c.MainTeacherName = $"{u.FirstName} {u.LastName}";
+                    list.Add(c);
+                }
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+
+            return list;
+        }
+
         public List<Question> ReturnQuestionList()
         {
             string query = "SELECT * FROM \"Question\" ORDER BY questionid";
-            int answer_id;
             List<Question> list = new List<Question>();
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             NpgsqlCommand com = new NpgsqlCommand(query, con);
@@ -167,15 +198,15 @@ namespace BD
 
                 while (reader.Read())
                 {
-                    int id = reader.GetInt32("questionid");
-                    string name = reader.GetString("name");
-                    string cat = reader.GetString("category");
-                    string questionType = reader.GetString("questiontype");
-                    bool shared = reader.GetBoolean("shared");
-                    double points = reader.GetDouble("maxpoints");
-                    answer_id = reader.GetInt32("answerid");
-                    string text = reader.GetString("questiontext");
-
+                    int id = reader.GetInt32(0);
+                    string name = reader.GetString(1);
+                    string cat = reader.GetString(2);
+                    string questionType = reader.GetString(3);
+                    bool shared = reader.GetBoolean(4);
+                    double points = reader.GetDouble(5);
+                    int answer_id = reader.GetInt32(6);
+                    string text = reader.GetString(7);
+                    Debug.Print("Answer "+answer_id.ToString());
                     Answer an = FetchAnswer(answer_id);
                     var q = new Question(name, text, Question.StringToType(questionType), "", points, 0, cat, shared, id);
                     if (an != null)
@@ -209,7 +240,8 @@ namespace BD
                 var r = com.ExecuteReader();
                 while (r.Read())
                 {
-                    var t = new Test(r.GetInt32(0), r.GetString(1), r.GetInt32(5), new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
+                    var c = ReturnCoursesListWithID(r.GetInt32(5));
+                    var t = new Test(r.GetInt32(0), r.GetString(1), c[0], new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
                     list.Add(t);
                 }
             }
@@ -234,7 +266,8 @@ namespace BD
                 var r = com.ExecuteReader();
                 while (r.Read())
                 {
-                    var t = new Test(r.GetInt32(0), r.GetString(1), r.GetInt32(5), new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
+                    var c = ReturnCoursesListWithID(id);
+                    var t = new Test(r.GetInt32(0), r.GetString(1), c[0], new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
                     list.Add(t);
                 }
             }
@@ -249,7 +282,7 @@ namespace BD
         Answer FetchAnswer(int id)
         {
             Answer answer = null;
-            string query1 = "SELECT * FROM \"Answer\" LIMIT 1";
+            string query1 = $"SELECT * FROM \"Answer\" WHERE answerid = '{id}' LIMIT 1";
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             NpgsqlCommand com = new NpgsqlCommand(query1, con);
 
@@ -291,7 +324,7 @@ namespace BD
             return true;
         }
 
-        public async Task<bool> AddQuestion(Question quest)
+        public bool AddQuestion(Question quest)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             using NpgsqlConnection connection1 = new NpgsqlConnection(connection_string);
@@ -301,7 +334,7 @@ namespace BD
             Debug.Print($"Key: {key}");
 
             string query_answer = "INSERT INTO \"Answer\"(score, answer, key, a, b, c, d) VALUES ";
-            query_answer += $"(\'{quest.Points.ToString()}\', \'{quest.Answers}\', '{quest.CorrectAnswers}', \'{(quest.CorrectAnswers & (1 << 3)) >> 3}\'," +
+            query_answer += $"(\'{quest.Points.ToString(System.Globalization.CultureInfo.InvariantCulture)}\', \'{quest.Answers}\', '{quest.CorrectAnswers}', \'{(quest.CorrectAnswers & (1 << 3)) >> 3}\'," +
                 $"\'{(quest.CorrectAnswers & (1 << 2)) >> 2}\',\'{(quest.CorrectAnswers & (1 << 1)) >> 1}\',\'{(quest.CorrectAnswers & (1 << 0)) >> 0}\');";
             query_answer += $"SELECT * FROM \"Answer\" WHERE answer = '{quest.Answers}'";
             Debug.Print(query_answer);
@@ -313,16 +346,16 @@ namespace BD
                 connection.Open();
                 using NpgsqlCommand npgsqlCommand1 = new NpgsqlCommand(query_answer, connection);
 
-                var r = await npgsqlCommand1.ExecuteReaderAsync();
+                var r = npgsqlCommand1.ExecuteReader();
                 while (r.Read())
                 {
                     answ_id = r.GetInt32(0);
                 }
                 connection.Close();
                 connection1.Open();
-                query_question += $"('{quest.Name}', '{quest.Category}', '{quest.QuestionType.ToString().ToLower()}','{quest.Shared}','{quest.Points}','{answ_id}','{quest.Text}')";
+                query_question += $"('{quest.Name}', '{quest.Category}', '{quest.QuestionType.ToString().ToLower()}','{quest.Shared}','{quest.Points.ToString(System.Globalization.CultureInfo.InvariantCulture)}','{answ_id}','{quest.Text}')";
                 using NpgsqlCommand npgsqlCommand3 = new NpgsqlCommand(query_question, connection1);
-                await npgsqlCommand3.ExecuteNonQueryAsync();
+                npgsqlCommand3.ExecuteNonQuery();
                 connection1.Close();
 
             }
@@ -339,6 +372,30 @@ namespace BD
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             string querry = "INSERT INTO \"Course\" (name, category, description, ownerid) VALUES " +
                 $"('{c.Name}','{c.Category}','{c.Description}','{c.Teachers[0].ID}')";
+            NpgsqlCommand com = new NpgsqlCommand(querry, con);
+            Debug.Print(querry);
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                Debug.Print($"Connection failed\n{e}");
+                return false;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return true;
+        }
+
+        public bool AddTest(Test t)
+        {
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            string querry = "INSERT INTO \"Test\" (name, starttime, endtime, category, courseid) VALUES " +
+                $"('{t.Name}','{t.StartDate}','{t.EndDate}','{t.Category}','{t.CourseObject.ID}')";
             NpgsqlCommand com = new NpgsqlCommand(querry, con);
             Debug.Print(querry);
             try
