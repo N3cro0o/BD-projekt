@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 
 namespace BD.Models
@@ -12,34 +13,48 @@ namespace BD.Models
     {
         public string? Name { get; set; }
 
-        int ID { get; set; }
+        int _id;
 
         [JsonInclude]
-        List<int> Teachers { get; set; } = new List<int>();
+        public List<User> Teachers { get; set; } = new List<User>();
 
         [JsonInclude]
-        List<int> Students { get; set; } = new List<int>();
+        public List<int> Students { get; set; } = new List<int>();
 
         [JsonInclude]
-        List<int> Tests { get; set; } = new List<int>();
+        public List<int> Tests { get; set; } = new List<int>();
 
         [JsonInclude]
-        List<int> Results { get; set; } = new List<int>();
-        
+        public List<int> Results { get; set; } = new List<int>();
+
         [JsonInclude]
-        int Category { get; set; }
+        public string Category { get; set; } = "";
 
+        public string Description { get; set; } = "No description";
 
-        public Course(int id, string name, int cat, List<int> teachers, List<int> students, List<int> tests)
+        public int ID { get => _id; set => _id = value; }
+
+        // Readonly
+        public string MainTeacherName { get; set; } = "";
+
+        public Course(int id, string name, string cat, List<User> teachers)
         {
             ID = id;
             Name = name;
             Teachers = teachers;
             Category = cat;
-            Students = students;
-            Tests = tests;
+
+            MainTeacherName = $"{teachers[0].FirstName} {teachers[0].LastName}";
         }
 
-        
+        public Course(string name, List<User> teachers)
+        {
+            ID = 0;
+            Name = name;
+            Teachers = teachers;
+            MainTeacherName = $"{teachers[0].FirstName} {teachers[0].LastName}";
+        }
+
+        public Course() { }
     }
 }

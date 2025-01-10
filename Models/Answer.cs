@@ -8,11 +8,19 @@ namespace BD.Models
 {
     public class Answer
     {
-        public Question.QUESTION_TYPE Type;
-        public string? UserAnswer;
-        public int Test;
-        public int Course;
-        public int User;
-        public int Points;
+        int _id;
+        public double Points;
+        public int AnswerKey;
+        public string AnswerBody = "";
+
+        public int ID { get { return _id; } }
+
+        public Answer(int id,  double points, int key, string body)
+        {
+            _id = id;
+            Points = points;
+            AnswerKey = key;
+            AnswerBody = body;
+        }
     }
 }

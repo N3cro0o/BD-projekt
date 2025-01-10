@@ -20,6 +20,8 @@ namespace BD.Views
     public partial class AdminPanel : UserControl
     {
         private readonly AdminPanelMV _mv;
+        public int EnterCounter = 0;
+
         public AdminPanel()
         {
             InitializeComponent();
@@ -29,7 +31,7 @@ namespace BD.Views
 
         private void OnPanelSubmit(object sender, RoutedEventArgs e)
         {
-               
+
         }
 
         private void Goback_Click(object sender, RoutedEventArgs e)
@@ -47,9 +49,41 @@ namespace BD.Views
             _mv.AddNewUser(this);
         }
 
-        private void OnInputBox_KeyDown(object sender, KeyEventArgs e)
+        private void InputKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Enter)
+            {
+                if (_mv.StepMethod != null)
+                {
+                    EnterCounter++;
+                    _mv.StepMethod(this);
+                }
+                else
+                {
+                    _mv.InstrQuery(InputBox.Text, this);
+                    EnterCounter = 0;
+                }
+            }
+        }
 
+        private void DeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.DeleteUser(this);
+        }
+
+        private void ModifyUser_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ModifyUser(this);
+        }
+
+        private void ShowQuestions_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ReturnAllQuestionsFromDB(this);
+        }
+
+        private void AddNewQuestion_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.AddNewQuestion(this);
         }
     }
 }

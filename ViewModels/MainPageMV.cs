@@ -32,6 +32,10 @@ namespace BD.ViewModels
         }
         public void GoToAdminPanel()
         {
+            _mainwindow.ChangeAdminPanelV2DataContext();
+        }
+        public void GoToAdminConsole()
+        {
             _mainwindow.ChangeAdminPanelDataContext();
         }
 

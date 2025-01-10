@@ -54,5 +54,11 @@ namespace BD
         {
             DataContext = new ViewModels.AdminPanelMV(this);
         }
+
+        public void ChangeAdminPanelV2DataContext()
+        {
+            Debug.Print("XD");
+            DataContext = new ViewModels.AdminPanelUIMV(this);
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace BD.Models
 {
@@ -19,26 +20,49 @@ namespace BD.Models
             Admin = 10,
         }
 
-        string[] names = { "Staszek", "Mathew" , "Franio", "Domino", "Karol"};
+        public static TYPE StringToType(string s)
+        {
+            if (s.ToLower() == "student" || s.ToLower() == "uczen")
+            {
+                return TYPE.Student;
+            }
+            else if (s.ToLower() == "teacher" || s.ToLower() == "nauczyciel")
+            {
+                return TYPE.Teacher;
+            }
+            else if (s.ToLower() == "admin")
+            {
+                return TYPE.Admin;
+            }
+            else
+            {
+                return TYPE.Guest;
+            }
+        }
+
+        string[] names = { "Staszek", "Mathew", "Franio", "Domino", "Karol" };
 
         [JsonInclude]
-        int ID;
+        int _id;
+
+        public int ID
+        {
+            get { return GetID(); }
+            set { SetID(value); }
+        }
+
+        string? login;
+
+        string? password;
+
+        string _firstName = "";
+
+        string _lastName = "";
 
         [JsonInclude]
-        string login;
+        string? email;
 
-        [JsonInclude]
-        string password;
-
-        [JsonInclude]
-        public string FirstName;
-
-        public string LastName;
-
-        [JsonInclude]
-        string email;
-
-        public TYPE UserType = TYPE.Guest;
+        TYPE _userType = TYPE.Guest;
 
         [JsonInclude]
         List<int> Courses = new List<int>();
@@ -62,6 +86,24 @@ namespace BD.Models
             set => email = value;
         }
 
+        public string FirstName
+        {
+            get => _firstName;
+            set => _firstName = value;
+        }
+
+        public string LastName
+        {
+            get => _lastName;
+            set => _lastName = value;
+        }
+
+        public TYPE UserType 
+        { 
+            get => _userType; 
+            set => _userType = value;
+        }
+
         public User(int id, string login, string pass, string email, string fName, string lName, TYPE type = TYPE.Guest)
         {
             ID = id;
@@ -75,33 +117,21 @@ namespace BD.Models
 
         public User()
         {
-            Random rng = new Random();
-            int lSize = 8;
-            int pSize = 10;
-            string login = "";
-            string password = "";
 
-            for (int i = 0; i < lSize; i++)
-            {
-                login += Convert.ToChar(rng.Next(0, 26) + 65);
-            }
-            for (int i = 0; i < pSize; i++)
-            {
-                password += Convert.ToChar(rng.Next(0, 26) + 65);
-            }
+        }
 
-            ID = rng.Next();
-            Login = login;
-            this.password = password;
-            email = login + "@" + password + ".com";
-            FirstName = names[rng.Next(0, 5)];
-            LastName = names[rng.Next(0, 5)];
-            UserType = TYPE.Guest;
+        public void DebugPrintUser()
+        {
+            Debug.Print("ID {0}, Login {1}, First Name {4}, Last Name {5}\nPassword {2}, Email {3}, Type {6}", ID, Login, Password, Email, FirstName, LastName, UserType.ToString());
         }
 
         public void SetID(int id)
         {
-            ID = id;
+            _id = id;
+        }
+        public int GetID()
+        {
+            return _id;
         }
 
         public bool CorrectLoginData(string login, string pass)
@@ -113,7 +143,7 @@ namespace BD.Models
 
         public void SetToken(string token)
         {
-            if (token != null) 
+            if (token != null)
                 Token = token;
         }
     }
