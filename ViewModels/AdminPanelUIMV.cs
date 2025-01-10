@@ -230,7 +230,7 @@ namespace BD.ViewModels
                 // Check for more mistakes
                 if (login != null && email != null && pass != null && fname != null && lname != null)
                 {
-                    if (!string.IsNullOrEmpty(login.Text) && string.IsNullOrEmpty(email.Text) && string.IsNullOrEmpty(pass.Text) && string.IsNullOrEmpty(fname.Text) && string.IsNullOrEmpty(lname.Text))
+                    if (!string.IsNullOrEmpty(login.Text) && !string.IsNullOrEmpty(email.Text) && !string.IsNullOrEmpty(pass.Text) && !string.IsNullOrEmpty(fname.Text) && !string.IsNullOrEmpty(lname.Text))
                     {
                         User u = new User(0, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
                         u.DebugPrintUser();
