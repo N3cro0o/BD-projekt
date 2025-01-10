@@ -41,6 +41,8 @@ namespace BD.Models
 
         string[] names = { "Staszek", "Mathew" , "Franio", "Domino", "Karol"};
 
+        public int RowNumber { get; set; }
+
         [JsonInclude]
         int _id;
 

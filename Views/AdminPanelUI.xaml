@@ -134,13 +134,12 @@ Content="Add Course" Visibility="Hidden" Click="addCourse_Click" >
                     </DataGrid.ColumnHeaderStyle>
                     <!-- Definicje kolumn -->
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*" />
+                        <!--<DataGridTextColumn Header="User ID" Binding="{Binding Id}" Width="*" />-->
                         <DataGridTextColumn Header="Login" Binding="{Binding Login}" Width="*" />
                         <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*" />
                         <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*" />
-                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*" />
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="1.5*" />
                         <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="*" />
-                        <DataGridTextColumn Header="Option" Binding="{Binding Email}" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
                 <DataGrid x:Name="CourseTable" Grid.Row="1"

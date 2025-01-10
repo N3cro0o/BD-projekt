@@ -44,12 +44,34 @@ namespace BD.ViewModels
 
             // Pobranie listy użytkowników
             var list = App.DBConnection.ReturnUsersListOfUsers();
-            parent.UserTable.ItemsSource = list;
+
+            // Dodanie numeracji do każdego użytkownika
+            int rowNumber = 1;
+            var numberedList = list.Select(user =>
+            {
+                user.RowNumber = rowNumber++; // Dodanie numeru wiersza
+                return user;
+            }).ToList();
+
+            parent.UserTable.ItemsSource = numberedList;
+
+            // Dodanie kolumny numerującej wiersze, jeśli jeszcze nie została dodana
+            if (!parent.UserTable.Columns.Any(c => c.Header.ToString() == "No."))
+            {
+                var numberColumn = new DataGridTextColumn
+                {
+                    Header = "No.",
+                    Binding = new Binding("RowNumber"), // Wiązanie z właściwością RowNumber w obiekcie User
+                    IsReadOnly = true,
+                    Width = 50 // Opcjonalna szerokość
+                };
+
+                parent.UserTable.Columns.Insert(0, numberColumn); // Dodanie kolumny na początku tabeli
+            }
 
             // Dodanie kolumn dynamicznie, jeśli jeszcze nie zostały dodane
             if (!parent.UserTable.Columns.Any(c => c.Header.ToString() == "Actions"))
             {
-                // Kolumna z przyciskami
                 var actionColumn = new DataGridTemplateColumn
                 {
                     Header = "Actions",
@@ -60,53 +82,30 @@ namespace BD.ViewModels
                 var panelTemplate = new FrameworkElementFactory(typeof(StackPanel));
                 panelTemplate.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
 
-                // Definicja pierwszego przycisku (Delete)
+                // Przycisk Delete
                 var deleteButton = new FrameworkElementFactory(typeof(Button));
                 deleteButton.SetValue(Button.ContentProperty, "Delete");
                 deleteButton.SetValue(Button.WidthProperty, 100.0);
                 deleteButton.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnDeleteUserButton(sender, e, parent)));
-
-                // Powiązanie danych z Tag przycisku (Delete)
-                var deleteBinding = new Binding
-                {
-                    Path = new PropertyPath(".") // Bieżący obiekt User
-                };
-                deleteButton.SetBinding(Button.TagProperty, deleteBinding);
-
-                // Dodanie pierwszego przycisku do kontenera
+                deleteButton.SetBinding(Button.TagProperty, new Binding { Path = new PropertyPath(".") });
                 panelTemplate.AppendChild(deleteButton);
 
-                // Definicja drugiego przycisku (ChangeRole)
+                // Przycisk Change Role
                 var changeRoleButton = new FrameworkElementFactory(typeof(Button));
                 changeRoleButton.SetValue(Button.ContentProperty, "Change Role");
                 changeRoleButton.SetValue(Button.WidthProperty, 100.0);
                 changeRoleButton.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) => OnChangeRoleButton(sender, e, parent)));
-
-                // Powiązanie danych z Tag przycisku (ChangeRole)
-                var changeRoleBinding = new Binding
-                {
-                    Path = new PropertyPath(".") // Bieżący obiekt User
-                };
-                changeRoleButton.SetBinding(Button.TagProperty, changeRoleBinding);
-
-                // Dodanie drugiego przycisku do kontenera
+                changeRoleButton.SetBinding(Button.TagProperty, new Binding { Path = new PropertyPath(".") });
                 panelTemplate.AppendChild(changeRoleButton);
 
-                // Ustawienie szablonu komórki
-                var cellTemplate = new DataTemplate
-                {
-                    VisualTree = panelTemplate
-                };
-
-                actionColumn.CellTemplate = cellTemplate;
-
-                // Dodanie kolumny do DataGrid
+                actionColumn.CellTemplate = new DataTemplate { VisualTree = panelTemplate };
                 parent.UserTable.Columns.Add(actionColumn);
             }
         }
-        
-        
-        
+
+
+
+
 
         public void AddNewUser(object sender, RoutedEventArgs e)
         {
