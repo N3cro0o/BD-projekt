@@ -206,15 +206,42 @@ namespace BD
                     double points = reader.GetDouble(5);
                     int answer_id = reader.GetInt32(6);
                     string text = reader.GetString(7);
-                    Debug.Print("Answer "+answer_id.ToString());
-                    Answer an = FetchAnswer(answer_id);
                     var q = new Question(name, text, Question.StringToType(questionType), "", points, 0, cat, shared, id);
-                    if (an != null)
-                    {
-                        q.Answers = an.AnswerBody;
-                        q.CorrectAnswers = an.AnswerKey;
+                    q.AnswerID = answer_id;
+                    list.Add(q);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+                return list;
+            }
 
-                    }
+            return list;
+        }
+
+        public List<Question> ReturnQuestionListByID(int id)
+        {
+            string query = $"SELECT * FROM \"Question\" WHERE questionid = '{id}' ORDER BY questionid";
+            List<Question> list = new List<Question>();
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                var reader = com.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string name = reader.GetString(1);
+                    string cat = reader.GetString(2);
+                    string questionType = reader.GetString(3);
+                    bool shared = reader.GetBoolean(4);
+                    double points = reader.GetDouble(5);
+                    int answer_id = reader.GetInt32(6);
+                    string text = reader.GetString(7);
+                    var q = new Question(name, text, Question.StringToType(questionType), "", points, 0, cat, shared, id);
+                    q.AnswerID = answer_id;
                     list.Add(q);
                 }
             }
@@ -279,7 +306,7 @@ namespace BD
             return list;
         }
 
-        Answer FetchAnswer(int id)
+        public Answer FetchAnswer(int id)
         {
             Answer answer = null;
             string query1 = $"SELECT * FROM \"Answer\" WHERE answerid = '{id}' LIMIT 1";

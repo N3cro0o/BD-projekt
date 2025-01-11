@@ -263,7 +263,6 @@ namespace BD.ViewModels
                 showMenu = false;
                 parent.menuColumn.Width = new System.Windows.GridLength(0, GridUnitType.Star);
             }
-
         }
 
         public void ShowAllQusetions(AdminPanelUI parent)
@@ -274,10 +273,9 @@ namespace BD.ViewModels
                 parent.outputGrid.Children.RemoveAt(0);
             }
 
-            // Tworzymy DataGrid
             DataGrid myDataGrid = new DataGrid
             {
-                AutoGenerateColumns = false, // Ręczne tworzenie kolumn
+                AutoGenerateColumns = false,
                 Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
@@ -285,7 +283,6 @@ namespace BD.ViewModels
                 BorderBrush = System.Windows.Media.Brushes.Black
             };
 
-            // Dodanie kolumn
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "ID",
@@ -323,27 +320,24 @@ namespace BD.ViewModels
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
-                Header = "Answer Body",
-                Binding = new System.Windows.Data.Binding("Answers"),
-                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
-            });
-
-            myDataGrid.Columns.Add(new DataGridTextColumn
-            {
-                Header = "Correct answer key",
-                Binding = new System.Windows.Data.Binding("CorrectAnswersBinary"),
-                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
-            });
-
-            myDataGrid.Columns.Add(new DataGridTextColumn
-            {
                 Header = "Shared",
                 Binding = new System.Windows.Data.Binding("Shared"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
             var context = new ContextMenu();
-            var item = new MenuItem { Header = "Delete Question" };
+
+            var item = new MenuItem { Header = "Show answers for question" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Question question)
+                {
+                    ReturnAnswerForQuestion(parent, question.ID);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Delete Question" };
             item.Click += (s, e) =>
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Question question)
@@ -364,7 +358,6 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
-
             context = universalItems(parent, context);
 
             var style = new Style(typeof(DataGridRow));
@@ -376,6 +369,107 @@ namespace BD.ViewModels
             parent.outputGrid.Children.Add(myDataGrid);
             Grid.SetRow(myDataGrid, 1);
 
+        }
+
+        public void ReturnAnswerForQuestion(AdminPanelUI parent, int question_id)
+        {
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+            var q = App.DBConnection.ReturnQuestionListByID(question_id)[0];
+            var a = App.DBConnection.FetchAnswer(q.AnswerID);
+            parent.mainTitle.Text = $"Answers for question {q.Name}";
+            q.PrintQuestionOnConsole();
+
+            var stacking_panel = new StackPanel();
+            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+            parent.outputGrid.Children.Add(stacking_panel);
+
+            var stacking_panel_inner = new StackPanel()
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+            };
+            Button button = new Button()
+            {
+                Content = "Go back"
+            };
+            button.Click += (o, e) => 
+            {
+                ShowAllQusetions(parent);
+            };
+            stacking_panel_inner.Children.Add(button);
+            stacking_panel.Children.Add(stacking_panel_inner);
+
+            TextBlock block = new TextBlock()
+            {
+                Text = "Question Body",
+                FontWeight = FontWeights.Bold,
+            };
+            stacking_panel.Children.Add(block);
+
+            block = new TextBlock()
+            {
+                Text = q.Text,
+            };
+            stacking_panel.Children.Add(block);
+            block = new TextBlock()
+            {
+                Text = "Answers",
+                FontWeight = FontWeights.Bold,
+            };
+            stacking_panel.Children.Add(block);
+
+            string[] answer_list;
+            answer_list = a.AnswerBody.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string t = "Correct";
+            string t1 = "Incorrect";
+            if (answer_list.Length == 4 && q.QuestionType == Question.QUESTION_TYPE.Closed)
+            {
+                var uniform = new UniformGrid()
+                {
+                    Columns = 2,
+                    Rows = 2
+                };
+                for (int i = 0; i < 4; i++)
+                {
+                    var new_stack = new StackPanel();
+                    new_stack.Orientation = Orientation.Horizontal;
+                    var textBlock = new TextBlock();
+                    string t_this = (a.AnswerKey & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
+                    textBlock.Text = $"{i + 1}. {answer_list[i]} - {t_this}";
+                    new_stack.Children.Add(textBlock);
+                    uniform.Children.Add(new_stack);
+                }
+                stacking_panel.Children.Add(uniform);
+            }
+            else
+            {
+                block = new TextBlock()
+                {
+                    Text = a.AnswerBody,
+                };
+                stacking_panel.Children.Add(block);
+
+                if (q.QuestionType == Question.QUESTION_TYPE.Closed)
+                {
+                    block = new TextBlock()
+                    {
+                        Text = "Answer key",
+                    };
+                    stacking_panel.Children.Add(block);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        string t_this = (a.AnswerKey & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
+                        block = new TextBlock()
+                        {
+                            Text = $"{i + 1}. {t_this}",
+                        };
+                        stacking_panel.Children.Add(block);
+                    }
+                }
+            }
         }
 
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
