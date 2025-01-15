@@ -1146,7 +1146,11 @@ namespace BD.ViewModels
             text.Text = "Question body";
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox()
+            {
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+            };
             stacking_panel.Children.Add(input);
 
             var uniform = new UniformGrid()
