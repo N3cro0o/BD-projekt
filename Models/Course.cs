@@ -55,6 +55,11 @@ namespace BD.Models
             MainTeacherName = $"{teachers[0].FirstName} {teachers[0].LastName}";
         }
 
-        public Course() { }
+        public Course() { ID = -1; }
+
+        public bool IsEmpty()
+        {
+            return Teachers.Count == 0 && ID > -1;
+        }
     }
 }

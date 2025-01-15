@@ -38,7 +38,7 @@ namespace BD.Models
 
         public Test (Course course, string cat, DateTime start, DateTime end)
         {
-            ID = 0;
+            ID = -1;
             CourseObject = course;
             Questions = new List<int>();
             StartDate = start;
@@ -51,5 +51,9 @@ namespace BD.Models
             ID = -1;
         }
 
+        public bool IsEmpty()
+        {
+            return ID < 0;
+        }
     }
 }

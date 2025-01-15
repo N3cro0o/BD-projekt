@@ -519,7 +519,7 @@ namespace BD.ViewModels
                     {
                         App.DBConnection.RemoveQuestion(question.ID);
                         MessageBox.Show($"Question and answer have been removed.");
-                        ReturnAllUsersFromDB(parent);
+                        ShowAllQusetions(parent);
                     }
                 }
             };
@@ -714,6 +714,34 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
+
+            item = new MenuItem() { Header = "Update course" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Course course)
+                {
+                    parent.TargetChangeID = course.ID;
+                    AddNewCourse(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+
+                    var name = (stacking_panel.Children[1] as TextBox);
+                    var cat = (stacking_panel.Children[3] as TextBox);
+                    var desc = (stacking_panel.Children[5] as TextBox);
+                    var radio_panel = (stacking_panel.Children[7] as ScrollViewer).Content as StackPanel;
+
+                    name.Text = course.Name;
+                    cat.Text = course.Category;
+                    desc.Text = course.Description;
+
+                    for (int i = 0; i < radio_panel.Children.Count; i++)
+                    {
+                        if (course.Teachers[0].ID == parent.IDs[i])
+                            (radio_panel.Children[i] as RadioButton).IsChecked = true;
+                    }
+                }
+            };
+            context.Items.Add(item);
+
             item = new MenuItem { Header = "Delete Course" };
             item.Click += (s, e) =>
             {
@@ -822,6 +850,37 @@ namespace BD.ViewModels
                     AddNewTest(parent);
                 }
             };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Update test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    parent.TargetChangeID = test.ID;
+                    AddNewTest(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+
+                    var name = (stacking_panel.Children[1] as TextBox);
+                    var cat = (stacking_panel.Children[3] as TextBox);
+                    var cal_start = (stacking_panel.Children[6] as StackPanel).Children[1] as DatePicker;
+                    var cal_end = (stacking_panel.Children[6] as StackPanel).Children[3] as DatePicker;
+
+                    name.Text = test.Name;
+                    cat.Text = test.Category;
+                    cal_start.SelectedDate = test.StartDate;
+                    cal_end.SelectedDate = test.EndDate;
+
+                    for (int i = 0; i < parent.radios.Count; i++)
+                    {
+                        if (test.CourseObject.ID == parent.IDs[i])
+                        {
+                            parent.radios[i].IsChecked = true;
+                        }
+                    }
+                }
+            };
+            context.Items.Add(item);
 
             item = new MenuItem { Header = "Remove test" };
             item.Click += (s, e) =>
@@ -842,6 +901,7 @@ namespace BD.ViewModels
                     }
                 }
             };
+            context.Items.Add(item);
 
             context = universalItems(parent, context, ReturnAllCoursesFromDB);
 
@@ -953,9 +1013,18 @@ namespace BD.ViewModels
                     return;
 
                 User u = App.DBConnection.GetUserByID(teach);
-                Course c = new Course(0, name.Text, cat.Text, new List<User>([u]));
+                Course c = new Course(parent.TargetChangeID, name.Text, cat.Text, new List<User>([u]));
                 if (desc != null && !string.IsNullOrEmpty(desc.Text))
                     c.Description = desc.Text;
+
+                if (parent.TargetChangeID >= 0)
+                {
+                    if (!App.DBConnection.UpdateCourse(c).IsEmpty())
+                    {
+                        ReturnAllTestsFromDB(parent);
+                        return;
+                    }
+                }
 
                 if (App.DBConnection.AddCourse(c))
                 {
@@ -1111,6 +1180,16 @@ namespace BD.ViewModels
                 Course c = App.DBConnection.ReturnCoursesListWithID(course)[0];
                 Test t = new Test(c, cat.Text, cal_start.SelectedDate.Value, cal_end.SelectedDate.Value);
                 t.Name = name.Text;
+                t.ID = parent.TargetChangeID;
+
+                if (parent.TargetChangeID >= 0)
+                {
+                    if (!App.DBConnection.UpdateTest(t).IsEmpty())
+                    {
+                        ReturnAllTestsFromDB(parent);
+                        return;
+                    }
+                }
 
                 if (App.DBConnection.AddTest(t))
                 {
@@ -1303,7 +1382,6 @@ namespace BD.ViewModels
                             return;
                         }
                         Debug.Print("Update failed, trying to add new Question");
-                        return;
                     }
                     if (App.DBConnection.AddQuestion(q))
                     {
