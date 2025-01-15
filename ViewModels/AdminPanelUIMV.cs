@@ -31,15 +31,20 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
-
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
+            };
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                //Style = (Style)Application.Current.Resources["CustomDataGridStyle"]
+                //Margin = new Thickness(10),
+                //AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
+                //Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
+                //BorderThickness = new Thickness(2),
+                //BorderBrush = System.Windows.Media.Brushes.Black
             };
 
             // Dodanie kolumn
@@ -84,6 +89,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("UserType"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
+            myDataGrid.Style = customDataGridStyle;
 
             var context = new ContextMenu();
             var item = new MenuItem { Header = "Delete User" };
@@ -272,15 +278,22 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
+            
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
 
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
+                Style = customDataGridStyle
+                /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black*/
             };
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -324,7 +337,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("Shared"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-
+            
             var context = new ContextMenu();
 
             var item = new MenuItem { Header = "Show answers for question" };
@@ -369,6 +382,7 @@ namespace BD.ViewModels
             parent.outputGrid.Children.Add(myDataGrid);
             Grid.SetRow(myDataGrid, 1);
 
+            
         }
 
         public void ReturnAnswerForQuestion(AdminPanelUI parent, int question_id)
@@ -481,14 +495,21 @@ namespace BD.ViewModels
                 parent.outputGrid.Children.RemoveAt(0);
             }
 
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
+
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
+                Style = customDataGridStyle,
+                /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black*/
             };
 
             // Dodanie kolumn
@@ -590,15 +611,21 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
 
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
+                Style = customDataGridStyle,
+                /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black*/
             };
 
             // Dodanie kolumn

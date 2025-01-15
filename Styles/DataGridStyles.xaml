@@ -1,0 +1,13 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Style for DataGrid -->
+    <Style x:Key="CustomDataGridStyle" TargetType="DataGrid">
+        <Setter Property="AutoGenerateColumns" Value="False" />
+        <Setter Property="Margin" Value="10" />
+        <Setter Property="AlternatingRowBackground" Value="Black" />
+        <Setter Property="Background" Value="Black" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderBrush" Value="Black" />
+        
+    </Style>
+</ResourceDictionary>

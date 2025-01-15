@@ -15,7 +15,7 @@ namespace BD
 {
     public class DataBaseConnection
     {
-        string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
+        string connection_string = "Host=localhost; Port = 5432; Database = TesatyWiezy; User Id = postgres; Password = postgres;";
 
         public List<Dictionary<string, string>> Login(string login, string pass)
         {
