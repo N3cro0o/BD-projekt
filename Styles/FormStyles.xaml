@@ -5,9 +5,10 @@
     <!-- Styl dla TextBlock -->
     <Style TargetType="TextBlock" x:Key="FormLabelStyle">
         <Setter Property="FontSize" Value="14" />
+		<Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Margin" Value="0,10,0,5" />
-        <Setter Property="Foreground" Value="DarkSlateGray" />
+        <Setter Property="Foreground" Value="White" />
     </Style>
 
     <!-- Styl dla TextBox -->
@@ -17,21 +18,58 @@
         <Setter Property="BorderBrush" Value="LightGray" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="FontSize" Value="14" />
+		<Setter Property="Width" Value="300" />
+		<Setter Property="HorizontalAlignment" Value="Center" />
     </Style>
 
     <!-- Styl dla RadioButton -->
-    <Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
-        <Setter Property="Margin" Value="10,0,10,0" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="DarkSlateGray" />
-    </Style>
+	<Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
+		<Setter Property="Margin" Value="10,0,10,0" />
+		<Setter Property="FontSize" Value="14" />
+		<Setter Property="Foreground" Value="White" />
+		
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="RadioButton">
+					<Border x:Name="BorderElement"
+							BorderThickness="1"
+							BorderBrush="Gray"
+							CornerRadius="5"
+							Padding="5">
+						<StackPanel Orientation="Horizontal">
+							<Ellipse Width="14" Height="14" Stroke="White" StrokeThickness="2"
+									 Fill="{TemplateBinding Background}">
+								<Ellipse.Style>
+									<Style TargetType="Ellipse">
+										<Setter Property="Fill" Value="White" />
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+												<Setter Property="Fill" Value="DodgerBlue" />
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</Ellipse.Style>
+							</Ellipse>
+							<ContentPresenter Margin="5,0,0,0" VerticalAlignment="Center" />
+						</StackPanel>
+					</Border>
+					<ControlTemplate.Triggers>
+						<!-- Trigger for changing border color on hover -->
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter TargetName="BorderElement" Property="BorderBrush" Value="DodgerBlue" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
 
     <!-- Styl dla Button -->
     <Style TargetType="Button" x:Key="FormButtonStyle">
         <Setter Property="Padding" Value="10,5" />
         <Setter Property="Margin" Value="0,15,0,0" />
         <Setter Property="Background" Value="DodgerBlue" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="Black" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="BorderThickness" Value="0" />
