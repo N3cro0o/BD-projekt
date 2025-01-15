@@ -42,6 +42,12 @@
     <!-- Styl dla StackPanel -->
     <Style TargetType="StackPanel" x:Key="FormStackPanelStyle">
         <Setter Property="Margin" Value="50,15,50,15" />
+		
     </Style>
+
+	<Style x:Key="FormToggleButtonStyle" TargetType="ToggleButton">
+		<Setter Property="Width" Value="50" />
+		<Setter Property="Margin" Value="5" />
+	</Style>
 
 </ResourceDictionary>
