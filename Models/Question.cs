@@ -67,6 +67,10 @@ namespace BD.Models
             Points = points;
         }
 
+        public Question()
+        {
+            ID = -1;
+        }
         public void PrintQuestionOnConsole()
         {
             Debug.Print(string.Format("ID {0}, Name {1}\nText {2}\nAnswer count {3}, real answ count {4}, type {5}", ID, Name, Text, Answers, CorrectAnswers, QuestionType.ToString()));

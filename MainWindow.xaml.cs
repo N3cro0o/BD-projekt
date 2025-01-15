@@ -47,6 +47,7 @@ namespace BD
         public void ChangeLogoffDataContext()
         {
             Logged = false;
+            App.CurrentUser = null;
             ChangeMainPageDataContext();
         }
 

@@ -45,6 +45,11 @@ namespace BD.Models
             EndDate = end;
             Category = cat;
         }
+        
+        public Test ()
+        {
+            ID = -1;
+        }
 
     }
 }

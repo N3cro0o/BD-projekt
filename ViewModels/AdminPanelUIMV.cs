@@ -11,11 +11,24 @@ namespace BD.ViewModels
 {
     internal class AdminPanelUIMV
     {
+        public delegate void StepMethodCallback(AdminPanelUI parent);
+
         private readonly MainWindow _mainwindow;
         public bool showMenu = false;
+        private StepMethodCallback _stepMethodCallback;
+
+        void voidStepCallback(AdminPanelUI parent) { }
+
         public AdminPanelUIMV(MainWindow mainWindow)
         {
+            _stepMethodCallback = voidStepCallback;
             _mainwindow = mainWindow;
+        }
+
+        public void CallbackClick(AdminPanelUI parent)
+        {
+            _stepMethodCallback(parent);
+            parent.CallbackButton.Visibility = Visibility.Collapsed;
         }
 
         public void GoBack()
@@ -39,10 +52,10 @@ namespace BD.ViewModels
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black,
+                CanUserAddRows = false
             };
 
-            // Dodanie kolumn
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "ID",
@@ -86,7 +99,49 @@ namespace BD.ViewModels
             });
 
             var context = new ContextMenu();
-            var item = new MenuItem { Header = "Delete User" };
+            var item = new MenuItem { Header = "Modify User" };
+            item.Click += (s, e) => // LAMBDA SUPREMACY
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    parent.TargetChangeID = user.ID;
+                    AddNewUser(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+                    var login = stacking_panel.Children[1] as TextBox;
+                    var email = stacking_panel.Children[3] as TextBox;
+                    var fname = stacking_panel.Children[5] as TextBox;
+                    var lname = stacking_panel.Children[7] as TextBox;
+                    var pass = stacking_panel.Children[9] as TextBox;
+                    var radio_panel = stacking_panel.Children[11] as StackPanel;
+
+                    login.Text = user.Login;
+                    email.Text = user.Email;
+                    fname.Text = user.FirstName;
+                    lname.Text = user.LastName;
+                    pass.Text = user.Password;
+                    switch (user.UserType)
+                    {
+                        case User.TYPE.Student:
+                        case User.TYPE.Guest:
+                            (radio_panel.Children[0] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Student;
+                            break;
+
+                        case User.TYPE.Teacher:
+                            (radio_panel.Children[1] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Teacher;
+                            break;
+
+                        case User.TYPE.Admin:
+                            (radio_panel.Children[2] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Admin;
+                            break;
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Delete User" };
             item.Click += (s, e) => // LAMBDA SUPREMACY
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is User user)
@@ -107,23 +162,23 @@ namespace BD.ViewModels
             };
             context.Items.Add(item);
 
-            context = universalItems(parent, context);
+            context = universalItems(parent, context, ReturnAllUsersFromDB);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
             myDataGrid.RowStyle = style;
 
             var list = App.DBConnection.ReturnUsersListOfUsers();
-            list[0].DebugPrintUser();
+            Debug.Print(list.Count.ToString());
             myDataGrid.ItemsSource = list;
             parent.outputGrid.Children.Add(myDataGrid);
-            Grid.SetRow(myDataGrid, 1);
         }
 
         // Add error handling
         public void AddNewUser(AdminPanelUI parent)
         {
-            Debug.Print(parent.type.ToString());
+            if (parent.TargetChangeID != -1)
+                Debug.Print($"User id to change: {parent.TargetChangeID}");
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Create new User";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
@@ -133,6 +188,7 @@ namespace BD.ViewModels
             parent.type = User.TYPE.Student;
 
             var stacking_panel = new StackPanel();
+            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
             parent.outputGrid.Children.Add(stacking_panel);
 
@@ -232,8 +288,17 @@ namespace BD.ViewModels
                 {
                     if (!string.IsNullOrEmpty(login.Text) && !string.IsNullOrEmpty(email.Text) && !string.IsNullOrEmpty(pass.Text) && !string.IsNullOrEmpty(fname.Text) && !string.IsNullOrEmpty(lname.Text))
                     {
-                        User u = new User(0, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
+                        User u = new User(parent.TargetChangeID, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
                         u.DebugPrintUser();
+                        if (parent.TargetChangeID > -1)
+                        {
+                            if (App.DBConnection.UpdateUser(u).IsEmpty())
+                            {
+                                ReturnAllUsersFromDB(parent);
+                                return;
+                            }
+                            Debug.Print("Update failed, trying to add new User");
+                        }
                         if (App.DBConnection.AddUser(u))
                         {
                             ReturnAllUsersFromDB(parent);
@@ -242,27 +307,62 @@ namespace BD.ViewModels
                     }
                     // Add error handling
                     pass.Text = "";
+                    login.Text = "Operation failed";
                 }
             };
             stacking_panel.Children.Add(bttn);
+
+            // Stacking_panel contex menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(parent, menu, ReturnAllUsersFromDB);
+            parent.outputGrid.ContextMenu = menu;
         }
 
         public void ShowMenu(AdminPanelUI parent)
         {
-
+            Debug.Print($"Show menu: {showMenu}");
             if (showMenu == false)
             {
                 parent.showToolBox.SetValue(Grid.ColumnProperty, 0);
                 showMenu = true;
                 parent.menuColumn.Width = new System.Windows.GridLength(2, GridUnitType.Star);
-
             }
             else
             {
-                parent.showToolBox.SetValue(Grid.ColumnProperty, 1);
-                showMenu = false;
-                parent.menuColumn.Width = new System.Windows.GridLength(0, GridUnitType.Star);
+                CloseMenu(parent);
             }
+        }
+
+        public void CloseMenu(AdminPanelUI parent)
+        {
+            parent.showToolBox.SetValue(Grid.ColumnProperty, 1);
+            showMenu = false;
+            parent.menuColumn.Width = new System.Windows.GridLength(0, GridUnitType.Star);
+        }
+
+        public void ShowGreetPanel(AdminPanelUI parent)
+        {
+            parent.mainTitle.Text = $"Welcome, {App.CurrentUser.GetFullName()}";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+
+            var stacking_panel = new StackPanel()
+            {
+                Margin = new Thickness(50, 15, 50, 15),
+            };
+            parent.outputGrid.Children.Add(stacking_panel);
+
+            TextBlock text = new TextBlock()
+            {
+                FontSize = 36,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            text.Text = "Please select an option in the menu";
+            stacking_panel.Children.Add(text);
         }
 
         public void ShowAllQusetions(AdminPanelUI parent)
@@ -280,7 +380,8 @@ namespace BD.ViewModels
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black,
+                CanUserAddRows = false
             };
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -342,23 +443,22 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Question question)
                 {
-                    MessageBox.Show("Nah");
-                    //MessageBoxResult result = MessageBox.Show(
-                    //        $"Do you want to remove: {user.Login}?",
-                    //        "Remove user",
-                    //        MessageBoxButton.YesNo,
-                    //        MessageBoxImage.Warning
-                    //    );
-                    //if (result == MessageBoxResult.Yes)
-                    //{
-                    //    App.DBConnection.RemoveUser(user.ID);
-                    //    MessageBox.Show($"User has been removed.");
-                    //    ReturnAllUsersFromDB(parent);
-                    //}
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {question.Name}?",
+                            "Remove question with answer",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveQuestion(question.ID);
+                        MessageBox.Show($"Question and answer have been removed.");
+                        ReturnAllUsersFromDB(parent);
+                    }
                 }
             };
             context.Items.Add(item);
-            context = universalItems(parent, context);
+            context = universalItems(parent, context, ShowAllQusetions);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
@@ -367,8 +467,6 @@ namespace BD.ViewModels
             var list = App.DBConnection.ReturnQuestionList();
             myDataGrid.ItemsSource = list;
             parent.outputGrid.Children.Add(myDataGrid);
-            Grid.SetRow(myDataGrid, 1);
-
         }
 
         public void ReturnAnswerForQuestion(AdminPanelUI parent, int question_id)
@@ -395,7 +493,7 @@ namespace BD.ViewModels
             {
                 Content = "Go back"
             };
-            button.Click += (o, e) => 
+            button.Click += (o, e) =>
             {
                 ShowAllQusetions(parent);
             };
@@ -470,6 +568,11 @@ namespace BD.ViewModels
                     }
                 }
             }
+
+            // Stacking_panel contex menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(parent, menu, ShowAllQusetions);
+            parent.outputGrid.ContextMenu = menu;
         }
 
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
@@ -488,7 +591,8 @@ namespace BD.ViewModels
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black,
+                CanUserAddRows = false
             };
 
             // Dodanie kolumn
@@ -535,28 +639,7 @@ namespace BD.ViewModels
             });
 
             var context = new ContextMenu();
-            var item = new MenuItem { Header = "Delete Course" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Course c)
-                {
-                    MessageBoxResult result = MessageBox.Show(
-                            $"Do you want to remove: {c.Name}?",
-                            "Remove user",
-                            MessageBoxButton.YesNo,
-                            MessageBoxImage.Warning
-                        );
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        App.DBConnection.RemoveCourse(c.ID);
-                        MessageBox.Show($"User has been removed.");
-                        ReturnAllCoursesFromDB(parent);
-                    }
-                }
-            };
-            context.Items.Add(item);
-
-            item = new MenuItem { Header = "Show all tests" };
+            var item = new MenuItem { Header = "Show all tests" };
             item.Click += (s, e) =>
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Course c)
@@ -565,8 +648,27 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
-
-            context = universalItems(parent, context);
+            item = new MenuItem { Header = "Delete Course" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Course c)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {c.Name}?\nAll connected tests will be removed too.",
+                            "Remove course",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveCourse(c.ID);
+                        MessageBox.Show($"Course and all connected tests have been removed.");
+                        ReturnAllCoursesFromDB(parent);
+                    }
+                }
+            };
+            context.Items.Add(item);
+            context = universalItems(parent, context, ReturnAllCoursesFromDB);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
@@ -598,7 +700,8 @@ namespace BD.ViewModels
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black
+                BorderBrush = System.Windows.Media.Brushes.Black,
+                CanUserAddRows = false
             };
 
             // Dodanie kolumn
@@ -645,7 +748,36 @@ namespace BD.ViewModels
             });
 
             var context = new ContextMenu();
-            context = universalItems(parent, context);
+            var item = new MenuItem { Header = "Add new test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    AddNewTest(parent);
+                }
+            };
+
+            item = new MenuItem { Header = "Remove test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {test.Name}?",
+                            "Remove single Test",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveTest(test.ID);
+                        MessageBox.Show($"Test has been removed.");
+                        ReturnAllUsersFromDB(parent);
+                    }
+                }
+            };
+
+            context = universalItems(parent, context, ReturnAllCoursesFromDB);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
@@ -657,8 +789,6 @@ namespace BD.ViewModels
                 list = App.DBConnection.ReturnTestsList();
             myDataGrid.ItemsSource = list;
             parent.outputGrid.Children.Add(myDataGrid);
-            Grid.SetRow(myDataGrid, 1);
-
         }
 
         public void AddNewCourse(AdminPanelUI parent)
@@ -674,6 +804,7 @@ namespace BD.ViewModels
 
             var stacking_panel = new StackPanel();
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
             parent.outputGrid.Children.Add(stacking_panel);
 
             /*
@@ -772,6 +903,10 @@ namespace BD.ViewModels
             };
             stacking_panel.Children.Add(bttn);
 
+            // Stacking_panel contex menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(parent, menu, ReturnAllCoursesFromDB);
+            parent.outputGrid.ContextMenu = menu;
         }
 
         public void AddNewTest(AdminPanelUI parent)
@@ -787,6 +922,7 @@ namespace BD.ViewModels
 
             var stacking_panel = new StackPanel();
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
             parent.outputGrid.Children.Add(stacking_panel);
 
             /*
@@ -846,6 +982,7 @@ namespace BD.ViewModels
             stacking_panel.Children.Add(stacking_panel_inner);
             var textBlock = new TextBlock();
             textBlock.Text = "Start date:";
+            // Restrict start and end date!!!!
             var cal = new DatePicker();
             cal.SelectedDate = DateTime.Now.AddDays(1);
             stacking_panel_inner.Children.Add(textBlock);
@@ -922,6 +1059,10 @@ namespace BD.ViewModels
             };
             stacking_panel.Children.Add(bttn);
 
+            // Stacking_panel contex menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(parent, menu, AddNewTest);
+            parent.outputGrid.ContextMenu = menu;
         }
 
         public void AddNewQuestion(AdminPanelUI parent)
@@ -937,6 +1078,7 @@ namespace BD.ViewModels
             parent.typeQuestion = Question.QUESTION_TYPE.Closed;
 
             var stacking_panel = new StackPanel();
+            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
             parent.outputGrid.Children.Add(stacking_panel);
 
@@ -1089,9 +1231,14 @@ namespace BD.ViewModels
                 }
             };
             stacking_panel.Children.Add(bttn);
+
+            // Stacking_panel contex menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(parent, menu, AddNewQuestion);
+            parent.outputGrid.ContextMenu = menu;
         }
 
-        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo)
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback)
         {
             addTo.Items.Add(new Separator()); // Users
             var item = new MenuItem { Header = "Add new User" };
@@ -1099,6 +1246,9 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem)
                 {
+                    parent.TargetChangeID = -1;
+                    _stepMethodCallback = callback;
+                    parent.CallbackButton.Visibility = Visibility.Visible;
                     AddNewUser(parent);
                 }
             };
@@ -1110,22 +1260,51 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem)
                 {
+                    parent.TargetChangeID = -1;
+                    _stepMethodCallback = callback;
+                    parent.CallbackButton.Visibility = Visibility.Visible;
                     AddNewUser(parent);
                 }
             };
             addTo.Items.Add(item);
 
             addTo.Items.Add(new Separator()); // Questions and tests
-            //item = new MenuItem { Header = "Add new Course" };
-            //item.Click += (s, e) => 
-            //{
-            //    if (s is MenuItem menuItem)
-            //    {
-            //        AddNewUser(parent);
-            //    }
-            //};
-            //addTo.Items.Add(item);
+            item = new MenuItem { Header = "Add new Question" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem)
+                {
+                    parent.TargetChangeID = -1;
+                    _stepMethodCallback = callback;
+                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    AddNewQuestion(parent);
+                }
+            };
+
+            item = new MenuItem { Header = "Validate all questions" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem)
+                {
+                    AddNewQuestion(parent);
+                }
+            };
+
+            addTo.Items.Add(item);
+            item = new MenuItem { Header = "Add new Test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem)
+                {
+                    parent.TargetChangeID = -1;
+                    _stepMethodCallback = callback;
+                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    AddNewTest(parent);
+                }
+            };
+            addTo.Items.Add(item);
             return addTo;
         }
     }
+
 }

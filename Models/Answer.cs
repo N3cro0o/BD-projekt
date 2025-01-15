@@ -22,5 +22,10 @@ namespace BD.Models
             AnswerKey = key;
             AnswerBody = body;
         }
+        
+        public Answer()
+        {
+            _id = -1;
+        }
     }
 }
