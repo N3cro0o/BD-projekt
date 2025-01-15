@@ -23,6 +23,7 @@ namespace BD.Views
         private readonly AdminPanelUIMV _mv;
 
         public int TargetChangeID = -1;
+        public int TargetChangeIDSecond = -1;
         public User.TYPE type;
         public Question.QUESTION_TYPE typeQuestion;
         public List<RadioButton> radios;
@@ -40,6 +41,7 @@ namespace BD.Views
 
         public void ResetParams()
         {
+            TargetChangeIDSecond = -1;
             type = 0;
             typeQuestion = 0;
             radios = new List<RadioButton>();

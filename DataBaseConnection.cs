@@ -713,13 +713,14 @@ namespace BD
             int c = (question.CorrectAnswers & (1 << 1)) >> 1;
             int d = (question.CorrectAnswers & (1 << 0)) >> 0;
             int shared = question.Shared ? 1 : 0;
+            string point = question.Points.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
-            string query_answer = $"UPDATE \"Answer\" SET score = '{question.Points}', key = '{question.CorrectAnswers}', answer = '{question.Answers}', " +
+            string query_answer = $"UPDATE \"Answer\" SET score = '{point}', key = '{question.CorrectAnswers}', answer = '{question.Answers}', " +
                 $"a = '{a}', b = '{b}', c = '{c}', d = '{d}' WHERE \"answerid\" = '{question.AnswerID}'";
-            string query_question = $"UPDATE \"Question\" SET name = {question.Name}', category = '{question.Category}', questiontype = {question.QuestionType}', shared = '{shared}, " +
-                $"maxpoints = '{question.Points}', questiontext = '{question.Text}' WHERE \"questionid\" = '{question.ID}'";
+            string query_question = $"UPDATE \"Question\" SET name = '{question.Name}', category = '{question.Category}', " +
+                $"questiontype = '{question.QuestionType.ToString().ToLower()}', shared = '{shared}', maxpoints = '{point}', questiontext = '{question.Text}' WHERE \"questionid\" = '{question.ID}'";
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-            
+            Debug.Print($"\n\n{query_answer}\n\n");
             try
             {
                 connection.Open();

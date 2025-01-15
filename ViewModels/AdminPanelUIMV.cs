@@ -292,7 +292,7 @@ namespace BD.ViewModels
                         u.DebugPrintUser();
                         if (parent.TargetChangeID > -1)
                         {
-                            if (App.DBConnection.UpdateUser(u).IsEmpty())
+                            if (!App.DBConnection.UpdateUser(u).IsEmpty())
                             {
                                 ReturnAllUsersFromDB(parent);
                                 return;
@@ -434,6 +434,72 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem && menuItem.DataContext is Question question)
                 {
                     ReturnAnswerForQuestion(parent, question.ID);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem() { Header = "Update question" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Question q)
+                {
+                    parent.TargetChangeID = q.ID;
+                    AddNewQuestion(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+                    var name = (stacking_panel.Children[1] as TextBox);
+                    var cat = (stacking_panel.Children[3] as TextBox);
+                    var points = (stacking_panel.Children[5] as TextBox);
+                    var text = (stacking_panel.Children[9] as TextBox);
+                    var answ1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
+                    var asnwBttn1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
+                    var answ2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
+                    var asnwBttn2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
+                    var answ3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
+                    var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
+                    var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
+                    var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+                    var a = App.DBConnection.FetchAnswer(q.AnswerID);
+                    parent.TargetChangeIDSecond = q.AnswerID;
+
+                    name.Text = q.Name;
+                    cat.Text = q.Category;
+                    points.Text = q.Points.ToString(CultureInfo.InvariantCulture);
+                    text.Text = q.Text;
+
+                    switch (q.QuestionType)
+                    {
+                        case Question.QUESTION_TYPE.Closed:
+                        case Question.QUESTION_TYPE.Invalid:
+                            parent.typeQuestion = Question.QUESTION_TYPE.Closed;
+                            ((stacking_panel.Children[7] as StackPanel).Children[0] as RadioButton).IsChecked = true;
+                            break;
+
+                        case Question.QUESTION_TYPE.Open:
+                            parent.typeQuestion = Question.QUESTION_TYPE.Open;
+                            ((stacking_panel.Children[7] as StackPanel).Children[1] as RadioButton).IsChecked = true;
+                            break;
+
+                    }
+
+                    var answer_list = a.AnswerBody.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    if (answer_list.Length != 4)
+                    {
+                        answ1.Text = "Invalid answer format";
+                        answ2.Text = "Invalid answer format";
+                        answ3.Text = "Invalid answer format";
+                        answ4.Text = "Invalid answer format";
+                    }
+                    else
+                    {
+                        answ1.Text = answer_list[0];
+                        answ2.Text = answer_list[1];
+                        answ3.Text = answer_list[2];
+                        answ4.Text = answer_list[3];
+                    }
+                    asnwBttn1.IsChecked = ((a.AnswerKey & 1 << 3) >> 3) == 1;
+                    asnwBttn2.IsChecked = ((a.AnswerKey & 1 << 2) >> 2) == 1;
+                    asnwBttn3.IsChecked = ((a.AnswerKey & 1 << 1) >> 1) == 1;
+                    asnwBttn4.IsChecked = ((a.AnswerKey & 1 << 0) >> 0) == 1;
                 }
             };
             context.Items.Add(item);
@@ -1067,7 +1133,8 @@ namespace BD.ViewModels
 
         public void AddNewQuestion(AdminPanelUI parent)
         {
-            Debug.Print(parent.type.ToString());
+            if (parent.TargetChangeID != -1)
+                Debug.Print($"User id to change: {parent.TargetChangeID}");
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Create new User";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
@@ -1222,7 +1289,22 @@ namespace BD.ViewModels
                     answ += answ3.Text + "\n";
                     answ += answ4.Text;
                     Question q = new Question(name.Text, text.Text, parent.typeQuestion, answ, p, key, cat.Text);
+                    q.ID = parent.TargetChangeID;
+                    q.AnswerID = parent.TargetChangeIDSecond;
                     q.PrintQuestionOnConsole();
+                    if (parent.TargetChangeID > -1)
+                    {
+                        Question q1;
+                        Answer a1;
+                        (q1, a1) = App.DBConnection.UpdateQuestion(q);
+                        if (!q1.IsEmpty())
+                        {
+                            ShowAllQusetions(parent);
+                            return;
+                        }
+                        Debug.Print("Update failed, trying to add new Question");
+                        return;
+                    }
                     if (App.DBConnection.AddQuestion(q))
                     {
                         ShowAllQusetions(parent);

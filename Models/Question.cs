@@ -86,5 +86,9 @@ namespace BD.Models
             return ID;
         }
 
+        public bool IsEmpty()
+        {
+            return ID < 0;
+        }
     }
 }
