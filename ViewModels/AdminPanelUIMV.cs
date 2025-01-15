@@ -1281,12 +1281,15 @@ namespace BD.ViewModels
             text = new TextBlock
             {
                 Text = "Question body",
+                
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
             stacking_panel.Children.Add(text);
 
             input = new TextBox
             {
+                Width = 500,
+                TextWrapping = TextWrapping.Wrap,
                 Style = (Style)Application.Current.Resources["FormInputStyle"]
             };
             stacking_panel.Children.Add(input);
@@ -1304,19 +1307,19 @@ namespace BD.ViewModels
                 var new_stack = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
-                    Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
+                    Style = (Style)Application.Current.Resources["CustomStackPanelStyle"]
                 };
 
                 var toggle = new ToggleButton
                 {
                     Content = "X",
-                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
+                    Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"]
                 };
 
                 var textBox = new TextBox
                 {
                     Text = $"Answer {i + 1}",
-                    Style = (Style)Application.Current.Resources["FormInputStyle"]
+                    Style = (Style)Application.Current.Resources["CustomTextBoxStyle"]
                 };
 
                 new_stack.Children.Add(toggle);
