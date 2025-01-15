@@ -23,46 +23,42 @@
     </Style>
 
     <!-- Styl dla RadioButton -->
-	<Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
-		<Setter Property="Margin" Value="10,0,10,0" />
-		<Setter Property="FontSize" Value="14" />
-		<Setter Property="Foreground" Value="White" />
-		
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="RadioButton">
-					<Border x:Name="BorderElement"
-							BorderThickness="1"
-							BorderBrush="Gray"
-							CornerRadius="5"
-							Padding="5">
-						<StackPanel Orientation="Horizontal">
-							<Ellipse Width="14" Height="14" Stroke="White" StrokeThickness="2"
-									 Fill="{TemplateBinding Background}">
-								<Ellipse.Style>
-									<Style TargetType="Ellipse">
-										<Setter Property="Fill" Value="White" />
-										<Style.Triggers>
-											<DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
-												<Setter Property="Fill" Value="DodgerBlue" />
-											</DataTrigger>
-										</Style.Triggers>
-									</Style>
-								</Ellipse.Style>
-							</Ellipse>
-							<ContentPresenter Margin="5,0,0,0" VerticalAlignment="Center" />
-						</StackPanel>
-					</Border>
-					<ControlTemplate.Triggers>
-						<!-- Trigger for changing border color on hover -->
-						<Trigger Property="IsMouseOver" Value="True">
-							<Setter TargetName="BorderElement" Property="BorderBrush" Value="DodgerBlue" />
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+    <Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
+        <Setter Property="Margin" Value="10,0,10,0" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="BorderElement"
+                        BorderThickness="1"
+                        BorderBrush="Gray"
+                        CornerRadius="5"
+                        Padding="5">
+                        <StackPanel Orientation="Horizontal">
+
+                            <Grid Width="14" Height="14">
+                                <Ellipse Stroke="Gray" StrokeThickness="2" Fill="White" />
+                                <Ellipse x:Name="CheckedIndicator" Width="8" Height="8" Fill="Transparent" />
+                            </Grid>
+
+                            <ContentPresenter Margin="5,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="CheckedIndicator" Property="Fill" Value="DodgerBlue" />
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BorderElement" Property="BorderBrush" Value="DodgerBlue" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- Styl dla Button -->
     <Style TargetType="Button" x:Key="FormButtonStyle">
@@ -88,21 +84,49 @@
 		<Setter Property="Margin" Value="5" />
 	</Style>
 	<!-- Styl dla dodawania Odpowiedzi -->
-	<Style x:Key="CustomStackPanelStyle" TargetType="StackPanel">
-		<Setter Property="Orientation" Value="Horizontal"/>
-		<Setter Property="Margin" Value="5"/>
-		<Setter Property="Background" Value="#F0F0F0"/>
-	</Style>
+    <Style x:Key="CustomBorderStyle" TargetType="Border">
+        <Setter Property="Margin" Value="10,0,10,0" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="Background" Value="#F0F0F0" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style x:Key="CustomStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
 
-	<!-- Styl dla ToggleButton -->
-	<Style x:Key="CustomToggleButtonStyle" TargetType="ToggleButton">
-		<Setter Property="Width" Value="40"/>
-		<Setter Property="Height" Value="40"/>
-		<Setter Property="Background" Value="LightGray"/>
-		<Setter Property="FontSize" Value="16"/>
-	</Style>
+    <!-- Styl dla ToggleButton -->
+    <Style x:Key="CustomToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="60" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="Gray" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="1" />
 
-	<!-- Styl dla TextBox -->
+        <Setter Property="Content" Value="OFF" />
+
+        <!-- Triggers na podstawie IsChecked -->
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="Green" />
+                <Setter Property="Content" Value="ON" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter Property="Background" Value="Red" />
+                <Setter Property="Content" Value="OFF" />
+            </Trigger>
+            <!-- Hover efekt -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="DodgerBlue" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Styl dla TextBox -->
 	<Style x:Key="CustomTextBoxStyle" TargetType="TextBox">
 		<Setter Property="Width" Value="200"/>
 		<Setter Property="Height" Value="30"/>

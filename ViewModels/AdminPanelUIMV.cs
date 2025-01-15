@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
+using System.Reflection;
 
 namespace BD.ViewModels
 {
@@ -1227,6 +1228,7 @@ namespace BD.ViewModels
 
             input = new TextBox
             {
+                Width = 50,
                 Style = (Style)Application.Current.Resources["FormInputStyle"]
             };
             stacking_panel.Children.Add(input);
@@ -1304,6 +1306,10 @@ namespace BD.ViewModels
 
             for (int i = 0; i < 4; i++)
             {
+                var border = new Border
+                {
+                    Style = (Style)Application.Current.Resources["CustomBorderStyle"]
+                };
                 var new_stack = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
@@ -1312,7 +1318,7 @@ namespace BD.ViewModels
 
                 var toggle = new ToggleButton
                 {
-                    Content = "X",
+                    
                     Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"]
                 };
 
@@ -1324,7 +1330,8 @@ namespace BD.ViewModels
 
                 new_stack.Children.Add(toggle);
                 new_stack.Children.Add(textBox);
-                uniform.Children.Add(new_stack);
+                border.Child = new_stack;
+                uniform.Children.Add(border);
             }
             stacking_panel.Children.Add(uniform);
 
