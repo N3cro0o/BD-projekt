@@ -97,33 +97,61 @@
         <Setter Property="Margin" Value="0" />
     </Style>
 
-    <!-- Styl dla ToggleButton -->
     <Style x:Key="CustomToggleButtonStyle" TargetType="ToggleButton">
         <Setter Property="Width" Value="60" />
         <Setter Property="Height" Value="30" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="White" />
-        <Setter Property="Background" Value="Gray" />
         <Setter Property="BorderBrush" Value="Gray" />
         <Setter Property="BorderThickness" Value="1" />
-
         <Setter Property="Content" Value="OFF" />
 
-        <!-- Triggers na podstawie IsChecked -->
-        <Style.Triggers>
-            <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Background" Value="Green" />
-                <Setter Property="Content" Value="ON" />
-            </Trigger>
-            <Trigger Property="IsChecked" Value="False">
-                <Setter Property="Background" Value="Red" />
-                <Setter Property="Content" Value="OFF" />
-            </Trigger>
-            <!-- Hover efekt -->
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="DodgerBlue" />
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+
+                        <Border x:Name="SwitchBackground" 
+                            Width="60" Height="30" 
+                            CornerRadius="15" 
+                            Background="Gray" 
+                            BorderBrush="Gray" 
+                            BorderThickness="1">
+                        </Border>
+
+                        <Ellipse x:Name="SwitchThumb" 
+                             Width="20" Height="20" 
+                             Fill="White" 
+                             HorizontalAlignment="Left" 
+                             Margin="2"/>
+
+                        <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="Green"/>
+                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Content" Value="ON"/>
+                        </Trigger>
+
+
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="Red"/>
+                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="Content" Value="OFF"/>
+                        </Trigger>
+
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="SwitchBackground" Property="BorderBrush" Value="DodgerBlue"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- Styl dla TextBox -->
