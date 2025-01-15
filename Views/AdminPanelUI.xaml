@@ -33,7 +33,7 @@
 
             </TextBlock>
         </Border>
-        <Border CornerRadius="0" Background="#82827d" Margin="0" 
+        <Border CornerRadius="0" Background="#595959" Margin="0" 
                 Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Grid.RowSpan="5">
             <Grid>
                 <Grid.RowDefinitions>

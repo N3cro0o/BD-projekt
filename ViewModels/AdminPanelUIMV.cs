@@ -52,7 +52,7 @@ namespace BD.ViewModels
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -300,7 +300,7 @@ namespace BD.ViewModels
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -517,7 +517,7 @@ namespace BD.ViewModels
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -633,7 +633,7 @@ namespace BD.ViewModels
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
