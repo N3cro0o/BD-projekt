@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BD.ViewModels
 {
@@ -156,7 +157,7 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveUser(user.ID);
+                        App.DBConnection.RemoveUser(user);
                         MessageBox.Show($"User has been removed.");
                         ReturnAllUsersFromDB(parent);
                     }
@@ -526,7 +527,7 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveQuestion(question.ID);
+                        App.DBConnection.RemoveQuestion(question);
                         MessageBox.Show($"Question and answer have been removed.");
                         ReturnAllQuestionsFromDB(parent);
                     }
@@ -702,7 +703,7 @@ namespace BD.ViewModels
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "Students count",
-                Binding = new System.Windows.Data.Binding("Students.Count"),
+                Binding = new System.Windows.Data.Binding("StudentsCount"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
@@ -737,6 +738,7 @@ namespace BD.ViewModels
                     var cat = (stacking_panel.Children[3] as TextBox);
                     var desc = (stacking_panel.Children[5] as TextBox);
                     var radio_panel = (stacking_panel.Children[7] as ScrollViewer).Content as StackPanel;
+                    var student_panel = (stacking_panel.Children[9] as ScrollViewer).Content as StackPanel;
 
                     name.Text = course.Name;
                     cat.Text = course.Category;
@@ -746,6 +748,22 @@ namespace BD.ViewModels
                     {
                         if (course.Teachers[0].ID == parent.IDs[i])
                             (radio_panel.Children[i] as RadioButton).IsChecked = true;
+                    }
+
+                    var list = App.DBConnection.ReturnConnectedStudentsToCourse(course);
+                    for (int i = 0; i < parent.IDs1.Count; i++)
+                    {
+                        Debug.Print($"Question to check ID: {parent.IDs1[i]}");
+                        foreach (int j in list)
+                        {
+                            Debug.Print($"Question checked ID: {j}");
+                            if (parent.IDs1[i] == j)
+                            {
+                                ToggleButton b = (student_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                                b.IsChecked = true;
+                                continue;
+                            }
+                        }
                     }
                 }
             };
@@ -764,7 +782,7 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveCourse(c.ID);
+                        App.DBConnection.RemoveCourse(c);
                         MessageBox.Show($"Course and all connected tests have been removed.");
                         ReturnAllCoursesFromDB(parent);
                     }
@@ -874,6 +892,7 @@ namespace BD.ViewModels
                     var cat = (stacking_panel.Children[3] as TextBox);
                     var cal_start = (stacking_panel.Children[6] as StackPanel).Children[1] as DatePicker;
                     var cal_end = (stacking_panel.Children[6] as StackPanel).Children[3] as DatePicker;
+                    var question_panel = (stacking_panel.Children[8] as ScrollViewer).Content as StackPanel;
 
                     name.Text = test.Name;
                     cat.Text = test.Category;
@@ -885,6 +904,22 @@ namespace BD.ViewModels
                         if (test.CourseObject.ID == parent.IDs[i])
                         {
                             parent.radios[i].IsChecked = true;
+                        }
+                    }
+
+                    var list = App.DBConnection.ReturnConnectedQuestionsToTest(test);
+                    for (int i = 0; i < parent.IDs1.Count; i++)
+                    {
+                        Debug.Print($"Question to check ID: {parent.IDs1[i]}");
+                        foreach (int j in list)
+                        {
+                            Debug.Print($"Question checked ID: {j}");
+                            if (parent.IDs1[i] == j)
+                            {
+                                ToggleButton b = (question_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                                b.IsChecked = true;
+                                continue;
+                            }
                         }
                     }
                 }
@@ -904,7 +939,7 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveTest(test.ID);
+                        App.DBConnection.RemoveTest(test);
                         MessageBox.Show($"Test has been removed.");
                         ReturnAllUsersFromDB(parent);
                     }
@@ -949,7 +984,7 @@ namespace BD.ViewModels
                 Teacher
 
                 Student
-                Test
+                Test - maybe?
             */
             var text = new TextBlock();
             text.Text = "Course name";
@@ -976,7 +1011,10 @@ namespace BD.ViewModels
             text.Text = "Main teacher";
             stacking_panel.Children.Add(text);
 
-            var scroll = new ScrollViewer();
+            var scroll = new ScrollViewer()
+            {
+                MaxHeight = 300
+            };
             var stacking_panel_inner = new StackPanel();
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
@@ -1000,6 +1038,38 @@ namespace BD.ViewModels
                 stacking_panel_inner.Children.Add(radio);
                 parent.IDs.Add(u.ID);
             }
+
+            // Students
+            text = new TextBlock();
+            text.Text = "Select students";
+            stacking_panel.Children.Add(text);
+
+            scroll = new ScrollViewer()  
+            {
+                MaxHeight = 450
+            };
+            stacking_panel_inner = new StackPanel();
+            scroll.Content = stacking_panel_inner;
+            stacking_panel.Children.Add(scroll);
+            var list_students_to_add = App.DBConnection.ReturnStudentList();
+            foreach (User u in list_students_to_add) 
+            {
+                var toggle = new ToggleButton() { Content = "X" };
+                text = new TextBlock()
+                {
+                    Text = u.GetFullName()
+                };
+                StackPanel inner = new StackPanel() 
+                {
+                    Orientation = Orientation.Horizontal,
+                };
+                inner.Children.Add(toggle);
+                inner.Children.Add(text);
+                stacking_panel_inner.Children.Add(inner);
+
+                parent.IDs1.Add(u.ID);
+            }
+
             // Submit
             Button bttn = new Button();
             bttn.Content = "Submit";
@@ -1008,7 +1078,9 @@ namespace BD.ViewModels
                 var name = (stacking_panel.Children[1] as TextBox);
                 var cat = (stacking_panel.Children[3] as TextBox);
                 var desc = (stacking_panel.Children[5] as TextBox);
+                var student_panel = (stacking_panel.Children[9] as ScrollViewer).Content as StackPanel;
                 int teach = -1;
+                List<User> student_list = new List<User>();
                 for (int i = 0; i < parent.IDs.Count; i++)
                 {
                     if (parent.radios[i].IsChecked == true)
@@ -1016,6 +1088,17 @@ namespace BD.ViewModels
                         teach = parent.IDs[i];
                     }
                 }
+
+                for (int i = 0; i < student_panel.Children.Count; i++)
+                {
+                    ToggleButton t = (student_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                    if (t != null && t.IsChecked == true)
+                    {
+                        student_list.Add(list_students_to_add[i]);
+                        Debug.Print($"Debil to be added: {list_students_to_add[i].GetFullName()}");
+                    }
+                }
+
                 if (name == null || cat == null || teach < 0)
                     return;
                 if (string.IsNullOrEmpty(name.Text) || string.IsNullOrEmpty(cat.Text))
@@ -1030,13 +1113,23 @@ namespace BD.ViewModels
                 {
                     if (!App.DBConnection.UpdateCourse(c).IsEmpty())
                     {
+                        if (!App.DBConnection.UpdateCourseToStudent(c, student_list)) 
+                        {
+                            Debug.Print("Updating Course-Student failed");
+                        }
                         ReturnAllTestsFromDB(parent);
                         return;
                     }
                 }
 
-                if (App.DBConnection.AddCourse(c))
+                bool check;
+                int id_test;
+                (check, id_test) = App.DBConnection.AddCourse(c);
+                if (check)
                 {
+                    c.ID = id_test;
+                    if (!App.DBConnection.ConnectCourseToStudent(c, student_list))
+                        Debug.Print("Connecting Course-Student failed");
                     ReturnAllCoursesFromDB(parent);
                 }
                 else
@@ -1057,7 +1150,7 @@ namespace BD.ViewModels
         {
             Debug.Print(parent.type.ToString());
             // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Course";
+            parent.mainTitle.Text = "Create new Test";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
@@ -1096,7 +1189,10 @@ namespace BD.ViewModels
             text.Text = "Course";
             stacking_panel.Children.Add(text);
 
-            var scroll = new ScrollViewer();
+            var scroll = new ScrollViewer()
+            {
+                MaxHeight = 250
+            };
             var stacking_panel_inner = new StackPanel();
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
@@ -1153,7 +1249,10 @@ namespace BD.ViewModels
             text.Text = "Questions. Please select desired ones:";
             stacking_panel.Children.Add(text);
 
-            scroll = new ScrollViewer();
+            scroll = new ScrollViewer()
+            {
+                MaxHeight = 400
+            };
             stacking_panel_inner = new StackPanel();
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
@@ -1171,6 +1270,7 @@ namespace BD.ViewModels
                 new_stack.Children.Add(toggle);
                 new_stack.Children.Add(textBlock);
                 stacking_panel_inner.Children.Add(new_stack);
+                parent.IDs1.Add(q.ID);
             }
 
             // Submit
@@ -1180,9 +1280,10 @@ namespace BD.ViewModels
             {
                 var name = (stacking_panel.Children[1] as TextBox);
                 var cat = (stacking_panel.Children[3] as TextBox);
-
                 var cal_start = (stacking_panel.Children[6] as StackPanel).Children[1] as DatePicker;
                 var cal_end = (stacking_panel.Children[6] as StackPanel).Children[3] as DatePicker;
+                var question_panel = (stacking_panel.Children[8] as ScrollViewer).Content as StackPanel;
+                List<Question> question_list = new List<Question>();
                 int course = -1;
                 for (int i = 0; i < parent.IDs.Count; i++)
                 {
@@ -1191,6 +1292,16 @@ namespace BD.ViewModels
                         course = parent.IDs[i];
                     }
                 }
+                for (int i = 0; i < question_panel.Children.Count; i++)
+                {
+                    ToggleButton b = (question_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                    if (b.IsChecked == true)
+                    {
+                        question_list.Add(list1[i]);
+                        Debug.Print($"ID: {list1[i].ID}, Name: {list1[i].Name}, {list1[i].Text}");
+                    }
+                }
+
                 if (name == null || cat == null || course < 0)
                     return;
                 if (string.IsNullOrEmpty(name.Text) || string.IsNullOrEmpty(cat.Text))
@@ -1205,13 +1316,21 @@ namespace BD.ViewModels
                 {
                     if (!App.DBConnection.UpdateTest(t).IsEmpty())
                     {
+                        if (!App.DBConnection.UpdateTestToQuestion(t, question_list))
+                            Debug.Print("Connecting test-question failed");
                         ReturnAllTestsFromDB(parent);
                         return;
                     }
                 }
 
-                if (App.DBConnection.AddTest(t))
+                bool check;
+                int id_test;
+                (check, id_test) = App.DBConnection.AddTest(t);
+                if (check)
                 {
+                    t.ID = id_test;
+                    if (!App.DBConnection.ConnectTestToQuestion(t, question_list))
+                        Debug.Print("Connecting test-question failed");
                     ReturnAllTestsFromDB(parent, course);
                 }
                 else
@@ -1469,19 +1588,7 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem)
                 {
-                    parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    bool a;
-                    int x;
-                    (a, x) = _validateVM.ValidateQuestions();
-                    if (a)
-                    {
-                        MessageBox.Show("Everything is fine", "Validate questions", MessageBoxButton.OK);
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Incorrect number of questions:\n{x}.", "Validate questions", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
+                    _validateVM.ValidateQuestions();
                 }
             };
 

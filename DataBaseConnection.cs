@@ -153,6 +153,35 @@ namespace BD
             return list_user;
         }
 
+        public List<User> ReturnStudentList()
+        {
+            string query = "SELECT * FROM \"User\" WHERE role = 'student' OR role = 'Student' OR role = 'uczne' OR role = 'Uczen' ORDER BY userid";
+            List<Dictionary<string, string>> list_reader = new List<Dictionary<string, string>>();
+            List<User> list_user = new List<User>();
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                Debug.Print("Connection failed");
+                return list_user;
+            }
+            using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
+            using NpgsqlDataReader reader = npgsqlCommand.ExecuteReader();
+
+            list_reader = getAllReaderUsers(reader);
+
+            foreach (var d in list_reader)
+            {
+                var user = new User(int.Parse(d["id"]), d["login"], d["password"], d["email"], d["firstName"], d["lastName"], User.StringToType(d["role"]));
+                list_user.Add(user);
+            }
+
+            return list_user;
+        }
+
         public List<Course> ReturnCoursesList()
         {
             List<Course> list = new List<Course>();
@@ -173,6 +202,7 @@ namespace BD
                     var u = GetUserByID(r.GetInt32(4));
                     c.Teachers.Add(u);
                     c.MainTeacherName = $"{u.FirstName} {u.LastName}";
+                    c.StudentsCount = courseStudentCount(c);
                     list.Add(c);
                 }
                 con.Close();
@@ -205,6 +235,7 @@ namespace BD
                     var u = GetUserByID(r.GetInt32(4));
                     c.Teachers.Add(u);
                     c.MainTeacherName = $"{u.FirstName} {u.LastName}";
+                    c.StudentsCount = courseStudentCount(c);
                     list.Add(c);
                 }
                 con.Close();
@@ -452,57 +483,70 @@ namespace BD
             return true;
         }
 
-        public bool AddCourse(Course c)
+        public (bool, int) AddCourse(Course c)
         {
+            int id;
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             string querry = "INSERT INTO \"Course\" (name, category, description, ownerid) VALUES " +
                 $"('{c.Name}','{c.Category}','{c.Description}','{c.Teachers[0].ID}')";
+            string query_end = "SELECT courseid FROM \"Course\" ORDER BY courseid DESC LIMIT 1";
             NpgsqlCommand com = new NpgsqlCommand(querry, con);
-            Debug.Print(querry);
+            NpgsqlCommand comEnd = new NpgsqlCommand(query_end, con);
             try
             {
                 con.Open();
                 com.ExecuteNonQuery();
+                var r = comEnd.ExecuteReader();
+                r.Read();
+                id = r.GetInt32(0);
             }
             catch (Exception e)
             {
                 Debug.Print($"Connection failed\n{e}");
-                return false;
+                return (false, -1);
             }
             finally
             {
                 con.Close();
             }
-            return true;
+            return (true, id);
         }
-
-        public bool AddTest(Test t)
+        //Select testid from "Test" order by testid desc limit 1
+        public (bool, int) AddTest(Test t)
         {
+            int id;
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             string querry = "INSERT INTO \"Test\" (name, starttime, endtime, category, courseid) VALUES " +
                 $"('{t.Name}','{t.StartDate}','{t.EndDate}','{t.Category}','{t.CourseObject.ID}')";
+            string query_end = "SELECT testid FROM \"Test\" ORDER BY testid DESC LIMIT 1";
             NpgsqlCommand com = new NpgsqlCommand(querry, con);
-            Debug.Print(querry);
+            NpgsqlCommand comEnd = new NpgsqlCommand(query_end, con);
             try
             {
                 con.Open();
                 com.ExecuteNonQuery();
+                var r = comEnd.ExecuteReader();
+                r.Read();
+                id = r.GetInt32(0);
             }
             catch (Exception e)
             {
                 Debug.Print($"Connection failed\n{e}");
-                return false;
+                return (false, 0);
             }
             finally
             {
                 con.Close();
             }
-            return true;
+            
+            return (true, id);
         }
 
-        public bool RemoveUser(int id)
+        public bool RemoveUser(User user)
         {
-            string query = string.Format("DELETE FROM \"User\" where \"userid\" = {0}", id);
+            RemoveCourseToStudent(user);
+
+            string query = string.Format("DELETE FROM \"User\" where \"userid\" = {0}", user.ID);
             Debug.WriteLine(query);
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try
@@ -523,11 +567,13 @@ namespace BD
             return true;
         }
 
-        public bool RemoveCourse(int id)
+        public bool RemoveCourse(Course course)
         {
-            if (RemoveTestsWithCourse(id))
+            RemoveCourseToStudent(course);
+
+            if (RemoveTestsWithCourse(course.ID))
             {
-                string query = string.Format("DELETE FROM \"Course\" where \"courseid\" = {0}", id);
+                string query = string.Format("DELETE FROM \"Course\" where \"courseid\" = {0}", course.ID);
                 using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
                 try
                 {
@@ -549,14 +595,13 @@ namespace BD
             return false;
         }
 
-        public bool RemoveQuestion(int question_id)
+        public bool RemoveQuestion(Question question)
         {
-            // Remove Test_to_Question row too
-            var q = ReturnQuestionListByID(question_id)[0];
+            RemoveTestToQuestion(question);
 
-            if (removeAnswer(q.AnswerID))
+            if (removeAnswer(question.AnswerID))
             {
-                string query = string.Format("DELETE FROM \"Question\" where \"questionid\" = {0}", question_id);
+                string query = string.Format("DELETE FROM \"Question\" where \"questionid\" = {0}", question.ID);
                 using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
                 try
                 {
@@ -601,9 +646,10 @@ namespace BD
             return true;
         }
 
-        public bool RemoveTest(int test_id)
+        public bool RemoveTest(Test test)
         {
-            string query = string.Format("DELETE FROM \"Test\" where \"testid\" = {0}", test_id);
+            RemoveTestToQuestion(test);
+            string query = string.Format("DELETE FROM \"Test\" where \"testid\" = {0}", test.ID);
             Debug.WriteLine(query);
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try
@@ -782,6 +828,231 @@ namespace BD
             }
             var t = ReturnTestsListWithID(test.ID)[0];
             return t;
+        }
+
+        public bool ConnectTestToQuestion(Test test_target, IEnumerable<Question> question_arr)
+        {
+            int id = test_target.ID;
+            string query = "INSERT INTO \"QuestionToTest\" VALUES ";
+            for (int i = 0; i < question_arr.Count() - 1; i++)
+            {
+                query += $"('{id}','{question_arr.ElementAt(i).ID}'), ";
+            }
+            query += $"('{id}','{question_arr.ElementAt(question_arr.Count() - 1).ID}') ";
+            Debug.Print(query);
+
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+        
+        public bool ConnectCourseToStudent(Course course_target, IEnumerable<User> user_arr)
+        {
+            int id = course_target.ID;
+            string query = "INSERT INTO \"UserToCourse\" VALUES ";
+            for (int i = 0; i < user_arr.Count() - 1; i++)
+            {
+                query += $"('{user_arr.ElementAt(i).ID}','{id}'), ";
+            }
+            query += $"('{user_arr.ElementAt(user_arr.Count() - 1).ID}','{id}') ";
+            Debug.Print(query);
+
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool UpdateTestToQuestion(Test test_target, IEnumerable<Question> question_arr)
+        {
+            if (!RemoveTestToQuestion(test_target))
+                return false;
+            return ConnectTestToQuestion(test_target, question_arr);
+        }
+        
+        public bool UpdateCourseToStudent(Course course_target, IEnumerable<User> user_arr)
+        {
+            if (!RemoveCourseToStudent(course_target))
+                return false;
+            return ConnectCourseToStudent(course_target, user_arr);
+        }
+
+        public bool RemoveTestToQuestion(Test test_target)
+        {
+            string query = $"DELETE FROM \"QuestionToTest\" WHERE testid = '{test_target.ID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+        public bool RemoveTestToQuestion(Question question_target)
+        {
+            string query = $"DELETE FROM \"QuestionToTest\" WHERE questionid = '{question_target.ID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool RemoveCourseToStudent(Course course_target)
+        {
+            string query = $"DELETE FROM \"UserToCourse\" WHERE courseid = '{course_target.ID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+        
+        public bool RemoveCourseToStudent(User user_target)
+        {
+            string query = $"DELETE FROM \"UserToCourse\" WHERE userid = '{user_target.ID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
+        public List<int> ReturnConnectedQuestionsToTest(Test test)
+        {
+            List<int> list = new List<int>();
+
+            string query = $"SELECT questionid FROM \"QuestionToTest\" WHERE testid = '{test.ID}' ORDER BY questionid ASC";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                    list.Add(r.GetInt32(0));
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return new List<int>();
+            }
+
+            return list;
+        }
+        
+        public List<int> ReturnConnectedStudentsToCourse(Course course)
+        {
+            List<int> list = new List<int>();
+
+            string query = $"SELECT userid FROM \"UserToCourse\" WHERE courseid = '{course.ID}' ORDER BY courseid ASC";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                    list.Add(r.GetInt32(0));
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return new List<int>();
+            }
+
+            return list;
+        }
+
+        int courseStudentCount(Course course)
+        {
+            int c = 0;
+            string query = $"SELECT count(*) AS \"count\" FROM \"UserToCourse\" WHERE courseid = {course.ID} ORDER BY \"count\" ASC";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                c = Convert.ToInt32(com.ExecuteScalar());
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return 0;
+            }
+            return c; 
         }
 
         private List<Dictionary<string, string>> getAllReaderUsers(NpgsqlDataReader r)

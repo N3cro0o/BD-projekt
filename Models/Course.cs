@@ -19,7 +19,7 @@ namespace BD.Models
         public List<User> Teachers { get; set; } = new List<User>();
 
         [JsonInclude]
-        public List<int> Students { get; set; } = new List<int>();
+        public int StudentsCount { get; set; }
 
         [JsonInclude]
         public List<int> Tests { get; set; } = new List<int>();
