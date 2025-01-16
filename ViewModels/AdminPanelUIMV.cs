@@ -1552,12 +1552,13 @@ namespace BD.ViewModels
                 }
             };
             stacking_panel.Children.Add(bttn);
-        }
+        
 
+            
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
-            menu = universalItems(parent, menu, AddNewTest);
-            parent.outputGrid.ContextMenu = menu;
+        menu = universalItems(parent, menu, ReturnAllCoursesFromDB);
+        parent.outputGrid.ContextMenu = menu;
         }
 
         public void AddNewQuestion(AdminPanelUI parent)
