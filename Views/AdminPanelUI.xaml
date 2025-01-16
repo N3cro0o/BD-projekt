@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:BD.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    
     <Grid  Background="White" x:Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition 
@@ -33,7 +35,7 @@
 
             </TextBlock>
         </Border>
-        <Border CornerRadius="0" Background="#82827d" Margin="0" 
+        <Border CornerRadius="0" Background="#595959" Margin="0" 
                 Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Grid.RowSpan="5">
             <Grid>
                 <Grid.RowDefinitions>
@@ -58,26 +60,19 @@
             <StackPanel  Grid.Row="1"  Grid.Column="1" >
                 <UniformGrid  Grid.Row="1" Rows="3" Columns="1" >
                     <Button x:Name="buttonShowAllUsers" 
-                            Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="10,3,10,0" FontSize="10" Height="25"
+                            Background="#434343" Foreground="White" 
+                            FontWeight="Bold"  FontSize="10" Height="25"
                             Content="Show all users" Visibility="Visible" Click="ShowAllUsers_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
 
                                     </Trigger>
 
@@ -87,26 +82,18 @@
                     </Button>
 
                     <Button x:Name="buttonAddUser" 
-                        Background="Black" Foreground="White" 
-                        FontWeight="Bold" Margin="10,3,10,0" FontSize="10" Height="25"
+                        Background="#434343" Foreground="White" 
+                        FontWeight="Bold"  FontSize="10" Height="25"
                         Content="Add new user" Visibility="Visible" Click="CreateNewUser_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
 
                                     </Trigger>
 
@@ -117,54 +104,40 @@
 
                     <Separator/>
                     <Button x:Name="ShowAllCoursesButton" 
-                    Background="Black" Foreground="White" 
-                    FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                    Background="#434343" Foreground="White" 
+                    FontWeight="Bold"  FontSize="10" Height="25"
                      Content="Show all courses" Visibility="Visible" Click="ShowAllCourses_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <!-- Wewnętrzny element zmieniający tło -->
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
                     <Button x:Name="AddNewCourseButton" 
-                        Background="Black" Foreground="White" 
-                        FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                        Background="#434343" Foreground="White" 
+                        FontWeight="Bold"  FontSize="10" Height="25"
                          Content="Add course" Visibility="Visible" Click="CreateNewCourse_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <!-- Wewnętrzny element zmieniający tło -->
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -172,54 +145,40 @@
                     </Button>
                     <Separator/>
                     <Button x:Name="ShowQuestionsButton" 
-                            Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                            Background="#434343" Foreground="White" 
+                            FontWeight="Bold"  FontSize="10" Height="25"
                              Content="Show available questions" Visibility="Visible" Click="ShowAllQuestions_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <!-- Wewnętrzny element zmieniający tło -->
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
                     <Button x:Name="AddQuestionButton" 
-                        Background="Black" Foreground="White" 
-                        FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                        Background="#434343" Foreground="White" 
+                        FontWeight="Bold"  FontSize="10" Height="25"
                          Content="Add new question" Visibility="Visible" Click="AddQuestion_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <!-- Wewnętrzny element zmieniający tło -->
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -227,54 +186,40 @@
                     </Button>
 
                     <Button x:Name="ShowAllTestsButton" 
-                            Background="Black" Foreground="White" 
-                            FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                            Background="#434343" Foreground="White" 
+                            FontWeight="Bold"  FontSize="10" Height="25"
                             Content="Show all running tests" Visibility="Visible" Click="ShowAllTests_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <!-- Wewnętrzny element zmieniający tło -->
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
                     <Button x:Name="AddNewTestButton" 
-                        Background="Black" Foreground="White" 
-                        FontWeight="Bold" Margin="10,0,10,3" FontSize="10" Height="25"
+                        Background="#434343" Foreground="White" 
+                        FontWeight="Bold"  FontSize="10" Height="25"
                         Content="Add new test" Visibility="Visible" Click="AddTest_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <!-- Wewnętrzny element zmieniający tło -->
-                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <!-- Zmiana tlla przy najechaniu -->
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BorderElement" Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <GradientStop Color="#303030"/>
-                                                    <GradientStop Color="#434343"  Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -312,20 +257,32 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        
+
         <Button x:Name="showToolBox" 
-                Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="1"
-                Background="White" Foreground="Black" HorizontalAlignment="Left"
-                FontWeight="Bold" Margin="10,0" FontSize="10" Height="35" Width="35"
-                Visibility="Visible" Click="ShowMenu_Click" >
-            <!-- Ustawienie nie domyslnego sylu-->
-            <Button.Content>
-                <TextBlock>X</TextBlock>
-            </Button.Content>
+        Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="1"
+        Width="35" Height="35" 
+         Foreground="Black" HorizontalAlignment="Left"
+        FontWeight="Bold" Margin="10,0" FontSize="10" 
+        BorderBrush="Black" BorderThickness="1"
+        Click="ShowMenu_Click">
+
+           
+
+            <!-- Ustawienie okrągłego kształtu -->
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse Fill="{TemplateBinding Background}" />
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+
             <Button.RenderTransform>
-        <RotateTransform x:Name="rotateTransform" Angle="0" CenterX="12.5" CenterY="12.5"/>
-    </Button.RenderTransform>
-            
+                <RotateTransform x:Name="rotateTransform" Angle="0" CenterX="25" CenterY="25"/>
+            </Button.RenderTransform>
+
         </Button>
+
     </Grid>
 </UserControl>

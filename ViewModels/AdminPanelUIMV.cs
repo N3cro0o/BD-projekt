@@ -6,7 +6,8 @@ using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
-using static System.Net.Mime.MediaTypeNames;
+using System.Reflection;
+
 
 namespace BD.ViewModels
 {
@@ -47,23 +48,28 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
-
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
+            };
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black,
-                CanUserAddRows = false
+                CanUserAddRows = false,
+                //Style = (Style)Application.Current.Resources["CustomDataGridStyle"]
+                //Margin = new Thickness(10),
+                //AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
+                //Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
+                //BorderThickness = new Thickness(2),
+                //BorderBrush = System.Windows.Media.Brushes.Black
             };
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -100,6 +106,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("UserType"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
+            myDataGrid.Style = customDataGridStyle;
 
             var context = new ContextMenu();
             var item = new MenuItem { Header = "Modify User" };
@@ -190,94 +197,156 @@ namespace BD.ViewModels
             }
             parent.type = User.TYPE.Student;
 
-            var stacking_panel = new StackPanel();
-            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
-            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+
+            // Załaduj ResourceDictionary z pliku stylów
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            // Dodaj style do zasobów aplikacji (jeśli nie zostały już dodane)
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            // Używanie stylów
+            var stacking_panel = new StackPanel
+            {
+                Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+            };
+
             parent.outputGrid.Children.Add(stacking_panel);
 
             // Login
-            // Email
-            // FName
-            // LName
-            // Password
-            // Type
-            var text = new TextBlock();
-            text.Text = "Login";
+            var text = new TextBlock
+            {
+                Text = "Login",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            var input = new TextBox();
+            var input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Email";
+            text = new TextBlock
+            {
+                Text = "Email",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "First name";
+            text = new TextBlock
+            {
+                Text = "First name",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Last name";
+            text = new TextBlock
+            {
+                Text = "Last name",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Password";
+            text = new TextBlock
+            {
+                Text = "Password",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Type";
+            text = new TextBlock
+            {
+                Text = "Type",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            var radio_panel = new StackPanel();
-            radio_panel.Orientation = Orientation.Horizontal;
-            radio_panel.HorizontalAlignment = HorizontalAlignment.Center;
-            var radio = new RadioButton();
-            radio.Content = "Student";
+            var radio_panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            stacking_panel.Children.Add(radio_panel);
+
+            var radio = new RadioButton
+            {
+                Content = "Student",
+                Style = (Style)Application.Current.Resources["FormRadioButtonStyle"],
+                IsChecked = true
+            };
             radio.Click += (o, e) =>
             {
-                if (o.GetType() == typeof(RadioButton))
+                if (o is RadioButton)
                 {
                     parent.type = User.TYPE.Student;
                 }
             };
-            radio.IsChecked = true;
             radio_panel.Children.Add(radio);
-            radio = new RadioButton();
-            radio.Content = "Teacher";
+
+            radio = new RadioButton
+            {
+                Content = "Teacher",
+                Style = (Style)Application.Current.Resources["FormRadioButtonStyle"]
+            };
             radio.Click += (o, e) =>
             {
-                if (o.GetType() == typeof(RadioButton))
+                if (o is RadioButton)
                 {
                     parent.type = User.TYPE.Teacher;
                 }
             };
             radio_panel.Children.Add(radio);
-            radio = new RadioButton();
-            radio.Content = "Admin";
+
+            radio = new RadioButton
+            {
+                Content = "Admin",
+                Style = (Style)Application.Current.Resources["FormRadioButtonStyle"]
+            };
             radio.Click += (o, e) =>
             {
-                if (o.GetType() == typeof(RadioButton))
+                if (o is RadioButton)
                 {
                     parent.type = User.TYPE.Admin;
                 }
             };
             radio_panel.Children.Add(radio);
-            stacking_panel.Children.Add(radio_panel);
+
             // Submit
-            Button bttn = new Button();
-            bttn.Content = "Submit";
+            var bttn = new Button
+            {
+                Content = "Submit",
+                Style = (Style)Application.Current.Resources["FormButtonStyle"]
+            };
             bttn.Click += (o, e) =>
             {
                 var login = stacking_panel.Children[1] as TextBox;
@@ -286,10 +355,13 @@ namespace BD.ViewModels
                 var lname = stacking_panel.Children[7] as TextBox;
                 var pass = stacking_panel.Children[9] as TextBox;
 
-                // Check for more mistakes
                 if (login != null && email != null && pass != null && fname != null && lname != null)
                 {
-                    if (!string.IsNullOrEmpty(login.Text) && !string.IsNullOrEmpty(email.Text) && !string.IsNullOrEmpty(pass.Text) && !string.IsNullOrEmpty(fname.Text) && !string.IsNullOrEmpty(lname.Text))
+                    if (!string.IsNullOrEmpty(login.Text) &&
+                        !string.IsNullOrEmpty(email.Text) &&
+                        !string.IsNullOrEmpty(pass.Text) &&
+                        !string.IsNullOrEmpty(fname.Text) &&
+                        !string.IsNullOrEmpty(lname.Text))
                     {
                         User u = new User(parent.TargetChangeID, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
                         u.DebugPrintUser();
@@ -308,7 +380,6 @@ namespace BD.ViewModels
                             return;
                         }
                     }
-                    // Add error handling
                     pass.Text = "";
                     login.Text = "Operation failed";
                 }
@@ -320,6 +391,7 @@ namespace BD.ViewModels
             menu = universalItems(parent, menu, ReturnAllUsersFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
+
 
         public void ShowMenu(AdminPanelUI parent)
         {
@@ -375,23 +447,31 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
+            
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
 
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
+                Style = customDataGridStyle
+                /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black,
+                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
+
             };
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -435,7 +515,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("Shared"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-
+            
             var context = new ContextMenu();
 
             var item = new MenuItem { Header = "Show answers for question" };
@@ -660,15 +740,23 @@ namespace BD.ViewModels
                 parent.outputGrid.Children.RemoveAt(0);
             }
 
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
+
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
+                Style = customDataGridStyle,
+                /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black,
+                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
+
             };
 
             // Dodanie kolumn
@@ -676,7 +764,7 @@ namespace BD.ViewModels
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -813,16 +901,23 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
 
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Margin = new Thickness(10),
+                Style = customDataGridStyle,
+                /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
                 BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black,
+                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
+
             };
 
             // Dodanie kolumn
@@ -830,7 +925,7 @@ namespace BD.ViewModels
             {
                 Header = "ID",
                 Binding = new System.Windows.Data.Binding("ID"),
-                Width = new DataGridLength(2, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
             });
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -962,9 +1057,25 @@ namespace BD.ViewModels
             }
             parent.ResetParams();
 
-            var stacking_panel = new StackPanel();
-            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
-            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
+
+            // Załaduj ResourceDictionary z pliku stylów
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            // Dodaj style do zasobów aplikacji (jeśli jeszcze nie zostały dodane)
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            // Tworzenie StackPanel
+            var stacking_panel = new StackPanel
+            {
+                Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+            };
+
             parent.outputGrid.Children.Add(stacking_panel);
 
             /*
@@ -975,44 +1086,82 @@ namespace BD.ViewModels
 
                 Student
                 Test - maybe?
+
             */
-            var text = new TextBlock();
-            text.Text = "Course name";
+
+            // Course name
+            var text = new TextBlock
+            {
+                Text = "Course name",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            var input = new TextBox();
+            var input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Category";
+            // Category
+            text = new TextBlock
+            {
+                Text = "Category",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Description";
+            // Description
+            text = new TextBlock
+            {
+                Text = "Description",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Main teacher";
+            // Main teacher
+            text = new TextBlock
+            {
+                Text = "Main teacher",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            var scroll = new ScrollViewer()
+            // ScrollViewer for teacher selection
+            var scroll = new ScrollViewer
             {
                 MaxHeight = 300
+                Content = new StackPanel(),
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"]
             };
-            var stacking_panel_inner = new StackPanel();
-            scroll.Content = stacking_panel_inner;
+
+            var stacking_panel_inner = (StackPanel)scroll.Content;
+            stacking_panel_inner.Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"];
+
             stacking_panel.Children.Add(scroll);
 
+            // Add radio buttons for teachers
             var list = App.DBConnection.ReturnTeacherList();
             foreach (User u in list)
             {
-                var radio = new RadioButton();
+                var radio = new RadioButton
+                {
+                    Content = $"{u.Login}, {u.FirstName} {u.LastName}",
+                    Style = (Style)Application.Current.Resources["FormRadioButtonStyle"]
+                };
+
                 radio.Click += (s, e) =>
                 {
                     for (int i = 0; i < parent.IDs.Count; i++)
@@ -1023,11 +1172,12 @@ namespace BD.ViewModels
                         }
                     }
                 };
-                radio.Content = $"{u.Login}, {u.FirstName} {u.LastName}";
+
                 parent.radios.Add(radio);
                 stacking_panel_inner.Children.Add(radio);
                 parent.IDs.Add(u.ID);
             }
+
 
             // Students
             text = new TextBlock();
@@ -1091,13 +1241,17 @@ namespace BD.ViewModels
 
                 if (name == null || cat == null || teach < 0)
                     return;
+
                 if (string.IsNullOrEmpty(name.Text) || string.IsNullOrEmpty(cat.Text))
                     return;
 
                 User u = App.DBConnection.GetUserByID(teach);
                 Course c = new Course(parent.TargetChangeID, name.Text, cat.Text, new List<User>([u]));
+              
                 if (desc != null && !string.IsNullOrEmpty(desc.Text))
+                {
                     c.Description = desc.Text;
+                }
 
                 if (parent.TargetChangeID >= 0)
                 {
@@ -1123,18 +1277,18 @@ namespace BD.ViewModels
                     ReturnAllCoursesFromDB(parent);
                 }
                 else
-                {   // Add error handling
+                {
+                    // Add error handling
                     name.Text = "";
                     cat.Text = "";
                 }
             };
-            stacking_panel.Children.Add(bttn);
-
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
             menu = universalItems(parent, menu, ReturnAllCoursesFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
+
 
         public void AddNewTest(AdminPanelUI parent)
         {
@@ -1147,9 +1301,22 @@ namespace BD.ViewModels
             }
             parent.ResetParams();
 
-            var stacking_panel = new StackPanel();
-            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
-            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
+            // Load ResourceDictionary for styles
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            var stacking_panel = new StackPanel
+            {
+                Margin = new Thickness(50, 15, 50, 15),
+                Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+            };
             parent.outputGrid.Children.Add(stacking_panel);
 
             /*
@@ -1158,38 +1325,65 @@ namespace BD.ViewModels
                 Category
                 Start
                 End
-
                 Questions
             */
-            var text = new TextBlock();
-            text.Text = "Test name";
-            stacking_panel.Children.Add(text);
 
-            var input = new TextBox();
-            stacking_panel.Children.Add(input);
-
-            text = new TextBlock();
-            text.Text = "Category";
-            stacking_panel.Children.Add(text);
-
-            input = new TextBox();
-            stacking_panel.Children.Add(input);
-
-            text = new TextBlock();
-            text.Text = "Course";
-            stacking_panel.Children.Add(text);
-
-            var scroll = new ScrollViewer()
+            // Test name
+            var text = new TextBlock
             {
+                Text = "Test name",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text);
+
+            var input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
+            stacking_panel.Children.Add(input);
+
+            // Category
+            text = new TextBlock
+            {
+                Text = "Category",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text);
+
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
+            stacking_panel.Children.Add(input);
+
+            // Course
+            text = new TextBlock
+            {
+                Text = "Course",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text);
+
+            var scroll = new ScrollViewer
+            {
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
                 MaxHeight = 250
             };
-            var stacking_panel_inner = new StackPanel();
+            var stacking_panel_inner = new StackPanel
+            {
+                Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
+            };
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
+
             var list = App.DBConnection.ReturnCoursesList();
             foreach (Course u in list)
             {
-                var radio = new RadioButton();
+                var radio = new RadioButton
+                {
+                    Content = $"{u.Name}, {u.MainTeacherName}",
+                    Style = (Style)Application.Current.Resources["FormRadioButtonStyle"]
+                };
                 radio.Click += (s, e) =>
                 {
                     for (int i = 0; i < parent.IDs.Count; i++)
@@ -1200,29 +1394,43 @@ namespace BD.ViewModels
                         }
                     }
                 };
-                radio.Content = $"{u.Name}, {u.MainTeacherName}";
                 parent.radios.Add(radio);
                 stacking_panel_inner.Children.Add(radio);
                 parent.IDs.Add(u.ID);
             }
 
-            stacking_panel_inner = new StackPanel();
-            stacking_panel_inner.Orientation = Orientation.Horizontal;
-            stacking_panel_inner.HorizontalAlignment = HorizontalAlignment.Center;
+            // Start and End dates
+            stacking_panel_inner = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
+            };
             stacking_panel.Children.Add(stacking_panel_inner);
-            var textBlock = new TextBlock();
-            textBlock.Text = "Start date:";
-            // Restrict start and end date!!!!
-            var cal_start = new DatePicker();
-            cal_start.SelectedDate = DateTime.Now.AddDays(1);
-            cal_start.DisplayDateStart = DateTime.Now;
+
+            var textBlock = new TextBlock
+            {
+                Text = "Start date:",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            var cal_start = new DatePicker
+            {
+                SelectedDate = DateTime.Now.AddDays(1),
+                Style = (Style)Application.Current.Resources["FormDatePickerStyle"]
+            };
             stacking_panel_inner.Children.Add(textBlock);
             stacking_panel_inner.Children.Add(cal_start);
 
-            textBlock = new TextBlock();
-            textBlock.Text = "End date:";
-            var cal_end = new DatePicker();
-            cal_end.SelectedDate = DateTime.Now.AddDays(8);
+            textBlock = new TextBlock
+            {
+                Text = "End date:",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            var cal_end = new DatePicker
+            {
+                SelectedDate = DateTime.Now.AddDays(8),
+                Style = (Style)Application.Current.Resources["FormDatePickerStyle"]
+            };
             stacking_panel_inner.Children.Add(textBlock);
             stacking_panel_inner.Children.Add(cal_end);
 
@@ -1235,27 +1443,46 @@ namespace BD.ViewModels
                 cal_start.DisplayDateEnd = cal_end.SelectedDate;
             };
 
-            text = new TextBlock();
-            text.Text = "Questions. Please select desired ones:";
+            // Questions
+            text = new TextBlock
+            {
+                Text = "Questions. Please select desired ones:",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            scroll = new ScrollViewer()
+            scroll = new ScrollViewer
             {
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
                 MaxHeight = 400
             };
-            stacking_panel_inner = new StackPanel();
+            stacking_panel_inner = new StackPanel
+            {
+                Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
+            };
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
+
             var list1 = App.DBConnection.ReturnQuestionList();
             foreach (Question q in list1)
             {
-                // Add the rest of logic later
-                var new_stack = new StackPanel();
-                new_stack.Orientation = Orientation.Horizontal;
-                var toggle = new ToggleButton();
-                toggle.Content = "X";
-                textBlock = new TextBlock();
-                textBlock.Text = q.Text;
+                var new_stack = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
+                };
+
+                var toggle = new ToggleButton
+                {
+                    Content = "X",
+                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
+                };
+
+                textBlock = new TextBlock
+                {
+                    Text = q.Text,
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
+                };
 
                 new_stack.Children.Add(toggle);
                 new_stack.Children.Add(textBlock);
@@ -1263,9 +1490,12 @@ namespace BD.ViewModels
                 parent.IDs1.Add(q.ID);
             }
 
-            // Submit
-            Button bttn = new Button();
-            bttn.Content = "Submit";
+            // Submit button
+            var bttn = new Button
+            {
+                Content = "Submit",
+                Style = (Style)Application.Current.Resources["FormButtonStyle"]
+            };
             bttn.Click += (o, e) =>
             {
                 var name = (stacking_panel.Children[1] as TextBox);
@@ -1328,7 +1558,6 @@ namespace BD.ViewModels
                     name.Text = "";
                     cat.Text = "";
                 }
-
             };
             stacking_panel.Children.Add(bttn);
 
@@ -1338,12 +1567,13 @@ namespace BD.ViewModels
             parent.outputGrid.ContextMenu = menu;
         }
 
+
         public void AddNewQuestion(AdminPanelUI parent)
         {
             if (parent.TargetChangeID != -1)
                 Debug.Print($"User id to change: {parent.TargetChangeID}");
             // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new User";
+            parent.mainTitle.Text = "Create new Question";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
@@ -1351,141 +1581,200 @@ namespace BD.ViewModels
             parent.ResetParams();
             parent.typeQuestion = Question.QUESTION_TYPE.Closed;
 
-            var stacking_panel = new StackPanel();
-            stacking_panel.VerticalAlignment = VerticalAlignment.Stretch;
-            stacking_panel.Margin = new Thickness(50, 15, 50, 15);
+            // Load ResourceDictionary for styles
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            // Main StackPanel
+            var stacking_panel = new StackPanel
+            {
+                Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+            };
             parent.outputGrid.Children.Add(stacking_panel);
 
-            /*
-             * Name +
-             * Text +
-             * Type +
-             * Points +
-             * Category +
-             * Answers +
-             * Correct answers +
-             */
-            var text = new TextBlock();
-            text.Text = "Name";
+            // Name
+            var text = new TextBlock
+            {
+                Text = "Name",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            var input = new TextBox();
+            var input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Category";
+            // Category
+            text = new TextBlock
+            {
+                Text = "Category",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Points";
+            // Points
+            text = new TextBlock
+            {
+                Text = "Points",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox();
+            input = new TextBox
+            {
+                Width = 50,
+                Style = (Style)Application.Current.Resources["FormInputStyle"]
+            };
             stacking_panel.Children.Add(input);
 
-            text = new TextBlock();
-            text.Text = "Question type";
+            // Question type
+            text = new TextBlock
+            {
+                Text = "Question type",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            var radio_panel = new StackPanel();
-            radio_panel.Orientation = Orientation.Horizontal;
-            radio_panel.HorizontalAlignment = HorizontalAlignment.Center;
-            var radio = new RadioButton();
-            radio.Content = "Closed";
+            var radio_panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Style = (Style)Application.Current.Resources["FormRadioPanelStyle"]
+            };
+
+            var radio = new RadioButton
+            {
+                Content = "Closed",
+                IsChecked = true,
+                Style = (Style)Application.Current.Resources["FormRadioButtonStyle"]
+            };
             radio.Click += (o, e) =>
             {
-                if (o.GetType() == typeof(RadioButton))
+                if (o is RadioButton)
                 {
                     parent.typeQuestion = Question.QUESTION_TYPE.Closed;
                 }
             };
-            radio.IsChecked = true;
             radio_panel.Children.Add(radio);
-            radio = new RadioButton();
-            radio.Content = "Open";
+
+            radio = new RadioButton
+            {
+                Content = "Open",
+                Style = (Style)Application.Current.Resources["FormRadioButtonStyle"]
+            };
             radio.Click += (o, e) =>
             {
-                if (o.GetType() == typeof(RadioButton))
+                if (o is RadioButton)
                 {
                     parent.typeQuestion = Question.QUESTION_TYPE.Open;
                 }
             };
             radio_panel.Children.Add(radio);
+
             stacking_panel.Children.Add(radio_panel);
 
-            text = new TextBlock();
-            text.Text = "Question body";
+            // Question body
+            text = new TextBlock
+            {
+                Text = "Question body",
+                
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            input = new TextBox()
+            input = new TextBox
             {
+                Width = 500,
                 TextWrapping = TextWrapping.Wrap,
+                Style = (Style)Application.Current.Resources["FormInputStyle"],
                 AcceptsReturn = true,
             };
             stacking_panel.Children.Add(input);
 
-            var uniform = new UniformGrid()
+            // Answer grid
+            var uniform = new UniformGrid
             {
                 Columns = 2,
-                Rows = 2
+                Rows = 2,
+                Style = (Style)Application.Current.Resources["FormUniformGridStyle"]
             };
+
             for (int i = 0; i < 4; i++)
             {
-                // Add the rest of logic later
-                var new_stack = new StackPanel();
-                new_stack.Orientation = Orientation.Horizontal;
-                var toggle = new ToggleButton();
-                toggle.Content = "X";
-                var textBox = new TextBox();
-                textBox.Text = $"Answer {i + 1}";
+                var border = new Border
+                {
+                    Style = (Style)Application.Current.Resources["CustomBorderStyle"]
+                };
+                var new_stack = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Style = (Style)Application.Current.Resources["CustomStackPanelStyle"]
+                };
+
+                var toggle = new ToggleButton
+                {
+                    
+                    Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"]
+                };
+
+                var textBox = new TextBox
+                {
+                    Text = $"Answer {i + 1}",
+                    Style = (Style)Application.Current.Resources["CustomTextBoxStyle"]
+                };
 
                 new_stack.Children.Add(toggle);
                 new_stack.Children.Add(textBox);
-                uniform.Children.Add(new_stack);
+                border.Child = new_stack;
+                uniform.Children.Add(border);
             }
             stacking_panel.Children.Add(uniform);
 
-            // Submit
+            // Submit button
+            var bttn = new Button
+            {
+                Content = "Submit",
+                Style = (Style)Application.Current.Resources["FormButtonStyle"]
+            };
 
-            /*
-             * Name +
-             * Text +
-             * Type +
-             * Points +
-             * Category +
-             * Answers +
-             * Correct answers +
-             */
-
-            Button bttn = new Button();
-            bttn.Content = "Submit";
             bttn.Click += (o, e) =>
             {
-                var name = (stacking_panel.Children[1] as TextBox);
-                var cat = (stacking_panel.Children[3] as TextBox);
-                var points = (stacking_panel.Children[5] as TextBox);
-                var text = (stacking_panel.Children[9] as TextBox);
-                var answ1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
-                var asnwBttn1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
-                var answ2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
-                var asnwBttn2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
-                var answ3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
-                var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
-                var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
-                var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+                var name = stacking_panel.Children[1] as TextBox;
+                var cat = stacking_panel.Children[3] as TextBox;
+                var points = stacking_panel.Children[5] as TextBox;
+                var questionText = stacking_panel.Children[9] as TextBox;
 
-                if (name != null && cat != null && points != null && text != null && answ1 != null && asnwBttn1 != null && answ2 != null && asnwBttn2 != null &&
-                    answ3 != null && asnwBttn3 != null && answ4 != null && asnwBttn4 != null)
+                var uniformGrid = stacking_panel.Children[10] as UniformGrid;
+                var answ1 = (uniformGrid.Children[0] as StackPanel).Children[1] as TextBox;
+                var asnwBttn1 = (uniformGrid.Children[0] as StackPanel).Children[0] as ToggleButton;
+                var answ2 = (uniformGrid.Children[1] as StackPanel).Children[1] as TextBox;
+                var asnwBttn2 = (uniformGrid.Children[1] as StackPanel).Children[0] as ToggleButton;
+                var answ3 = (uniformGrid.Children[2] as StackPanel).Children[1] as TextBox;
+                var asnwBttn3 = (uniformGrid.Children[2] as StackPanel).Children[0] as ToggleButton;
+                var answ4 = (uniformGrid.Children[3] as StackPanel).Children[1] as TextBox;
+                var asnwBttn4 = (uniformGrid.Children[3] as StackPanel).Children[0] as ToggleButton;
+
+                if (name != null && cat != null && points != null && questionText != null && answ1 != null && answ2 != null && answ3 != null && answ4 != null)
                 {
-                    // Now strings................
-                    if (string.IsNullOrEmpty(name.Text) || string.IsNullOrEmpty(cat.Text) || string.IsNullOrEmpty(points.Text) || string.IsNullOrEmpty(text.Text) ||
-                    string.IsNullOrEmpty(answ1.Text) || string.IsNullOrEmpty(answ2.Text) || string.IsNullOrEmpty(answ3.Text) || string.IsNullOrEmpty(answ4.Text))
+                    if (string.IsNullOrEmpty(name.Text) || string.IsNullOrEmpty(cat.Text) || string.IsNullOrEmpty(points.Text) || string.IsNullOrEmpty(questionText.Text))
                         return;
+
                     double p = double.Parse(points.Text, CultureInfo.InvariantCulture);
-                    // Answer key binary shenanigans
                     int key = 0;
                     key += asnwBttn1.IsChecked == true ? 1 << 3 : 0;
                     key += asnwBttn2.IsChecked == true ? 1 << 2 : 0;
@@ -1516,10 +1805,13 @@ namespace BD.ViewModels
                         ReturnAllQuestionsFromDB(parent);
                         return;
                     }
-                    // Add error handling
-                    name.Text = "";
-                    cat.Text = "";
-                    text.Text = "";
+                    else
+                    {
+                        // Add error handling
+                        name.Text = "";
+                        cat.Text = "";
+                        questionText.Text = "";
+                    }
                 }
             };
             stacking_panel.Children.Add(bttn);

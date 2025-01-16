@@ -1,0 +1,168 @@
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Styl dla TextBlock -->
+    <Style TargetType="TextBlock" x:Key="FormLabelStyle">
+        <Setter Property="FontSize" Value="14" />
+		<Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,10,0,5" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <!-- Styl dla TextBox -->
+    <Style TargetType="TextBox" x:Key="FormInputStyle">
+        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="14" />
+		<Setter Property="Width" Value="300" />
+		<Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Styl dla RadioButton -->
+    <Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
+        <Setter Property="Margin" Value="10,0,10,0" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="BorderElement"
+                        BorderThickness="1"
+                        BorderBrush="Gray"
+                        CornerRadius="5"
+                        Padding="5">
+                        <StackPanel Orientation="Horizontal">
+
+                            <Grid Width="14" Height="14">
+                                <Ellipse Stroke="Gray" StrokeThickness="2" Fill="White" />
+                                <Ellipse x:Name="CheckedIndicator" Width="8" Height="8" Fill="Transparent" />
+                            </Grid>
+
+                            <ContentPresenter Margin="5,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="CheckedIndicator" Property="Fill" Value="DodgerBlue" />
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BorderElement" Property="BorderBrush" Value="DodgerBlue" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Styl dla Button -->
+    <Style TargetType="Button" x:Key="FormButtonStyle">
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="Margin" Value="0,15,0,0" />
+        <Setter Property="Background" Value="DodgerBlue" />
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Styl dla StackPanel -->
+    <Style TargetType="StackPanel" x:Key="FormStackPanelStyle">
+        <Setter Property="Margin" Value="50,15,50,15" />
+		
+    </Style>
+
+	<Style x:Key="FormToggleButtonStyle" TargetType="ToggleButton">
+		<Setter Property="Width" Value="50" />
+		<Setter Property="Margin" Value="5" />
+	</Style>
+	<!-- Styl dla dodawania Odpowiedzi -->
+    <Style x:Key="CustomBorderStyle" TargetType="Border">
+        <Setter Property="Margin" Value="10,0,10,0" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="Background" Value="#F0F0F0" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style x:Key="CustomStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style x:Key="CustomToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="60" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Content" Value="OFF" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+
+                        <Border x:Name="SwitchBackground" 
+                            Width="60" Height="30" 
+                            CornerRadius="15" 
+                            Background="Gray" 
+                            BorderBrush="Gray" 
+                            BorderThickness="1">
+                        </Border>
+
+                        <Ellipse x:Name="SwitchThumb" 
+                             Width="20" Height="20" 
+                             Fill="White" 
+                             HorizontalAlignment="Left" 
+                             Margin="2"/>
+
+                        <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="Green"/>
+                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Content" Value="ON"/>
+                        </Trigger>
+
+
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="Red"/>
+                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="Content" Value="OFF"/>
+                        </Trigger>
+
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="SwitchBackground" Property="BorderBrush" Value="DodgerBlue"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Styl dla TextBox -->
+	<Style x:Key="CustomTextBoxStyle" TargetType="TextBox">
+		<Setter Property="Width" Value="200"/>
+		<Setter Property="Height" Value="30"/>
+		<Setter Property="Margin" Value="5"/>
+		<Setter Property="FontSize" Value="14"/>
+		<Setter Property="Background" Value="White"/>
+		<Setter Property="BorderBrush" Value="Gray"/>
+		<Setter Property="BorderThickness" Value="1"/>
+	</Style>
+
+</ResourceDictionary>

@@ -20,6 +20,7 @@ namespace BD
         string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
         string hash_key = "";
 
+
         public List<Dictionary<string, string>> Login(string login, string pass)
         {
             string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + pass + "\'";
