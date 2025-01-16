@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
-using static System.Net.Mime.MediaTypeNames;
+
 using System.Reflection;
 
 namespace BD.ViewModels
@@ -56,7 +56,7 @@ namespace BD.ViewModels
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Style = (Style)Application.Current.Resources["CustomDataGridStyle"]
+                Style = (Style)Application.Current.Resources["CustomDataGridStyle"],
                 //Margin = new Thickness(10),
                 //AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 //Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
@@ -455,7 +455,7 @@ namespace BD.ViewModels
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Style = customDataGridStyle
+                Style = customDataGridStyle,
                 /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
@@ -1358,7 +1358,7 @@ namespace BD.ViewModels
 
             var scroll = new ScrollViewer
             {
-                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"]
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
                 MaxHeight = 250
             };
             var stacking_panel_inner = new StackPanel
@@ -1445,7 +1445,7 @@ namespace BD.ViewModels
 
             scroll = new ScrollViewer
             {
-                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"]
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
                 MaxHeight = 400
             };
             stacking_panel_inner = new StackPanel
