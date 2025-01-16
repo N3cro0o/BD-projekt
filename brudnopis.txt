@@ -1,0 +1,6 @@
+Icon="image/appIcon.png"
+
+<!-- Ustawienie t³a z obrazem menu.jpg -->
+            <Button.Background>
+                <ImageBrush ImageSource="../image/menu.jpg"/>
+            </Button.Background>
