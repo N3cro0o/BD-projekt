@@ -261,10 +261,7 @@
         BorderBrush="Black" BorderThickness="1"
         Click="ShowMenu_Click">
 
-            <!-- Ustawienie tła z obrazem menu.jpg -->
-            <Button.Background>
-                <ImageBrush ImageSource="../image/menu.jpg"/>
-            </Button.Background>
+           
 
             <!-- Ustawienie okrągłego kształtu -->
             <Button.Template>

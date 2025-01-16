@@ -9,7 +9,7 @@
         xmlns:viewmodels="clr-namespace:BD.ViewModels"
         xmlns:models="clr-namespace:BD.Models"
         mc:Ignorable="d"
-        Icon="image/appIcon.png"
+       
         Title="Testy wiedzy - admin" Height="800" Width="1100" WindowState="Normal" ResizeMode="CanResize"
         MinHeight="450" MinWidth="800"
         WindowStartupLocation="CenterScreen">
