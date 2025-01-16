@@ -11,6 +11,8 @@
   <ItemGroup>
     <None Remove="Views\loginimage2.png" />
     <None Remove="Views\passwordImg2.png" />
+	  <None Remove="Views\appIcon.png" />
+	  <None Remove="Views\menu.jpg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +27,8 @@
   <ItemGroup>
     <Resource Include="image\loginimage2.png" />
     <Resource Include="image\passwordImg2.png" />
+	  <Resource Include="image\appIcon.png" />
+	  <Resource Include="image\menu.jpg" />
   </ItemGroup>
 
 </Project>
