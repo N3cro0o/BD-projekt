@@ -1405,7 +1405,7 @@ namespace BD.ViewModels
                 Text = "Start date:",
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
-            var cal = new DatePicker
+            var cal_start = new DatePicker
             {
                 SelectedDate = DateTime.Now.AddDays(1),
                 Style = (Style)Application.Current.Resources["FormDatePickerStyle"]
@@ -1418,7 +1418,7 @@ namespace BD.ViewModels
                 Text = "End date:",
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
-            cal = new DatePicker
+            var cal_end = new DatePicker
             {
                 SelectedDate = DateTime.Now.AddDays(8),
                 Style = (Style)Application.Current.Resources["FormDatePickerStyle"]
