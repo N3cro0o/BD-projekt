@@ -869,17 +869,7 @@ namespace BD.ViewModels
             });
 
             var context = new ContextMenu();
-            var item = new MenuItem { Header = "Add new test" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
-                {
-                    AddNewTest(parent);
-                }
-            };
-            context.Items.Add(item);
-
-            item = new MenuItem { Header = "Update test" };
+            var item = new MenuItem { Header = "Update test" };
             item.Click += (s, e) =>
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Test test)
@@ -941,7 +931,7 @@ namespace BD.ViewModels
                     {
                         App.DBConnection.RemoveTest(test);
                         MessageBox.Show($"Test has been removed.");
-                        ReturnAllUsersFromDB(parent);
+                        ReturnAllTestsFromDB(parent);
                     }
                 }
             };
@@ -1117,7 +1107,7 @@ namespace BD.ViewModels
                         {
                             Debug.Print("Updating Course-Student failed");
                         }
-                        ReturnAllTestsFromDB(parent);
+                        ReturnAllCoursesFromDB(parent);
                         return;
                     }
                 }

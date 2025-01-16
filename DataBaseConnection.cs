@@ -18,6 +18,7 @@ namespace BD
     public class DataBaseConnection
     {
         string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
+        string hash_key = "";
 
         public List<Dictionary<string, string>> Login(string login, string pass)
         {
