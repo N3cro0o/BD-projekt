@@ -465,7 +465,7 @@ namespace BD.ViewModels
                     c.Category = cat;
                 }
 
-                return App.DBConnection.AddCourse(c);
+                return App.DBConnection.AddCourse(c).Item1;
             }
             return false;
         }
@@ -516,7 +516,7 @@ namespace BD.ViewModels
                 Course course = App.DBConnection.ReturnCoursesListWithID(id)[0];
                 Test t = new Test(course, cat, start, end);
                 t.Name = name;
-                return App.DBConnection.AddTest(t);
+                return App.DBConnection.AddTest(t).Item1;
             }
             return false;
         }
@@ -526,7 +526,8 @@ namespace BD.ViewModels
             int id;
             string s = data[0].Trim();
             id = int.Parse(s);
-            return App.DBConnection.RemoveUser(id);
+            var u = App.DBConnection.GetUserByID(id);
+            return App.DBConnection.RemoveUser(u);
         }
 
         bool _removeCourse(string[] data)
@@ -534,7 +535,8 @@ namespace BD.ViewModels
             int id;
             string s = data[0].Trim();
             id = int.Parse(s);
-            return App.DBConnection.RemoveCourse(id);
+            var c = App.DBConnection.ReturnCoursesListWithID(id)[0];
+            return App.DBConnection.RemoveCourse(c);
         }
 
         bool _modifyUser(AdminPanel parent, string[] data) // for now it's only by id
