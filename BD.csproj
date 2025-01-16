@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Folder Include="Elements\" />
+    <Folder Include="Styles\" />
   </ItemGroup>
 
   <ItemGroup>
