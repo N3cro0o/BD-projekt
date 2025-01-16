@@ -74,7 +74,7 @@ namespace BD.Views
 
         private void ShowAllQuestions_Click(object sender, RoutedEventArgs e)
         {
-            _mv.ShowAllQusetions(this);
+            _mv.ReturnAllQuestionsFromDB(this);
             _mv.CloseMenu(this);
         }
 

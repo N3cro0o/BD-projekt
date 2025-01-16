@@ -16,6 +16,7 @@ namespace BD.ViewModels
         private readonly MainWindow _mainwindow;
         public bool showMenu = false;
         private StepMethodCallback _stepMethodCallback;
+        private ValidateVM _validateVM;
 
         void voidStepCallback(AdminPanelUI parent) { }
 
@@ -23,6 +24,7 @@ namespace BD.ViewModels
         {
             _stepMethodCallback = voidStepCallback;
             _mainwindow = mainWindow;
+            _validateVM = new ValidateVM();
         }
 
         public void CallbackClick(AdminPanelUI parent)
@@ -365,9 +367,9 @@ namespace BD.ViewModels
             stacking_panel.Children.Add(text);
         }
 
-        public void ShowAllQusetions(AdminPanelUI parent)
+        public void ReturnAllQuestionsFromDB(AdminPanelUI parent)
         {
-            parent.mainTitle.Text = "Create new User";
+            parent.mainTitle.Text = "Question list";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
@@ -416,6 +418,13 @@ namespace BD.ViewModels
             {
                 Header = "Points",
                 Binding = new System.Windows.Data.Binding("Points"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+            
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Type",
+                Binding = new System.Windows.Data.Binding("QuestionType"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
 
@@ -519,12 +528,12 @@ namespace BD.ViewModels
                     {
                         App.DBConnection.RemoveQuestion(question.ID);
                         MessageBox.Show($"Question and answer have been removed.");
-                        ShowAllQusetions(parent);
+                        ReturnAllQuestionsFromDB(parent);
                     }
                 }
             };
             context.Items.Add(item);
-            context = universalItems(parent, context, ShowAllQusetions);
+            context = universalItems(parent, context, ReturnAllQuestionsFromDB);
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
@@ -561,7 +570,7 @@ namespace BD.ViewModels
             };
             button.Click += (o, e) =>
             {
-                ShowAllQusetions(parent);
+                ReturnAllQuestionsFromDB(parent);
             };
             stacking_panel_inner.Children.Add(button);
             stacking_panel.Children.Add(stacking_panel_inner);
@@ -637,7 +646,7 @@ namespace BD.ViewModels
 
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
-            menu = universalItems(parent, menu, ShowAllQusetions);
+            menu = universalItems(parent, menu, ReturnAllQuestionsFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
 
@@ -1118,17 +1127,27 @@ namespace BD.ViewModels
             var textBlock = new TextBlock();
             textBlock.Text = "Start date:";
             // Restrict start and end date!!!!
-            var cal = new DatePicker();
-            cal.SelectedDate = DateTime.Now.AddDays(1);
+            var cal_start = new DatePicker();
+            cal_start.SelectedDate = DateTime.Now.AddDays(1);
+            cal_start.DisplayDateStart = DateTime.Now;
             stacking_panel_inner.Children.Add(textBlock);
-            stacking_panel_inner.Children.Add(cal);
+            stacking_panel_inner.Children.Add(cal_start);
 
             textBlock = new TextBlock();
             textBlock.Text = "End date:";
-            cal = new DatePicker();
-            cal.SelectedDate = DateTime.Now.AddDays(8);
+            var cal_end = new DatePicker();
+            cal_end.SelectedDate = DateTime.Now.AddDays(8);
             stacking_panel_inner.Children.Add(textBlock);
-            stacking_panel_inner.Children.Add(cal);
+            stacking_panel_inner.Children.Add(cal_end);
+
+            cal_start.CalendarClosed += (s, e) =>
+            {
+                cal_end.DisplayDateStart = cal_start.SelectedDate;
+            };
+            cal_end.CalendarClosed += (s, e) =>
+            {
+                cal_start.DisplayDateEnd = cal_end.SelectedDate;
+            };
 
             text = new TextBlock();
             text.Text = "Questions. Please select desired ones:";
@@ -1378,14 +1397,14 @@ namespace BD.ViewModels
                         (q1, a1) = App.DBConnection.UpdateQuestion(q);
                         if (!q1.IsEmpty())
                         {
-                            ShowAllQusetions(parent);
+                            ReturnAllQuestionsFromDB(parent);
                             return;
                         }
                         Debug.Print("Update failed, trying to add new Question");
                     }
                     if (App.DBConnection.AddQuestion(q))
                     {
-                        ShowAllQusetions(parent);
+                        ReturnAllQuestionsFromDB(parent);
                         return;
                     }
                     // Add error handling
@@ -1450,7 +1469,19 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem)
                 {
-                    AddNewQuestion(parent);
+                    parent.TargetChangeID = -1;
+                    _stepMethodCallback = callback;
+                    bool a;
+                    int x;
+                    (a, x) = _validateVM.ValidateQuestions();
+                    if (a)
+                    {
+                        MessageBox.Show("Everything is fine", "Validate questions", MessageBoxButton.OK);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Incorrect number of questions:\n{x}.", "Validate questions", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
             };
 
