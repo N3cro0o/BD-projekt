@@ -458,7 +458,7 @@ namespace BD.ViewModels
             DataGrid myDataGrid = new DataGrid
             {
                 AutoGenerateColumns = false,
-                Style = customDataGridStyle
+                Style = customDataGridStyle,
                 /*Margin = new Thickness(10),
                 AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
@@ -1143,7 +1143,7 @@ namespace BD.ViewModels
             // ScrollViewer for teacher selection
             var scroll = new ScrollViewer
             {
-                MaxHeight = 300
+                MaxHeight = 150,
                 Content = new StackPanel(),
                 Style = (Style)Application.Current.Resources["FormScrollViewerStyle"]
             };
@@ -1187,7 +1187,7 @@ namespace BD.ViewModels
 
             scroll = new ScrollViewer()  
             {
-                MaxHeight = 450
+                MaxHeight = 150
             };
             stacking_panel_inner = new StackPanel();
             scroll.Content = stacking_panel_inner;
@@ -1214,6 +1214,7 @@ namespace BD.ViewModels
             // Submit
             Button bttn = new Button();
             bttn.Content = "Submit";
+            stacking_panel.Children.Add(bttn);
             bttn.Click += (o, e) =>
             {
                 var name = (stacking_panel.Children[1] as TextBox);
@@ -1289,7 +1290,6 @@ namespace BD.ViewModels
             menu = universalItems(parent, menu, ReturnAllCoursesFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
-
 
         public void AddNewTest(AdminPanelUI parent)
         {
@@ -1368,7 +1368,7 @@ namespace BD.ViewModels
             var scroll = new ScrollViewer
             {
                 Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
-                MaxHeight = 250
+                MaxHeight = 150
             };
             var stacking_panel_inner = new StackPanel
             {
@@ -1455,7 +1455,7 @@ namespace BD.ViewModels
             scroll = new ScrollViewer
             {
                 Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
-                MaxHeight = 400
+                MaxHeight = 150
             };
             stacking_panel_inner = new StackPanel
             {
@@ -1717,10 +1717,6 @@ namespace BD.ViewModels
 
             for (int i = 0; i < 4; i++)
             {
-                var border = new Border
-                {
-                    Style = (Style)Application.Current.Resources["CustomBorderStyle"]
-                };
                 var new_stack = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
@@ -1741,8 +1737,7 @@ namespace BD.ViewModels
 
                 new_stack.Children.Add(toggle);
                 new_stack.Children.Add(textBox);
-                border.Child = new_stack;
-                uniform.Children.Add(border);
+                uniform.Children.Add(new_stack);
             }
             stacking_panel.Children.Add(uniform);
 
@@ -1785,7 +1780,7 @@ namespace BD.ViewModels
                     answ += answ2.Text + "\n";
                     answ += answ3.Text + "\n";
                     answ += answ4.Text;
-                    Question q = new Question(name.Text, text.Text, parent.typeQuestion, answ, p, key, cat.Text);
+                    Question q = new Question(name.Text, questionText.Text, parent.typeQuestion, answ, p, key, cat.Text);
                     q.ID = parent.TargetChangeID;
                     q.AnswerID = parent.TargetChangeIDSecond;
                     q.PrintQuestionOnConsole();

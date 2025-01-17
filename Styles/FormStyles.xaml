@@ -134,14 +134,14 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="SwitchBackground" Property="Background" Value="Green"/>
                             <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
-                            <Setter Property="Content" Value="ON"/>
+                            <Setter Property="Content" Value=""/>
                         </Trigger>
 
 
                         <Trigger Property="IsChecked" Value="False">
                             <Setter TargetName="SwitchBackground" Property="Background" Value="Red"/>
                             <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Left"/>
-                            <Setter Property="Content" Value="OFF"/>
+                            <Setter Property="Content" Value=""/>
                         </Trigger>
 
 
