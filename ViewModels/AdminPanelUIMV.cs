@@ -128,7 +128,7 @@ namespace BD.ViewModels
                     email.Text = user.Email;
                     fname.Text = user.FirstName;
                     lname.Text = user.LastName;
-                    pass.Text = user.Password;
+                    pass.Text = "";
                     switch (user.UserType)
                     {
                         case User.TYPE.Student:
@@ -359,15 +359,16 @@ namespace BD.ViewModels
                 {
                     if (!string.IsNullOrEmpty(login.Text) &&
                         !string.IsNullOrEmpty(email.Text) &&
-                        !string.IsNullOrEmpty(pass.Text) &&
+                        !(string.IsNullOrEmpty(pass.Text) || parent.TargetChangeID >= 0) &&
                         !string.IsNullOrEmpty(fname.Text) &&
                         !string.IsNullOrEmpty(lname.Text))
                     {
                         User u = new User(parent.TargetChangeID, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
                         u.DebugPrintUser();
+
                         if (parent.TargetChangeID > -1)
                         {
-                            if (!App.DBConnection.UpdateUser(u).IsEmpty())
+                            if (!App.DBConnection.UpdateUser(u, string.IsNullOrEmpty(pass.Text)).IsEmpty())
                             {
                                 ReturnAllUsersFromDB(parent);
                                 return;

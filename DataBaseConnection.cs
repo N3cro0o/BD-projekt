@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Xml.Linq;
+using System.Security.Cryptography;
 using BD.Models;
 using Npgsql;
 
@@ -23,7 +24,7 @@ namespace BD
 
         public List<Dictionary<string, string>> Login(string login, string pass)
         {
-            string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + pass + "\'";
+            string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + toSHA256(pass) + "\'";
 
             List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
@@ -47,7 +48,7 @@ namespace BD
 
         public List<User> LoginWithUser(string login, string pass)
         {
-            string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + pass + "\'";
+            string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + toSHA256(pass) + "\'";
 
             List<User> list = new List<User>();
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
@@ -422,7 +423,7 @@ namespace BD
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             string query = "INSERT INTO \"User\"(login, name, surname, email, password, role) VALUES ";
-            query += string.Format("(\'{0}\', \'{1}\', \'{2}\', \'{3}\', \'{4}\', \'{5}\')", user.Login, user.FirstName, user.LastName, user.Email, user.Password, user.UserType);
+            query += string.Format("(\'{0}\', \'{1}\', \'{2}\', \'{3}\', \'{4}\', \'{5}\')", user.Login, user.FirstName, user.LastName, user.Email, toSHA256(user.Password), user.UserType);
             Debug.Print(query);
             try
             {
@@ -729,11 +730,16 @@ namespace BD
             return user;
         }
 
-        public User UpdateUser(User user)
+        public User UpdateUser(User user, bool samePassword = false)
         {
-            string query = string.Format("update \"User\" set \"login\" = '{0}', \"password\" = '{1}'," +
-                "\"email\" = '{2}', \"name\" = '{3}',\"surname\" = '{4}', \"role\" = '{5}' where \"userid\" = {6}",
-                user.Login, user.Password, user.Email, user.FirstName, user.LastName, user.UserType, user.GetID());
+            string query;
+            if (!samePassword)
+                query = string.Format("update \"User\" set \"login\" = '{0}', \"password\" = '{1}'," +
+                    "\"email\" = '{2}', \"name\" = '{3}',\"surname\" = '{4}', \"role\" = '{5}' where \"userid\" = {6}",
+                    user.Login, user.Password, user.Email, user.FirstName, user.LastName, user.UserType, user.GetID());
+            else
+                query = $"update \"User\" set \"login\" = '{user.Login}', " +
+                    $"\"email\" = '{user.Email}', \"name\" = '{user.FirstName}',\"surname\" = '{user.LastName}', \"role\" = '{user.UserType}' where \"userid\" = {user.GetID()}";
             string queryEnd = string.Format("SELECT * FROM \"User\" WHERE \"userid\" = {0}", user.GetID());
 
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
@@ -1073,6 +1079,19 @@ namespace BD
                 list.Add(dict);
             }
             return list;
+        }
+
+        string toSHA256(string s)
+        {
+            using var sha = SHA256.Create();
+            byte[] bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(s));
+
+            var sb = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
         }
     }
 }
