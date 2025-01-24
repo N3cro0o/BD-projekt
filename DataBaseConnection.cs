@@ -16,6 +16,9 @@ using Npgsql;
 
 namespace BD
 {
+    /*
+        * Admin Panel fix 'go back' button
+     */
     public class DataBaseConnection
     {
         string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
@@ -1022,7 +1025,7 @@ namespace BD
         {
             List<int> list = new List<int>();
 
-            string query = $"SELECT userid FROM \"UserToCourse\" WHERE courseid = '{course.ID}' ORDER BY courseid ASC";
+            string query = $"SELECT userid FROM \"UserToCourse\" WHERE courseid = '{course.ID}' ORDER BY userid ASC";
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             NpgsqlCommand com = new NpgsqlCommand(query, con);
 

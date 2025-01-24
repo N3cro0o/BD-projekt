@@ -345,7 +345,8 @@ namespace BD.ViewModels
             var bttn = new Button
             {
                 Content = "Submit",
-                Style = (Style)Application.Current.Resources["FormButtonStyle"]
+                Style = (Style)Application.Current.Resources["FormButtonStyle"],
+                VerticalAlignment = VerticalAlignment.Bottom
             };
             bttn.Click += (o, e) =>
             {
@@ -1143,7 +1144,7 @@ namespace BD.ViewModels
             // ScrollViewer for teacher selection
             var scroll = new ScrollViewer
             {
-                MaxHeight = 150,
+                MaxHeight = 120,
                 Content = new StackPanel(),
                 Style = (Style)Application.Current.Resources["FormScrollViewerStyle"]
             };
@@ -1181,12 +1182,16 @@ namespace BD.ViewModels
 
 
             // Students
-            text = new TextBlock();
-            text.Text = "Select students";
+            text = new TextBlock() 
+            {
+                Text = "Select students",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
             stacking_panel.Children.Add(text);
 
-            scroll = new ScrollViewer()  
+            scroll = new ScrollViewer()
             {
+                //Style = (Style)Application.Current.Resources["ScrolViewer1"],
                 MaxHeight = 150
             };
             stacking_panel_inner = new StackPanel();
@@ -1195,10 +1200,15 @@ namespace BD.ViewModels
             var list_students_to_add = App.DBConnection.ReturnStudentList();
             foreach (User u in list_students_to_add) 
             {
-                var toggle = new ToggleButton() { Content = "X" };
+                var toggle = new ToggleButton() 
+                {
+                    Content = "X",
+                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
+                };
                 text = new TextBlock()
                 {
-                    Text = u.GetFullName()
+                    Text = u.GetFullName(),
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
                 };
                 StackPanel inner = new StackPanel() 
                 {
@@ -1212,8 +1222,12 @@ namespace BD.ViewModels
             }
 
             // Submit
-            Button bttn = new Button();
-            bttn.Content = "Submit";
+            Button bttn = new Button()
+            {
+                Content = "Submit",
+                Style = (Style)Application.Current.Resources["FormButtonStyle"],
+                VerticalAlignment = VerticalAlignment.Bottom
+            };
             stacking_panel.Children.Add(bttn);
             bttn.Click += (o, e) =>
             {
@@ -1417,6 +1431,7 @@ namespace BD.ViewModels
             var cal_start = new DatePicker
             {
                 SelectedDate = DateTime.Now.AddDays(1),
+                DisplayDateStart = DateTime.Now,
                 Style = (Style)Application.Current.Resources["FormDatePickerStyle"]
             };
             stacking_panel_inner.Children.Add(textBlock);
@@ -1495,7 +1510,8 @@ namespace BD.ViewModels
             var bttn = new Button
             {
                 Content = "Submit",
-                Style = (Style)Application.Current.Resources["FormButtonStyle"]
+                Style = (Style)Application.Current.Resources["FormButtonStyle"],
+                VerticalAlignment = VerticalAlignment.Bottom
             };
             bttn.Click += (o, e) =>
             {
@@ -1745,7 +1761,8 @@ namespace BD.ViewModels
             var bttn = new Button
             {
                 Content = "Submit",
-                Style = (Style)Application.Current.Resources["FormButtonStyle"]
+                Style = (Style)Application.Current.Resources["FormButtonStyle"],
+                VerticalAlignment = VerticalAlignment.Bottom
             };
 
             bttn.Click += (o, e) =>
@@ -1860,6 +1877,7 @@ namespace BD.ViewModels
                     AddNewQuestion(parent);
                 }
             };
+            addTo.Items.Add(item);
 
             item = new MenuItem { Header = "Validate all questions" };
             item.Click += (s, e) =>
@@ -1871,6 +1889,7 @@ namespace BD.ViewModels
             };
 
             addTo.Items.Add(item);
+
             item = new MenuItem { Header = "Add new Test" };
             item.Click += (s, e) =>
             {
