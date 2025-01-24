@@ -449,7 +449,7 @@ namespace BD.ViewModels
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
-            
+
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
@@ -503,7 +503,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("Points"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            
+
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "Type",
@@ -517,7 +517,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("Shared"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            
+
             var context = new ContextMenu();
 
             var item = new MenuItem { Header = "Show answers for question" };
@@ -550,8 +550,6 @@ namespace BD.ViewModels
                     var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
                     var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
                     var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
-                    var a = App.DBConnection.FetchAnswer(q.AnswerID);
-                    parent.TargetChangeIDSecond = q.AnswerID;
 
                     name.Text = q.Name;
                     cat.Text = q.Category;
@@ -573,7 +571,7 @@ namespace BD.ViewModels
 
                     }
 
-                    var answer_list = a.AnswerBody.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    var answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                     if (answer_list.Length != 4)
                     {
                         answ1.Text = "Invalid answer format";
@@ -588,10 +586,10 @@ namespace BD.ViewModels
                         answ3.Text = answer_list[2];
                         answ4.Text = answer_list[3];
                     }
-                    asnwBttn1.IsChecked = ((a.AnswerKey & 1 << 3) >> 3) == 1;
-                    asnwBttn2.IsChecked = ((a.AnswerKey & 1 << 2) >> 2) == 1;
-                    asnwBttn3.IsChecked = ((a.AnswerKey & 1 << 1) >> 1) == 1;
-                    asnwBttn4.IsChecked = ((a.AnswerKey & 1 << 0) >> 0) == 1;
+                    asnwBttn1.IsChecked = ((q.CorrectAnswers & 1 << 3) >> 3) == 1;
+                    asnwBttn2.IsChecked = ((q.CorrectAnswers & 1 << 2) >> 2) == 1;
+                    asnwBttn3.IsChecked = ((q.CorrectAnswers & 1 << 1) >> 1) == 1;
+                    asnwBttn4.IsChecked = ((q.CorrectAnswers & 1 << 0) >> 0) == 1;
                 }
             };
             context.Items.Add(item);
@@ -634,7 +632,6 @@ namespace BD.ViewModels
                 parent.outputGrid.Children.RemoveAt(0);
             }
             var q = App.DBConnection.ReturnQuestionListByID(question_id)[0];
-            var a = App.DBConnection.FetchAnswer(q.AnswerID);
             parent.mainTitle.Text = $"Answers for question {q.Name}";
             q.PrintQuestionOnConsole();
 
@@ -678,7 +675,7 @@ namespace BD.ViewModels
             stacking_panel.Children.Add(block);
 
             string[] answer_list;
-            answer_list = a.AnswerBody.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string t = "Correct";
             string t1 = "Incorrect";
             if (answer_list.Length == 4 && q.QuestionType == Question.QUESTION_TYPE.Closed)
@@ -693,7 +690,7 @@ namespace BD.ViewModels
                     var new_stack = new StackPanel();
                     new_stack.Orientation = Orientation.Horizontal;
                     var textBlock = new TextBlock();
-                    string t_this = (a.AnswerKey & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
+                    string t_this = (q.CorrectAnswers & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
                     textBlock.Text = $"{i + 1}. {answer_list[i]} - {t_this}";
                     new_stack.Children.Add(textBlock);
                     uniform.Children.Add(new_stack);
@@ -704,7 +701,7 @@ namespace BD.ViewModels
             {
                 block = new TextBlock()
                 {
-                    Text = a.AnswerBody,
+                    Text = q.Answers,
                 };
                 stacking_panel.Children.Add(block);
 
@@ -717,7 +714,7 @@ namespace BD.ViewModels
                     stacking_panel.Children.Add(block);
                     for (int i = 0; i < 4; i++)
                     {
-                        string t_this = (a.AnswerKey & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
+                        string t_this = (q.CorrectAnswers & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
                         block = new TextBlock()
                         {
                             Text = $"{i + 1}. {t_this}",
@@ -966,7 +963,17 @@ namespace BD.ViewModels
             });
 
             var context = new ContextMenu();
-            var item = new MenuItem { Header = "Update test" };
+            var item = new MenuItem() { Header = "Preview test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    ShowTestStats(parent, test);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Update test" };
             item.Click += (s, e) =>
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Test test)
@@ -1182,7 +1189,7 @@ namespace BD.ViewModels
 
 
             // Students
-            text = new TextBlock() 
+            text = new TextBlock()
             {
                 Text = "Select students",
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
@@ -1198,9 +1205,9 @@ namespace BD.ViewModels
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
             var list_students_to_add = App.DBConnection.ReturnStudentList();
-            foreach (User u in list_students_to_add) 
+            foreach (User u in list_students_to_add)
             {
-                var toggle = new ToggleButton() 
+                var toggle = new ToggleButton()
                 {
                     Content = "X",
                     Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
@@ -1210,7 +1217,7 @@ namespace BD.ViewModels
                     Text = u.GetFullName(),
                     Style = (Style)Application.Current.Resources["FormLabelStyle"]
                 };
-                StackPanel inner = new StackPanel() 
+                StackPanel inner = new StackPanel()
                 {
                     Orientation = Orientation.Horizontal,
                 };
@@ -1263,7 +1270,7 @@ namespace BD.ViewModels
 
                 User u = App.DBConnection.GetUserByID(teach);
                 Course c = new Course(parent.TargetChangeID, name.Text, cat.Text, new List<User>([u]));
-              
+
                 if (desc != null && !string.IsNullOrEmpty(desc.Text))
                 {
                     c.Description = desc.Text;
@@ -1273,7 +1280,7 @@ namespace BD.ViewModels
                 {
                     if (!App.DBConnection.UpdateCourse(c).IsEmpty())
                     {
-                        if (!App.DBConnection.UpdateCourseToStudent(c, student_list)) 
+                        if (!App.DBConnection.UpdateCourseToStudent(c, student_list))
                         {
                             Debug.Print("Updating Course-Student failed");
                         }
@@ -1709,7 +1716,7 @@ namespace BD.ViewModels
             text = new TextBlock
             {
                 Text = "Question body",
-                
+
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
             stacking_panel.Children.Add(text);
@@ -1741,7 +1748,7 @@ namespace BD.ViewModels
 
                 var toggle = new ToggleButton
                 {
-                    
+
                     Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"]
                 };
 
@@ -1799,13 +1806,11 @@ namespace BD.ViewModels
                     answ += answ4.Text;
                     Question q = new Question(name.Text, questionText.Text, parent.typeQuestion, answ, p, key, cat.Text);
                     q.ID = parent.TargetChangeID;
-                    q.AnswerID = parent.TargetChangeIDSecond;
                     q.PrintQuestionOnConsole();
                     if (parent.TargetChangeID > -1)
                     {
                         Question q1;
-                        Answer a1;
-                        (q1, a1) = App.DBConnection.UpdateQuestion(q);
+                        q1 = App.DBConnection.UpdateQuestion(q);
                         if (!q1.IsEmpty())
                         {
                             ReturnAllQuestionsFromDB(parent);
@@ -1813,6 +1818,7 @@ namespace BD.ViewModels
                         }
                         Debug.Print("Update failed, trying to add new Question");
                     }
+                    Debug.Print("Creating new Question");
                     if (App.DBConnection.AddQuestion(q))
                     {
                         ReturnAllQuestionsFromDB(parent);
@@ -1833,6 +1839,30 @@ namespace BD.ViewModels
             ContextMenu menu = new ContextMenu();
             menu = universalItems(parent, menu, AddNewQuestion);
             parent.outputGrid.ContextMenu = menu;
+        }
+
+        void ShowTestStats(AdminPanelUI parent, Test t)
+        {
+            parent.mainTitle.Text = $"Test {t.Name} preview";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+            parent.ResetParams();
+
+            List<Question> questions = App.DBConnection.ReturnQuestionListByTest(t);
+            double score = 0;
+            foreach (Question q in questions)
+            {
+                score += q.Points;
+            }
+            parent.outputGrid.Children.Add
+                (
+                    new TextBlock()
+                    {
+                        Text = score.ToString()
+                    }
+                );
         }
 
         ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback)

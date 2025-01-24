@@ -44,11 +44,12 @@ namespace BD.Models
 
         public double Points { get; set; }
 
+        /// <summary>
+        /// In DB, we have columns A, B, C, D. Here, we store them inside a bitmask. To get binary string use CorrectAnswersBinary.
+        /// </summary>
         public int CorrectAnswers { get; set; } = 0;
 
         public string CorrectAnswersBinary { get => CorrectAnswers.ToString("b"); }
-
-        public int AnswerID { get; set; }
 
         int _id;
 

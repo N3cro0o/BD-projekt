@@ -272,11 +272,14 @@ namespace BD
                     string cat = reader.GetString(2);
                     string questionType = reader.GetString(3);
                     bool shared = reader.GetBoolean(4);
-                    double points = reader.GetDouble(5);
-                    int answer_id = reader.GetInt32(6);
-                    string text = reader.GetString(7);
-                    var q = new Question(name, text, Question.StringToType(questionType), "", points, 0, cat, shared, id);
-                    q.AnswerID = answer_id;
+                    double points = reader.GetDouble(10);
+                    string text = reader.GetString(11);
+                    bool a = reader.GetBoolean(6);
+                    bool b = reader.GetBoolean(7);
+                    bool c = reader.GetBoolean(8);
+                    bool d = reader.GetBoolean(9);
+                    int key = (d ? 1 : 0) + (c ? 2 : 0) + (b ? 4 : 0) + (a ? 8 : 0);
+                    var q = new Question(name, text, Question.StringToType(questionType), reader.GetString(5), points, key, cat, shared, id);
                     list.Add(q);
                 }
             }
@@ -306,11 +309,14 @@ namespace BD
                     string cat = reader.GetString(2);
                     string questionType = reader.GetString(3);
                     bool shared = reader.GetBoolean(4);
-                    double points = reader.GetDouble(5);
-                    int answer_id = reader.GetInt32(6);
-                    string text = reader.GetString(7);
-                    var q = new Question(name, text, Question.StringToType(questionType), "", points, 0, cat, shared, id);
-                    q.AnswerID = answer_id;
+                    double points = reader.GetDouble(10);
+                    string text = reader.GetString(11);
+                    bool a = reader.GetBoolean(6);
+                    bool b = reader.GetBoolean(7);
+                    bool c = reader.GetBoolean(8);
+                    bool d = reader.GetBoolean(9);
+                    int key = (d ? 1 : 0) + (c ? 2 : 0) + (b ? 4 : 0) + (a ? 8 : 0);
+                    var q = new Question(name, text, Question.StringToType(questionType), reader.GetString(5), points, key, cat, shared, id);
                     list.Add(q);
                 }
             }
@@ -348,7 +354,7 @@ namespace BD
 
             return list;
         }
-        
+
         public List<Test> ReturnTestsListWithID(int id)
         {
             var list = new List<Test>();
@@ -448,38 +454,22 @@ namespace BD
 
         public bool AddQuestion(Question quest)
         {
-            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             using NpgsqlConnection connection1 = new NpgsqlConnection(connection_string);
-            int answ_id = 0;
-            int key = 0;
-
-            Debug.Print($"Key: {key}");
-
-            string query_answer = "INSERT INTO \"Answer\"(score, answer, key, a, b, c, d) VALUES ";
-            query_answer += $"(\'{quest.Points.ToString(System.Globalization.CultureInfo.InvariantCulture)}\', \'{quest.Answers}\', '{quest.CorrectAnswers}', \'{(quest.CorrectAnswers & (1 << 3)) >> 3}\'," +
-                $"\'{(quest.CorrectAnswers & (1 << 2)) >> 2}\',\'{(quest.CorrectAnswers & (1 << 1)) >> 1}\',\'{(quest.CorrectAnswers & (1 << 0)) >> 0}\');";
-            query_answer += $"SELECT * FROM \"Answer\" WHERE answer = '{quest.Answers}'";
-            Debug.Print(query_answer);
-            string query_question = "INSERT INTO \"Question\"(name, category, questiontype, shared, maxpoints, answerid, questiontext) VALUES ";
+            int a = (quest.CorrectAnswers & (1 << 3)) >> 3;
+            int b = (quest.CorrectAnswers & (1 << 2)) >> 2; ;
+            int c = (quest.CorrectAnswers & (1 << 1)) >> 1; ;
+            int d = (quest.CorrectAnswers & (1 << 0)) >> 0; ;
+            string query_question = "INSERT INTO \"Question\"(name, category, questiontype, shared, maxpoints, answer, a, b, c, d, questionbody) VALUES ";
+            query_question += $"('{quest.Name}', '{quest.Category}', '{quest.QuestionType.ToString().ToLower()}','{quest.Shared}'," +
+                $"'{quest.Points.ToString(System.Globalization.CultureInfo.InvariantCulture)}','{quest.Answers}','{a}','{b}','{c}','{d}','{quest.Text}')";
 
             // Answer
             try
             {
-                connection.Open();
-                using NpgsqlCommand npgsqlCommand1 = new NpgsqlCommand(query_answer, connection);
-
-                var r = npgsqlCommand1.ExecuteReader();
-                while (r.Read())
-                {
-                    answ_id = r.GetInt32(0);
-                }
-                connection.Close();
                 connection1.Open();
-                query_question += $"('{quest.Name}', '{quest.Category}', '{quest.QuestionType.ToString().ToLower()}','{quest.Shared}','{quest.Points.ToString(System.Globalization.CultureInfo.InvariantCulture)}','{answ_id}','{quest.Text}')";
                 using NpgsqlCommand npgsqlCommand3 = new NpgsqlCommand(query_question, connection1);
                 npgsqlCommand3.ExecuteNonQuery();
                 connection1.Close();
-
             }
             catch (Exception e)
             {
@@ -544,7 +534,7 @@ namespace BD
             {
                 con.Close();
             }
-            
+
             return (true, id);
         }
 
@@ -605,28 +595,24 @@ namespace BD
         {
             RemoveTestToQuestion(question);
 
-            if (removeAnswer(question.AnswerID))
+            string query = string.Format("DELETE FROM \"Question\" where \"questionid\" = {0}", question.ID);
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            try
             {
-                string query = string.Format("DELETE FROM \"Question\" where \"questionid\" = {0}", question.ID);
-                using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-                try
-                {
-                    connection.Open();
-                    using NpgsqlCommand com = new NpgsqlCommand(query, connection);
-                    com.ExecuteNonQuery();
-                }
-                catch
-                {
-                    Debug.Print("Connection failed");
-                    return false;
-                }
-                finally
-                {
-                    connection.Close();
-                }
-                return true;
+                connection.Open();
+                using NpgsqlCommand com = new NpgsqlCommand(query, connection);
+                com.ExecuteNonQuery();
             }
-            return false;
+            catch
+            {
+                Debug.Print("Connection failed");
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return true;
         }
 
         bool removeAnswer(int id)
@@ -763,7 +749,7 @@ namespace BD
             return user;
         }
 
-        public (Question, Answer) UpdateQuestion(Question question)
+        public Question UpdateQuestion(Question question)
         {
             int a = (question.CorrectAnswers & (1 << 3)) >> 3;
             int b = (question.CorrectAnswers & (1 << 2)) >> 2;
@@ -772,29 +758,24 @@ namespace BD
             int shared = question.Shared ? 1 : 0;
             string point = question.Points.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
-            string query_answer = $"UPDATE \"Answer\" SET score = '{point}', key = '{question.CorrectAnswers}', answer = '{question.Answers}', " +
-                $"a = '{a}', b = '{b}', c = '{c}', d = '{d}' WHERE \"answerid\" = '{question.AnswerID}'";
             string query_question = $"UPDATE \"Question\" SET name = '{question.Name}', category = '{question.Category}', " +
-                $"questiontype = '{question.QuestionType.ToString().ToLower()}', shared = '{shared}', maxpoints = '{point}', questiontext = '{question.Text}' WHERE \"questionid\" = '{question.ID}'";
+                $"questiontype = '{question.QuestionType.ToString().ToLower()}', shared = '{shared}', maxpoints = '{point}', questionbody = '{question.Text}', " +
+                $"answer = '{question.Answers}', a = '{a}', b = '{b}', c = '{c}', d = '{d}' WHERE \"questionid\" = '{question.ID}'";
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-            Debug.Print($"\n\n{query_answer}\n\n");
             try
             {
                 connection.Open();
-                using NpgsqlCommand com_a = new NpgsqlCommand(query_answer, connection);
                 using NpgsqlCommand com_q = new NpgsqlCommand(query_question, connection);
-                com_a.ExecuteNonQuery();
                 com_q.ExecuteNonQuery();
                 connection.Close();
             }
             catch (Exception e)
             {
                 Debug.Print($"Connection failed\n{e}");
-                return (new Question(), new Answer());
+                return new Question();
             }
             var q = ReturnQuestionListByID(question.ID)[0];
-            var answ = FetchAnswer(question.AnswerID);
-            return (q, answ);
+            return q;
         }
 
         public Course UpdateCourse(Course course)
@@ -869,7 +850,7 @@ namespace BD
 
             return true;
         }
-        
+
         public bool ConnectCourseToStudent(Course course_target, IEnumerable<User> user_arr)
         {
             int id = course_target.ID;
@@ -905,7 +886,7 @@ namespace BD
                 return false;
             return ConnectTestToQuestion(test_target, question_arr);
         }
-        
+
         public bool UpdateCourseToStudent(Course course_target, IEnumerable<User> user_arr)
         {
             if (!RemoveCourseToStudent(course_target))
@@ -974,7 +955,7 @@ namespace BD
 
             return true;
         }
-        
+
         public bool RemoveCourseToStudent(User user_target)
         {
             string query = $"DELETE FROM \"UserToCourse\" WHERE userid = '{user_target.ID}'";
@@ -1020,7 +1001,7 @@ namespace BD
 
             return list;
         }
-        
+
         public List<int> ReturnConnectedStudentsToCourse(Course course)
         {
             List<int> list = new List<int>();
@@ -1046,6 +1027,44 @@ namespace BD
             return list;
         }
 
+        public List<Question> ReturnQuestionListByTest(Test t)
+        {
+            List<Question> list = new List<Question>();
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            string query = $"SELECT \"Question\".questionid, \"name\", category, questiontype, shared, answer, a, b, c, d, maxpoints, questionbody " +
+                $"FROM \"Question\" JOIN \"QuestionToTest\" ON \"QuestionToTest\".testid = {t.ID} WHERE \"Question\".questionid = \"QuestionToTest\".questionid ORDER BY \"Question\".questionid";
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    int id = r.GetInt32(0);
+                    string name = r.GetString(1);
+                    string cat = r.GetString(2);
+                    string questionType = r.GetString(3);
+                    bool shared = r.GetBoolean(4);
+                    double points = r.GetDouble(10);
+                    string text = r.GetString(11);
+                    bool a = r.GetBoolean(6);
+                    bool b = r.GetBoolean(7);
+                    bool c = r.GetBoolean(8);
+                    bool d = r.GetBoolean(9);
+                    int key = (d ? 1 : 0) + (c ? 2 : 0) + (b ? 4 : 0) + (a ? 8 : 0);
+                    var q = new Question(name, text, Question.StringToType(questionType), r.GetString(5), points, key, cat, shared, id);
+                    list.Add(q);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return new List<Question>();
+            }
+            return list;
+        }
+
         int courseStudentCount(Course course)
         {
             int c = 0;
@@ -1063,7 +1082,7 @@ namespace BD
                 Debug.Print(e.ToString());
                 return 0;
             }
-            return c; 
+            return c;
         }
 
         private List<Dictionary<string, string>> getAllReaderUsers(NpgsqlDataReader r)
