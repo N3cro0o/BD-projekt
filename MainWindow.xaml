@@ -9,8 +9,9 @@
         xmlns:viewmodels="clr-namespace:BD.ViewModels"
         xmlns:models="clr-namespace:BD.Models"
         mc:Ignorable="d"
+        Icon="/lastgenrichtofen.png"
         Title="Testy wiedzy - admin" Height="800" Width="1100" WindowState="Normal" ResizeMode="CanResize"
-        MinHeight="450" MinWidth="800"
+        MinHeight="800" MinWidth="1100"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <DataTemplate x:Name="MainPageTemplate" DataType="{x:Type viewmodels:MainPageMV}">
@@ -26,6 +27,7 @@
             <views:AdminPanelUI DataContext="{Binding}"/>
         </DataTemplate>
     </Window.Resources>
+    
 
     <Grid Background="#A7A7A7">
         <ContentControl Content="{Binding}" />

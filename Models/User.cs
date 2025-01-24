@@ -146,5 +146,15 @@ namespace BD.Models
             if (token != null)
                 Token = token;
         }
+
+        public string GetFullName()
+        {
+            return $"{FirstName} {LastName}";
+        }
+
+        public bool IsEmpty()
+        {
+            return ID < 0;
+        }
     }
 }

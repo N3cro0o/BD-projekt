@@ -40,7 +40,7 @@ namespace BD.Views
                     loginButton.Visibility = Visibility.Collapsed;
                     // Visible buttons
                     logoffButton.Visibility = Visibility.Visible;
-                    adminPanelButton.Visibility = Visibility.Visible;
+                    adminPanelButton.Visibility = Visibility.Collapsed;
                     adminPanelV2Button.Visibility = Visibility.Visible;
                 }
                 else

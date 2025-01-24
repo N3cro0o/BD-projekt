@@ -30,6 +30,7 @@ namespace BD.Views
             InitializeComponent();
             ErrorTextBlock.Text = "";
             _mv = App.Current.MainWindow.DataContext as LoginPageMV;
+            LoginB.Focus();
         }
 
         private void OnLoginSubmit_click(object sender, RoutedEventArgs e)

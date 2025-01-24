@@ -9,12 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="lastgenrichtofen.png" />
     <None Remove="Views\loginimage2.png" />
+    <None Remove="Views\menu.jpg" />
     <None Remove="Views\passwordImg2.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Elements\" />
+    <Folder Include="Styles\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +27,8 @@
   <ItemGroup>
     <Resource Include="image\loginimage2.png" />
     <Resource Include="image\passwordImg2.png" />
+    <Resource Include="lastgenrichtofen.png" />
+    <Resource Include="Views\menu.jpg" />
   </ItemGroup>
 
 </Project>

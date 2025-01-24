@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using BD.Models;
 
 namespace BD
 {
@@ -11,6 +12,7 @@ namespace BD
     {
         public bool logged = true;
         public readonly static DataBaseConnection DBConnection = new DataBaseConnection();
+        public static User CurrentUser { get; set; } = new User();
     }
 
 }

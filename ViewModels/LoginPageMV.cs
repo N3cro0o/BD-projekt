@@ -15,13 +15,14 @@ namespace BD.ViewModels
 
         public (bool, string) Login(string login, string pass)
         {
-            var list = App.DBConnection.Login(login, pass);
+            var list = App.DBConnection.LoginWithUser(login, pass);
 
             if (list.Count == 1)
             {
-                if (list[0]["role"].ToLower() != "admin")
+                if (list[0].UserType != Models.User.TYPE.Admin)
                     return (false, "User does not have admin privileges");
                 _mainwindow.Logged = true;
+                App.CurrentUser = list[0];
                 _mainwindow.ChangeMainPageDataContext();
                 return (true, "");
             }
