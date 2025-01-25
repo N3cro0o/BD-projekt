@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
 using System.Reflection;
+using System.Windows.Media.Animation;
 
 
 namespace BD.ViewModels
@@ -17,6 +18,7 @@ namespace BD.ViewModels
 
         private readonly MainWindow _mainwindow;
         public bool showMenu = false;
+        private AdminPanelUI? _parent;
         private StepMethodCallback _stepMethodCallback;
         private ValidateVM _validateVM;
 
@@ -31,6 +33,7 @@ namespace BD.ViewModels
 
         public void CallbackClick(AdminPanelUI parent)
         {
+            _parent = parent;
             _stepMethodCallback(parent);
             parent.CallbackButton.Visibility = Visibility.Collapsed;
         }
@@ -42,6 +45,8 @@ namespace BD.ViewModels
 
         public void ReturnAllUsersFromDB(AdminPanelUI parent)
         {
+            _parent = parent;
+
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "User list";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
@@ -187,6 +192,8 @@ namespace BD.ViewModels
         // Add error handling
         public void AddNewUser(AdminPanelUI parent)
         {
+            _parent = parent;
+
             if (parent.TargetChangeID != -1)
                 Debug.Print($"User id to change: {parent.TargetChangeID}");
             // Basic stuff, title and reset body
@@ -397,6 +404,8 @@ namespace BD.ViewModels
 
         public void ShowMenu(AdminPanelUI parent)
         {
+            _parent = parent;
+
             Debug.Print($"Show menu: {showMenu}");
             if (showMenu == false)
             {
@@ -412,6 +421,8 @@ namespace BD.ViewModels
 
         public void CloseMenu(AdminPanelUI parent)
         {
+            _parent = parent;
+
             parent.showToolBox.SetValue(Grid.ColumnProperty, 1);
             showMenu = false;
             parent.menuColumn.Width = new System.Windows.GridLength(0, GridUnitType.Star);
@@ -419,6 +430,8 @@ namespace BD.ViewModels
 
         public void ShowGreetPanel(AdminPanelUI parent)
         {
+            _parent = parent;
+
             parent.mainTitle.Text = $"Welcome, {App.CurrentUser.GetFullName()}";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
@@ -444,6 +457,10 @@ namespace BD.ViewModels
 
         public void ReturnAllQuestionsFromDB(AdminPanelUI parent)
         {
+            _parent = parent;
+
+            _parent = parent;
+
             parent.mainTitle.Text = "Question list";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
@@ -521,98 +538,15 @@ namespace BD.ViewModels
             var context = new ContextMenu();
 
             var item = new MenuItem { Header = "Show answers for question" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Question question)
-                {
-                    ReturnAnswerForQuestion(parent, question.ID);
-                }
-            };
+            item.Click += showAnswerForQuestion;
             context.Items.Add(item);
 
             item = new MenuItem() { Header = "Update question" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Question q)
-                {
-                    parent.TargetChangeID = q.ID;
-                    AddNewQuestion(parent);
-                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
-                    var name = (stacking_panel.Children[1] as TextBox);
-                    var cat = (stacking_panel.Children[3] as TextBox);
-                    var points = (stacking_panel.Children[5] as TextBox);
-                    var text = (stacking_panel.Children[9] as TextBox);
-                    var answ1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
-                    var answ2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
-                    var answ3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
-                    var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
-
-                    name.Text = q.Name;
-                    cat.Text = q.Category;
-                    points.Text = q.Points.ToString(CultureInfo.InvariantCulture);
-                    text.Text = q.Text;
-
-                    switch (q.QuestionType)
-                    {
-                        case Question.QUESTION_TYPE.Closed:
-                        case Question.QUESTION_TYPE.Invalid:
-                            parent.typeQuestion = Question.QUESTION_TYPE.Closed;
-                            ((stacking_panel.Children[7] as StackPanel).Children[0] as RadioButton).IsChecked = true;
-                            break;
-
-                        case Question.QUESTION_TYPE.Open:
-                            parent.typeQuestion = Question.QUESTION_TYPE.Open;
-                            ((stacking_panel.Children[7] as StackPanel).Children[1] as RadioButton).IsChecked = true;
-                            break;
-
-                    }
-
-                    var answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    if (answer_list.Length != 4)
-                    {
-                        answ1.Text = "Invalid answer format";
-                        answ2.Text = "Invalid answer format";
-                        answ3.Text = "Invalid answer format";
-                        answ4.Text = "Invalid answer format";
-                    }
-                    else
-                    {
-                        answ1.Text = answer_list[0];
-                        answ2.Text = answer_list[1];
-                        answ3.Text = answer_list[2];
-                        answ4.Text = answer_list[3];
-                    }
-                    asnwBttn1.IsChecked = ((q.CorrectAnswers & 1 << 3) >> 3) == 1;
-                    asnwBttn2.IsChecked = ((q.CorrectAnswers & 1 << 2) >> 2) == 1;
-                    asnwBttn3.IsChecked = ((q.CorrectAnswers & 1 << 1) >> 1) == 1;
-                    asnwBttn4.IsChecked = ((q.CorrectAnswers & 1 << 0) >> 0) == 1;
-                }
-            };
+            item.Click += updateQuestion;
             context.Items.Add(item);
 
             item = new MenuItem { Header = "Delete Question" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Question question)
-                {
-                    MessageBoxResult result = MessageBox.Show(
-                            $"Do you want to remove: {question.Name}?",
-                            "Remove question with answer",
-                            MessageBoxButton.YesNo,
-                            MessageBoxImage.Warning
-                        );
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        App.DBConnection.RemoveQuestion(question);
-                        MessageBox.Show($"Question and answer have been removed.");
-                        ReturnAllQuestionsFromDB(parent);
-                    }
-                }
-            };
+            item.Click += deleteQuestion;
             context.Items.Add(item);
             context = universalItems(parent, context, ReturnAllQuestionsFromDB);
 
@@ -627,6 +561,8 @@ namespace BD.ViewModels
 
         public void ReturnAnswerForQuestion(AdminPanelUI parent, int question_id)
         {
+            _parent = parent;
+
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
@@ -732,6 +668,8 @@ namespace BD.ViewModels
 
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
         {
+            _parent = parent;
+
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Course list";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
@@ -892,6 +830,8 @@ namespace BD.ViewModels
 
         public void ReturnAllTestsFromDB(AdminPanelUI parent, int courseID = -1)
         {
+            _parent = parent;
+
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Test list";
             if (courseID > -1)
@@ -1057,6 +997,8 @@ namespace BD.ViewModels
 
         public void AddNewCourse(AdminPanelUI parent)
         {
+            _parent = parent;
+
             Debug.Print(parent.type.ToString());
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Create new Course";
@@ -1314,6 +1256,8 @@ namespace BD.ViewModels
 
         public void AddNewTest(AdminPanelUI parent)
         {
+            _parent = parent;
+
             Debug.Print(parent.type.ToString());
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Create new Test";
@@ -1591,9 +1535,10 @@ namespace BD.ViewModels
             parent.outputGrid.ContextMenu = menu;
         }
 
-
         public void AddNewQuestion(AdminPanelUI parent)
         {
+            _parent = parent;
+
             if (parent.TargetChangeID != -1)
                 Debug.Print($"User id to change: {parent.TargetChangeID}");
             // Basic stuff, title and reset body
@@ -1841,28 +1786,82 @@ namespace BD.ViewModels
             parent.outputGrid.ContextMenu = menu;
         }
 
+        // Add better callback logic
         void ShowTestStats(AdminPanelUI parent, Test t)
         {
+            _parent = parent;
+
             parent.mainTitle.Text = $"Test {t.Name} preview";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
             parent.ResetParams();
+            if (parent.outputGrid == null)
+                return;
+
+            // Load ResourceDictionary for styles
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+
+            StackPanel stacking_panel = new StackPanel()
+            {
+                Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+            };
+            parent.outputGrid.Children.Add(stacking_panel);
 
             List<Question> questions = App.DBConnection.ReturnQuestionListByTest(t);
             double score = 0;
-            foreach (Question q in questions)
+
+            foreach (Question quest in questions)
             {
-                score += q.Points;
+                ContextMenu context = new ContextMenu()
+                {
+
+                };
+
+                var item = new MenuItem { Header = "Show answers for question", DataContext = quest };
+                item.Click += showAnswerForQuestion;
+                context.Items.Add(item);
+
+                item = new MenuItem() { Header = "Update question", DataContext = quest };
+                item.Click += updateQuestion;
+                context.Items.Add(item);
+
+                item = new MenuItem { Header = "Delete Question", DataContext = quest };
+                item.Click += deleteQuestion;
+                context.Items.Add(item);
+
+                context = universalItems(parent, context, ReturnAllCoursesFromDB);
+
+                TextBlock text = new TextBlock()
+                {
+                    Text = quest.Name + ", " + quest.Points,
+                    ContextMenu = context,
+                };
+
+                stacking_panel.Children.Add(text);
+
+                score += quest.Points;
             }
-            parent.outputGrid.Children.Add
+            stacking_panel.Children.Add(new Separator());
+            stacking_panel.Children.Add
                 (
                     new TextBlock()
                     {
-                        Text = score.ToString()
+                        Text = "Max points: " + score.ToString()
                     }
                 );
+            // Questions
+
         }
 
         ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback)
@@ -1934,6 +1933,103 @@ namespace BD.ViewModels
             addTo.Items.Add(item);
             return addTo;
         }
+
+        void updateQuestion(object s, RoutedEventArgs e)
+        {
+            if (s is MenuItem menu && menu.DataContext is Question q)
+            {
+                if (_parent == null)
+                    return;
+                _parent.TargetChangeID = q.ID;
+                AddNewQuestion(_parent);
+                StackPanel stacking_panel = _parent.outputGrid.Children[0] as StackPanel;
+                var name = (stacking_panel.Children[1] as TextBox);
+                var cat = (stacking_panel.Children[3] as TextBox);
+                var points = (stacking_panel.Children[5] as TextBox);
+                var text = (stacking_panel.Children[9] as TextBox);
+                var answ1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
+                var asnwBttn1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
+                var answ2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
+                var asnwBttn2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
+                var answ3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
+                var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
+                var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
+                var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+
+                name.Text = q.Name;
+                cat.Text = q.Category;
+                points.Text = q.Points.ToString(CultureInfo.InvariantCulture);
+                text.Text = q.Text;
+
+                switch (q.QuestionType)
+                {
+                    case Question.QUESTION_TYPE.Closed:
+                    case Question.QUESTION_TYPE.Invalid:
+                        _parent.typeQuestion = Question.QUESTION_TYPE.Closed;
+                        ((stacking_panel.Children[7] as StackPanel).Children[0] as RadioButton).IsChecked = true;
+                        break;
+
+                    case Question.QUESTION_TYPE.Open:
+                        _parent.typeQuestion = Question.QUESTION_TYPE.Open;
+                        ((stacking_panel.Children[7] as StackPanel).Children[1] as RadioButton).IsChecked = true;
+                        break;
+
+                }
+
+                var answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (answer_list.Length != 4)
+                {
+                    answ1.Text = "Invalid answer format";
+                    answ2.Text = "Invalid answer format";
+                    answ3.Text = "Invalid answer format";
+                    answ4.Text = "Invalid answer format";
+                }
+                else
+                {
+                    answ1.Text = answer_list[0];
+                    answ2.Text = answer_list[1];
+                    answ3.Text = answer_list[2];
+                    answ4.Text = answer_list[3];
+                }
+                asnwBttn1.IsChecked = ((q.CorrectAnswers & 1 << 3) >> 3) == 1;
+                asnwBttn2.IsChecked = ((q.CorrectAnswers & 1 << 2) >> 2) == 1;
+                asnwBttn3.IsChecked = ((q.CorrectAnswers & 1 << 1) >> 1) == 1;
+                asnwBttn4.IsChecked = ((q.CorrectAnswers & 1 << 0) >> 0) == 1;
+            }
+        }
+
+        void showAnswerForQuestion(object s, RoutedEventArgs e)
+        {
+            if (s is MenuItem menuItem && menuItem.DataContext is Question question)
+            {
+                if (_parent == null)
+                    return;
+                ReturnAnswerForQuestion(_parent, question.ID);
+            }
+        }
+
+        void deleteQuestion(object s, RoutedEventArgs e)
+        {
+            if (s is MenuItem menuItem && menuItem.DataContext is Question question)
+            {
+                if (_parent == null)
+                    return;
+
+                MessageBoxResult result = MessageBox.Show(
+                        $"Do you want to remove: {question.Name}?",
+                        "Remove question with answer",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning
+                    );
+                if (result == MessageBoxResult.Yes)
+                {
+                    App.DBConnection.RemoveQuestion(question);
+                    MessageBox.Show($"Question and answer have been removed.");
+                    ReturnAllQuestionsFromDB(_parent);
+                }
+            }
+        }
+
     }
 
 }
