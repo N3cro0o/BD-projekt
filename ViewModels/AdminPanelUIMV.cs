@@ -297,7 +297,7 @@ namespace BD.ViewModels
             context.Items.Add(item);
 
             item = new MenuItem { Header = "Delete User" };
-            item.Click += (s, e) => 
+            item.Click += (s, e) =>
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is User user)
                 {
@@ -311,7 +311,38 @@ namespace BD.ViewModels
                     {
                         App.DBConnection.RemoveUser(user);
                         MessageBox.Show($"User has been removed.");
-                        ReturnAllUsersFromDB(parent);
+                        returnMainTeacherAndAllStudents(parent,c);
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem() { Header = "Delete User from course" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    if (user.UserType == User.TYPE.Admin || user.UserType == User.TYPE.Teacher)
+                    {
+                        MessageBox.Show(
+                            "You cannot remove teacher from course",
+                            "Remove user from course",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information
+                            );
+                        return;
+                    }
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {user.Login} from course {c.Name}?",
+                            "Remove user from course",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveCourseToStudent(c, user);
+                        MessageBox.Show($"User has been removed.");
+                        returnMainTeacherAndAllStudents(parent, c);
                     }
                 }
             };
@@ -892,7 +923,7 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
-            
+
             item = new MenuItem { Header = "Show all assigned users" };
             item.Click += (s, e) =>
             {
@@ -1103,7 +1134,7 @@ namespace BD.ViewModels
                             Debug.Print($"Question checked ID: {j}");
                             if (parent.IDs1[i] == j)
                             {
-                                CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox ;
+                                CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                                 b.IsChecked = true;
                                 continue;
                             }
@@ -2060,7 +2091,7 @@ namespace BD.ViewModels
             };
             stacking_panel.Children.Add(text);
 
-            inner = new StackPanel() 
+            inner = new StackPanel()
             {
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Center
@@ -2069,7 +2100,7 @@ namespace BD.ViewModels
 
             // Add if test stared or has ended
             // Start date
-            StackPanel inner1 = new StackPanel() 
+            StackPanel inner1 = new StackPanel()
             {
                 Margin = new Thickness(5),
             };

@@ -976,6 +976,26 @@ namespace BD
 
             return true;
         }
+        public bool RemoveCourseToStudent(Course course_target, User user_target)
+        {
+            string query = $"DELETE FROM \"UserToCourse\" WHERE userid = '{user_target.ID}' AND courseid = '{course_target.ID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
 
         public List<int> ReturnConnectedQuestionsToTest(Test test)
         {
