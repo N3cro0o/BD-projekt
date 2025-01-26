@@ -7,7 +7,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
 using System.Reflection;
-using System.Windows.Media.Animation;
 
 
 namespace BD.ViewModels
@@ -184,6 +183,151 @@ namespace BD.ViewModels
             myDataGrid.RowStyle = style;
 
             var list = App.DBConnection.ReturnUsersListOfUsers();
+            Debug.Print(list.Count.ToString());
+            myDataGrid.ItemsSource = list;
+            parent.outputGrid.Children.Add(myDataGrid);
+        }
+
+        // Add common logic methods, like one for DataGrid
+        void returnMainTeacherAndAllStudents(AdminPanelUI parent, Course c)
+        {
+            _parent = parent;
+
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "User list";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
+            };
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false,
+                CanUserAddRows = false,
+            };
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Login",
+                Binding = new System.Windows.Data.Binding("Login"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Email",
+                Binding = new System.Windows.Data.Binding("Email"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "First Name",
+                Binding = new System.Windows.Data.Binding("FirstName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Last Name",
+                Binding = new System.Windows.Data.Binding("LastName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "User role",
+                Binding = new System.Windows.Data.Binding("UserType"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+            myDataGrid.Style = customDataGridStyle;
+
+            var context = new ContextMenu();
+            var item = new MenuItem { Header = "Modify User" };
+            item.Click += (s, e) => // LAMBDA SUPREMACY
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    parent.TargetChangeID = user.ID;
+                    AddNewUser(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+                    var login = stacking_panel.Children[1] as TextBox;
+                    var email = stacking_panel.Children[3] as TextBox;
+                    var fname = stacking_panel.Children[5] as TextBox;
+                    var lname = stacking_panel.Children[7] as TextBox;
+                    var pass = stacking_panel.Children[9] as TextBox;
+                    var radio_panel = stacking_panel.Children[11] as StackPanel;
+
+                    login.Text = user.Login;
+                    email.Text = user.Email;
+                    fname.Text = user.FirstName;
+                    lname.Text = user.LastName;
+                    pass.Text = "";
+                    switch (user.UserType)
+                    {
+                        case User.TYPE.Student:
+                        case User.TYPE.Guest:
+                            (radio_panel.Children[0] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Student;
+                            break;
+
+                        case User.TYPE.Teacher:
+                            (radio_panel.Children[1] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Teacher;
+                            break;
+
+                        case User.TYPE.Admin:
+                            (radio_panel.Children[2] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Admin;
+                            break;
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Delete User" };
+            item.Click += (s, e) => 
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {user.Login}?",
+                            "Remove user",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveUser(user);
+                        MessageBox.Show($"User has been removed.");
+                        ReturnAllUsersFromDB(parent);
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            context = universalItems(parent, context, ReturnAllUsersFromDB);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+            myDataGrid.RowStyle = style;
+
+            var list = new List<User>();
+            list.Add(c.Teachers[0]);
+            var student_list = App.DBConnection.ReturnConnectedStudentsToCourse(c);
+            foreach (int id in student_list)
+                list.Add(App.DBConnection.GetUserByID(id));
             Debug.Print(list.Count.ToString());
             myDataGrid.ItemsSource = list;
             parent.outputGrid.Children.Add(myDataGrid);
@@ -400,7 +544,6 @@ namespace BD.ViewModels
             menu = universalItems(parent, menu, ReturnAllUsersFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
-
 
         public void ShowMenu(AdminPanelUI parent)
         {
@@ -749,6 +892,16 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
+            
+            item = new MenuItem { Header = "Show all assigned users" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Course c)
+                {
+                    returnMainTeacherAndAllStudents(parent, c);
+                }
+            };
+            context.Items.Add(item);
 
             item = new MenuItem() { Header = "Update course" };
             item.Click += (s, e) =>
@@ -784,7 +937,7 @@ namespace BD.ViewModels
                             Debug.Print($"Question checked ID: {j}");
                             if (parent.IDs1[i] == j)
                             {
-                                ToggleButton b = (student_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                                CheckBox b = (student_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                                 b.IsChecked = true;
                                 continue;
                             }
@@ -950,7 +1103,7 @@ namespace BD.ViewModels
                             Debug.Print($"Question checked ID: {j}");
                             if (parent.IDs1[i] == j)
                             {
-                                ToggleButton b = (question_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                                CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox ;
                                 b.IsChecked = true;
                                 continue;
                             }
@@ -995,11 +1148,27 @@ namespace BD.ViewModels
             parent.outputGrid.Children.Add(myDataGrid);
         }
 
+        public void ReturnAllResultsFromDB(AdminPanelUI parent)
+        {
+            _parent = parent;
+
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "Result list";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveAt(0);
+            }
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
+
+        }
+
         public void AddNewCourse(AdminPanelUI parent)
         {
             _parent = parent;
 
-            Debug.Print(parent.type.ToString());
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Create new Course";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
@@ -1008,14 +1177,11 @@ namespace BD.ViewModels
             }
             parent.ResetParams();
 
-
-            // Załaduj ResourceDictionary z pliku stylów
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
             };
 
-            // Dodaj style do zasobów aplikacji (jeśli jeszcze nie zostały dodane)
             if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
             {
                 Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
@@ -1140,7 +1306,7 @@ namespace BD.ViewModels
 
             scroll = new ScrollViewer()
             {
-                //Style = (Style)Application.Current.Resources["ScrolViewer1"],
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
                 MaxHeight = 150
             };
             stacking_panel_inner = new StackPanel();
@@ -1149,22 +1315,16 @@ namespace BD.ViewModels
             var list_students_to_add = App.DBConnection.ReturnStudentList();
             foreach (User u in list_students_to_add)
             {
-                var toggle = new ToggleButton()
+                var toggle = new CheckBox()
                 {
-                    Content = "X",
-                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
-                };
-                text = new TextBlock()
-                {
-                    Text = u.GetFullName(),
-                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
+                    Style = (Style)Application.Current.Resources["FormCheckBoxStyle"],
+                    Content = u.GetFullName(),
                 };
                 StackPanel inner = new StackPanel()
                 {
                     Orientation = Orientation.Horizontal,
                 };
                 inner.Children.Add(toggle);
-                inner.Children.Add(text);
                 stacking_panel_inner.Children.Add(inner);
 
                 parent.IDs1.Add(u.ID);
@@ -1196,7 +1356,7 @@ namespace BD.ViewModels
 
                 for (int i = 0; i < student_panel.Children.Count; i++)
                 {
-                    ToggleButton t = (student_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                    CheckBox t = (student_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                     if (t != null && t.IsChecked == true)
                     {
                         student_list.Add(list_students_to_add[i]);
@@ -1439,10 +1599,9 @@ namespace BD.ViewModels
                     Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
                 };
 
-                var toggle = new ToggleButton
+                var toggle = new CheckBox
                 {
-                    Content = "X",
-                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
+
                 };
 
                 textBlock = new TextBlock
@@ -1482,7 +1641,7 @@ namespace BD.ViewModels
                 }
                 for (int i = 0; i < question_panel.Children.Count; i++)
                 {
-                    ToggleButton b = (question_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                    CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                     if (b.IsChecked == true)
                     {
                         question_list.Add(list1[i]);
@@ -1811,7 +1970,7 @@ namespace BD.ViewModels
                 Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
             }
 
-
+            // Main stack panel
             StackPanel stacking_panel = new StackPanel()
             {
                 Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
@@ -1819,8 +1978,45 @@ namespace BD.ViewModels
             parent.outputGrid.Children.Add(stacking_panel);
 
             List<Question> questions = App.DBConnection.ReturnQuestionListByTest(t);
-            double score = 0;
 
+            // General
+            var text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "General:",
+            };
+            stacking_panel.Children.Add(text);
+
+            // Score
+            double score = 0;
+            var text_score = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Max points: "
+            };
+            stacking_panel.Children.Add
+            (
+                text_score
+            );
+
+            stacking_panel.Children.Add(new Separator());
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "Questions:",
+            };
+            stacking_panel.Children.Add(text);
+
+            // Question list 
+            StackPanel inner = new StackPanel();
+            ScrollViewer scroll = new ScrollViewer()
+            {
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
+                MaxHeight = 200
+            };
+            scroll.Content = inner;
+            stacking_panel.Children.Add(scroll);
             foreach (Question quest in questions)
             {
                 ContextMenu context = new ContextMenu()
@@ -1842,26 +2038,73 @@ namespace BD.ViewModels
 
                 context = universalItems(parent, context, ReturnAllCoursesFromDB);
 
-                TextBlock text = new TextBlock()
+                TextBlock text_inner = new TextBlock()
                 {
-                    Text = quest.Name + ", " + quest.Points,
+                    Text = quest.Name + ", " + quest.Points.ToString(CultureInfo.InvariantCulture) + ", " + /*Which answers are correct*/ quest.ReturnCorrectAnswerString(),
                     ContextMenu = context,
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
                 };
 
-                stacking_panel.Children.Add(text);
+                inner.Children.Add(text_inner);
 
                 score += quest.Points;
             }
+            // Max score
+            text_score.Text += score.ToString(CultureInfo.InvariantCulture);
             stacking_panel.Children.Add(new Separator());
-            stacking_panel.Children.Add
-                (
-                    new TextBlock()
-                    {
-                        Text = "Max points: " + score.ToString()
-                    }
-                );
-            // Questions
 
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "Time frame:",
+            };
+            stacking_panel.Children.Add(text);
+
+            inner = new StackPanel() 
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            stacking_panel.Children.Add(inner);
+
+            // Add if test stared or has ended
+            // Start date
+            StackPanel inner1 = new StackPanel() 
+            {
+                Margin = new Thickness(5),
+            };
+            inner.Children.Add(inner1);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Start date:"
+            };
+            inner1.Children.Add(text);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = t.StartDate.ToString(),
+            };
+            inner1.Children.Add(text);
+
+            // End date
+            inner1 = new StackPanel()
+            {
+                Margin = new Thickness(5),
+            };
+            inner.Children.Add(inner1);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "End date:"
+            };
+            inner1.Children.Add(text);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = t.EndDate.ToString()
+            };
+            inner1.Children.Add(text);
         }
 
         ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback)
@@ -2031,5 +2274,4 @@ namespace BD.ViewModels
         }
 
     }
-
 }

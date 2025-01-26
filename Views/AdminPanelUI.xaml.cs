@@ -116,5 +116,11 @@ namespace BD.Views
         {
             _mv.CallbackClick(this);
         }
+
+        private void ShowAllResults_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ReturnAllResultsFromDB(this);
+            _mv.CloseMenu(this);
+        }
     }
 }

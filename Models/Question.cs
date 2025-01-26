@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Collections;
 
 
 namespace BD.Models
@@ -90,6 +91,12 @@ namespace BD.Models
         public bool IsEmpty()
         {
             return ID < 0;
+        }
+
+        public string ReturnCorrectAnswerString()
+        {
+            return ((CorrectAnswers & 1 << 3) >> 3 == 1 ? "A" : "") + ((CorrectAnswers & 1 << 2) >> 2 == 1 ? "B" : "") + 
+                ((CorrectAnswers & 1 << 1) >> 1 == 1 ? "C" : "") + ((CorrectAnswers & 1 << 0) >> 0 == 1 ? "D" : "");
         }
     }
 }

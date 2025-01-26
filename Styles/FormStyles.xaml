@@ -10,6 +10,14 @@
         <Setter Property="Foreground" Value="White" />
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="FormLabelHeaderStyle">
+        <Setter Property="FontSize" Value="24" />
+		<Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,15,0,10" />
+        <Setter Property="Foreground" Value="#050508" />
+    </Style>
+
     <Style TargetType="TextBox" x:Key="FormInputStyle">
         <Setter Property="Margin" Value="0,0,0,10" />
         <Setter Property="Padding" Value="5" />
@@ -74,10 +82,17 @@
 		
     </Style>
 
-	<Style x:Key="FormToggleButtonStyle" TargetType="ToggleButton">
-		<Setter Property="Width" Value="50" />
+	<Style x:Key="FormCheckBoxStyle" TargetType="CheckBox">
+		<!--<Setter Property="Width" Value="50" />
+		<Setter Property="Height" Value="50" />-->
 		<Setter Property="Margin" Value="5" />
-	</Style>
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,10,0,5" />
+        <Setter Property="Foreground" Value="White" />
+        
+    </Style>
 
     <Style x:Key="CustomBorderStyle" TargetType="Border">
         <Setter Property="Margin" Value="10,0,10,0" />
@@ -158,5 +173,10 @@
 		<Setter Property="BorderBrush" Value="Gray"/>
 		<Setter Property="BorderThickness" Value="1"/>
 	</Style>
+
+    <Style x:Key="FormScrollViewerStyle" TargetType="ScrollViewer">
+        <Setter Property="MaxHeight" Value="175"/>
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+    </Style>
 
 </ResourceDictionary>
