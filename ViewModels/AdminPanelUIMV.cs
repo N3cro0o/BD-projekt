@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Globalization;
 using System.Reflection;
+using static BD.ViewModels.AdminPanelUIMV;
 
 
 namespace BD.ViewModels
@@ -14,27 +15,43 @@ namespace BD.ViewModels
     internal class AdminPanelUIMV
     {
         public delegate void StepMethodCallback(AdminPanelUI parent);
+        public delegate void StepMethodCallbackTest(AdminPanelUI parent, Test? t);
+        public delegate void StepMethodCallbackCourse(AdminPanelUI parent, Course? c);
 
         private readonly MainWindow _mainwindow;
         public bool showMenu = false;
         private AdminPanelUI? _parent;
+        private Course? saved_course;
+        private Test? saved_test;
+
         private StepMethodCallback _stepMethodCallback;
+        private StepMethodCallbackTest _stepMethodCallbackTest;
+        private StepMethodCallbackCourse _stepMethodCallbackCourse;
         private ValidateVM _validateVM;
 
         void voidStepCallback(AdminPanelUI parent) { }
+        void voidStepCallbackTest(AdminPanelUI parent, Test? t) { }
+        void voidStepCallbackCourse(AdminPanelUI parent, Course? c) { }
 
         public AdminPanelUIMV(MainWindow mainWindow)
         {
             _stepMethodCallback = voidStepCallback;
+            _stepMethodCallbackTest = voidStepCallbackTest;
+            _stepMethodCallbackCourse = voidStepCallbackCourse;
             _mainwindow = mainWindow;
             _validateVM = new ValidateVM();
         }
 
         public void CallbackClick(AdminPanelUI parent)
         {
+            if (saved_test != null)
+                Debug.Print(saved_test.Name);
             _parent = parent;
             _stepMethodCallback(parent);
-            parent.CallbackButton.Visibility = Visibility.Collapsed;
+            _stepMethodCallbackTest(parent, saved_test);
+            _stepMethodCallbackCourse(parent, saved_course);
+            parent.ResetParams();
+            ResetCallback(parent);
         }
 
         public void GoBack()
@@ -151,6 +168,7 @@ namespace BD.ViewModels
                             parent.type = User.TYPE.Admin;
                             break;
                     }
+                    setupCallback(ReturnAllUsersFromDB);
                 }
             };
             context.Items.Add(item);
@@ -189,9 +207,10 @@ namespace BD.ViewModels
         }
 
         // Add common logic methods, like one for DataGrid
-        void returnMainTeacherAndAllStudents(AdminPanelUI parent, Course c)
+        void returnMainTeacherAndAllStudents(AdminPanelUI parent, Course? c)
         {
             _parent = parent;
+            saved_course = c;
 
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "User list";
@@ -292,6 +311,7 @@ namespace BD.ViewModels
                             parent.type = User.TYPE.Admin;
                             break;
                     }
+                    setupCallback(returnMainTeacherAndAllStudents);
                 }
             };
             context.Items.Add(item);
@@ -311,7 +331,7 @@ namespace BD.ViewModels
                     {
                         App.DBConnection.RemoveUser(user);
                         MessageBox.Show($"User has been removed.");
-                        returnMainTeacherAndAllStudents(parent,c);
+                        returnMainTeacherAndAllStudents(parent, c);
                     }
                 }
             };
@@ -633,8 +653,6 @@ namespace BD.ViewModels
         {
             _parent = parent;
 
-            _parent = parent;
-
             parent.mainTitle.Text = "Question list";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
@@ -712,6 +730,9 @@ namespace BD.ViewModels
             var context = new ContextMenu();
 
             var item = new MenuItem { Header = "Show answers for question" };
+            // Setup Callback manual
+            ResetCallback(parent);
+            _stepMethodCallback = ReturnAllQuestionsFromDB;
             item.Click += showAnswerForQuestion;
             context.Items.Add(item);
 
@@ -743,27 +764,10 @@ namespace BD.ViewModels
             }
             var q = App.DBConnection.ReturnQuestionListByID(question_id)[0];
             parent.mainTitle.Text = $"Answers for question {q.Name}";
-            q.PrintQuestionOnConsole();
 
             var stacking_panel = new StackPanel();
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
             parent.outputGrid.Children.Add(stacking_panel);
-
-            var stacking_panel_inner = new StackPanel()
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right,
-            };
-            Button button = new Button()
-            {
-                Content = "Go back"
-            };
-            button.Click += (o, e) =>
-            {
-                ReturnAllQuestionsFromDB(parent);
-            };
-            stacking_panel_inner.Children.Add(button);
-            stacking_panel.Children.Add(stacking_panel_inner);
 
             TextBlock block = new TextBlock()
             {
@@ -919,7 +923,8 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Course c)
                 {
-                    ReturnAllTestsFromDB(parent, c.ID);
+                    ReturnAllTestsFromDB(parent, c);
+                    setupCallback(ReturnAllCoursesFromDB);
                 }
             };
             context.Items.Add(item);
@@ -930,6 +935,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem && menuItem.DataContext is Course c)
                 {
                     returnMainTeacherAndAllStudents(parent, c);
+                    setupCallback(ReturnAllCoursesFromDB);
                 }
             };
             context.Items.Add(item);
@@ -974,6 +980,7 @@ namespace BD.ViewModels
                             }
                         }
                     }
+                    setupCallback(ReturnAllCoursesFromDB);
                 }
             };
             context.Items.Add(item);
@@ -1012,14 +1019,15 @@ namespace BD.ViewModels
             Grid.SetRow(myDataGrid, 1);
         }
 
-        public void ReturnAllTestsFromDB(AdminPanelUI parent, int courseID = -1)
+        public void ReturnAllTestsFromDB(AdminPanelUI parent, Course? c = null)
         {
             _parent = parent;
+            saved_course = c;
 
             // Basic stuff, title and reset body
             parent.mainTitle.Text = "Test list";
-            if (courseID > -1)
-                parent.mainTitle.Text += $" for Course {App.DBConnection.ReturnCoursesListWithID(courseID)[0].Name}";
+            if (c != null && !c.IsEmpty())
+                parent.mainTitle.Text += $" for Course {c.Name}";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
@@ -1093,6 +1101,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem && menuItem.DataContext is Test test)
                 {
                     ShowTestStats(parent, test);
+                    setupCallback(ReturnAllTestsFromDB);
                 }
             };
             context.Items.Add(item);
@@ -1140,6 +1149,7 @@ namespace BD.ViewModels
                             }
                         }
                     }
+                    setupCallback(ReturnAllTestsFromDB);
                 }
             };
             context.Items.Add(item);
@@ -1171,8 +1181,8 @@ namespace BD.ViewModels
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
             myDataGrid.RowStyle = style;
             List<Test> list;
-            if (courseID > -1)
-                list = App.DBConnection.ReturnCourseTestsList(courseID);
+            if (c != null && !c.IsEmpty())
+                list = App.DBConnection.ReturnCourseTestsList(c.ID);
             else
                 list = App.DBConnection.ReturnTestsList();
             myDataGrid.ItemsSource = list;
@@ -1709,7 +1719,7 @@ namespace BD.ViewModels
                     t.ID = id_test;
                     if (!App.DBConnection.ConnectTestToQuestion(t, question_list))
                         Debug.Print("Connecting test-question failed");
-                    ReturnAllTestsFromDB(parent, course);
+                    ReturnAllTestsFromDB(parent, c);
                 }
                 else
                 {   // Add error handling
@@ -1721,7 +1731,8 @@ namespace BD.ViewModels
 
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
-            menu = universalItems(parent, menu, AddNewTest);
+            saved_course = null;
+            menu = universalItems(parent, menu, ReturnAllTestsFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
 
@@ -1801,13 +1812,31 @@ namespace BD.ViewModels
             };
             stacking_panel.Children.Add(input);
 
+            // Question type & shared
+            StackPanel inner = new StackPanel() // Change to grid??????
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+            StackPanel inner_radio = new StackPanel()
+            {
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            StackPanel inner_shared = new StackPanel()
+            {
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            inner.Children.Add(inner_radio);
+            inner.Children.Add(inner_shared);
+            stacking_panel.Children.Add(inner);
+
             // Question type
             text = new TextBlock
             {
                 Text = "Question type",
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
-            stacking_panel.Children.Add(text);
+            inner_radio.Children.Add(text);
 
             var radio_panel = new StackPanel
             {
@@ -1844,8 +1873,23 @@ namespace BD.ViewModels
                 }
             };
             radio_panel.Children.Add(radio);
+            // stacking_panel 6 -> inner 0 -> inner_radio 1 -> radio_panel x -> RadioButton
+            inner_radio.Children.Add(radio_panel);
 
-            stacking_panel.Children.Add(radio_panel);
+            // Shared check
+            text = new TextBlock()
+            {
+                Text = "Queston visibility",
+                ToolTip = (new ToolTip().Content = "Select if question should be seen in Question Pool."),
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            inner_shared.Children.Add(text);
+
+            var toggle_shared = new ToggleButton()
+            {
+                Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"],
+            };
+            inner_shared.Children.Add(toggle_shared);
 
             // Question body
             text = new TextBlock
@@ -1909,20 +1953,21 @@ namespace BD.ViewModels
 
             bttn.Click += (o, e) =>
             {
-                var name = stacking_panel.Children[1] as TextBox;
-                var cat = stacking_panel.Children[3] as TextBox;
-                var points = stacking_panel.Children[5] as TextBox;
-                var questionText = stacking_panel.Children[9] as TextBox;
+                var name = (stacking_panel.Children[1] as TextBox);
+                var cat = (stacking_panel.Children[3] as TextBox);
+                var points = (stacking_panel.Children[5] as TextBox);
+                var questionText = (stacking_panel.Children[8] as TextBox);
 
-                var uniformGrid = stacking_panel.Children[10] as UniformGrid;
-                var answ1 = (uniformGrid.Children[0] as StackPanel).Children[1] as TextBox;
-                var asnwBttn1 = (uniformGrid.Children[0] as StackPanel).Children[0] as ToggleButton;
-                var answ2 = (uniformGrid.Children[1] as StackPanel).Children[1] as TextBox;
-                var asnwBttn2 = (uniformGrid.Children[1] as StackPanel).Children[0] as ToggleButton;
-                var answ3 = (uniformGrid.Children[2] as StackPanel).Children[1] as TextBox;
-                var asnwBttn3 = (uniformGrid.Children[2] as StackPanel).Children[0] as ToggleButton;
-                var answ4 = (uniformGrid.Children[3] as StackPanel).Children[1] as TextBox;
-                var asnwBttn4 = (uniformGrid.Children[3] as StackPanel).Children[0] as ToggleButton;
+                var shared = ((stacking_panel.Children[6] as StackPanel).Children[1] as StackPanel).Children[1] as ToggleButton;
+                var answ1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
+                var asnwBttn1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
+                var answ2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
+                var asnwBttn2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
+                var answ3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
+                var asnwBttn3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
+                var answ4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
+                var asnwBttn4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+
 
                 if (name != null && cat != null && points != null && questionText != null && answ1 != null && answ2 != null && answ3 != null && answ4 != null)
                 {
@@ -1939,7 +1984,7 @@ namespace BD.ViewModels
                     answ += answ2.Text + "\n";
                     answ += answ3.Text + "\n";
                     answ += answ4.Text;
-                    Question q = new Question(name.Text, questionText.Text, parent.typeQuestion, answ, p, key, cat.Text);
+                    Question q = new Question(name.Text, questionText.Text, parent.typeQuestion, answ, p, key, cat.Text, shared.IsChecked == true);
                     q.ID = parent.TargetChangeID;
                     q.PrintQuestionOnConsole();
                     if (parent.TargetChangeID > -1)
@@ -1972,14 +2017,17 @@ namespace BD.ViewModels
 
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
-            menu = universalItems(parent, menu, AddNewQuestion);
+            menu = universalItems(parent, menu, ReturnAllQuestionsFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
 
         // Add better callback logic
-        void ShowTestStats(AdminPanelUI parent, Test t)
+        void ShowTestStats(AdminPanelUI parent, Test? t)
         {
             _parent = parent;
+            if (t == null || t.IsEmpty())
+                ReturnAllTestsFromDB(parent);
+            saved_test = t;
 
             parent.mainTitle.Text = $"Test {t.Name} preview";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
@@ -2025,10 +2073,21 @@ namespace BD.ViewModels
                 Style = (Style)Application.Current.Resources["FormLabelStyle"],
                 Text = "Max points: "
             };
-            stacking_panel.Children.Add
-            (
-                text_score
-            );
+            stacking_panel.Children.Add(text_score);
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Category: " + t.Category
+            };
+            stacking_panel.Children.Add(text);
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Course: " + $"{t.CourseObject.Name}, {t.CourseObject.MainTeacherName}"
+            };
+            stacking_panel.Children.Add(text);
 
             stacking_panel.Children.Add(new Separator());
 
@@ -2056,6 +2115,10 @@ namespace BD.ViewModels
                 };
 
                 var item = new MenuItem { Header = "Show answers for question", DataContext = quest };
+                // Setup callback manual
+                ResetCallback(parent);
+                saved_test = t;
+                _stepMethodCallbackTest = ShowTestStats;
                 item.Click += showAnswerForQuestion;
                 context.Items.Add(item);
 
@@ -2067,7 +2130,7 @@ namespace BD.ViewModels
                 item.Click += deleteQuestion;
                 context.Items.Add(item);
 
-                context = universalItems(parent, context, ReturnAllCoursesFromDB);
+                context = universalItems(parent, context, ShowTestStats);
 
                 TextBlock text_inner = new TextBlock()
                 {
@@ -2138,7 +2201,50 @@ namespace BD.ViewModels
             inner1.Children.Add(text);
         }
 
+        public void ResetCallback(AdminPanelUI parent)
+        {
+            _parent = parent;
+
+            _stepMethodCallback = voidStepCallback;
+            _stepMethodCallbackTest = voidStepCallbackTest;
+            _stepMethodCallbackCourse = voidStepCallbackCourse;
+            parent.CallbackButton.Visibility = Visibility.Collapsed;
+        }
+
+        void setupCallback(StepMethodCallback callback)
+        {
+            setupCallback(callback, voidStepCallbackTest, voidStepCallbackCourse);
+        }
+
+        void setupCallback(StepMethodCallbackCourse callbackC)
+        {
+            setupCallback(voidStepCallback, voidStepCallbackTest, callbackC);
+        }
+
+        void setupCallback(StepMethodCallback callback, StepMethodCallbackTest callbackT, StepMethodCallbackCourse callbackC)
+        {
+            _stepMethodCallback = callback;
+            _stepMethodCallbackTest = callbackT;
+            _stepMethodCallbackCourse = callbackC;
+            _parent.CallbackButton.Visibility = Visibility.Visible;
+        }
+
         ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback)
+        {
+            return universalItems(parent, addTo, callback, voidStepCallbackTest, voidStepCallbackCourse);
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallbackTest callbackT)
+        {
+            return universalItems(parent, addTo, voidStepCallback, callbackT, voidStepCallbackCourse);
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallbackCourse callbackC)
+        {
+            return universalItems(parent, addTo, voidStepCallback, voidStepCallbackTest, callbackC);
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback, StepMethodCallbackTest callbackT, StepMethodCallbackCourse callbackC)
         {
             addTo.Items.Add(new Separator()); // Users
             var item = new MenuItem { Header = "Add new User" };
@@ -2147,8 +2253,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewUser(parent);
                 }
             };
@@ -2161,8 +2266,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewUser(parent);
                 }
             };
@@ -2175,8 +2279,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewQuestion(parent);
                 }
             };
@@ -2199,8 +2302,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewTest(parent);
                 }
             };
@@ -2220,15 +2322,17 @@ namespace BD.ViewModels
                 var name = (stacking_panel.Children[1] as TextBox);
                 var cat = (stacking_panel.Children[3] as TextBox);
                 var points = (stacking_panel.Children[5] as TextBox);
-                var text = (stacking_panel.Children[9] as TextBox);
-                var answ1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
-                var asnwBttn1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
-                var answ2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
-                var asnwBttn2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
-                var answ3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
-                var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
-                var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
-                var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+                var text = (stacking_panel.Children[8] as TextBox);
+
+                var shared = ((stacking_panel.Children[6] as StackPanel).Children[1] as StackPanel).Children[1] as ToggleButton;
+                var answ1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
+                var asnwBttn1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
+                var answ2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
+                var asnwBttn2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
+                var answ3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
+                var asnwBttn3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
+                var answ4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
+                var asnwBttn4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
 
                 name.Text = q.Name;
                 cat.Text = q.Category;
@@ -2240,15 +2344,17 @@ namespace BD.ViewModels
                     case Question.QUESTION_TYPE.Closed:
                     case Question.QUESTION_TYPE.Invalid:
                         _parent.typeQuestion = Question.QUESTION_TYPE.Closed;
-                        ((stacking_panel.Children[7] as StackPanel).Children[0] as RadioButton).IsChecked = true;
+                        ((((stacking_panel.Children[6] as StackPanel).Children[0] as StackPanel).Children[1] as StackPanel).Children[0] as RadioButton).IsChecked = true;
                         break;
 
                     case Question.QUESTION_TYPE.Open:
                         _parent.typeQuestion = Question.QUESTION_TYPE.Open;
-                        ((stacking_panel.Children[7] as StackPanel).Children[1] as RadioButton).IsChecked = true;
+                        ((((stacking_panel.Children[6] as StackPanel).Children[0] as StackPanel).Children[1] as StackPanel).Children[1] as RadioButton).IsChecked = true;
                         break;
 
                 }
+
+                shared.IsChecked = q.Shared;
 
                 var answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 if (answer_list.Length != 4)
@@ -2269,7 +2375,9 @@ namespace BD.ViewModels
                 asnwBttn2.IsChecked = ((q.CorrectAnswers & 1 << 2) >> 2) == 1;
                 asnwBttn3.IsChecked = ((q.CorrectAnswers & 1 << 1) >> 1) == 1;
                 asnwBttn4.IsChecked = ((q.CorrectAnswers & 1 << 0) >> 0) == 1;
+                _parent.CallbackButton.Visibility = Visibility.Visible;
             }
+
         }
 
         void showAnswerForQuestion(object s, RoutedEventArgs e)
@@ -2279,6 +2387,7 @@ namespace BD.ViewModels
                 if (_parent == null)
                     return;
                 ReturnAnswerForQuestion(_parent, question.ID);
+                _parent.CallbackButton.Visibility = Visibility.Visible;
             }
         }
 

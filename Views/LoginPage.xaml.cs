@@ -62,5 +62,10 @@ namespace BD.Views
         {
             _mv.GoBack();
         }
+
+        private void OnLoginB_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus((TextBox)sender);
+        }
     }
 }

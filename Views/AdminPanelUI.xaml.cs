@@ -52,18 +52,21 @@ namespace BD.Views
 
         private void Goback_Click(object sender, RoutedEventArgs e)
         {
+            _mv.ResetCallback(this);
             _mv.GoBack();
         }
 
         private void ShowAllUsers_Click(object sender, RoutedEventArgs e)
         {
             _mv.ReturnAllUsersFromDB(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
         private void ShowAllCourses_Click(object sender, RoutedEventArgs e)
         {
             _mv.ReturnAllCoursesFromDB(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
@@ -75,6 +78,7 @@ namespace BD.Views
         private void ShowAllQuestions_Click(object sender, RoutedEventArgs e)
         {
             _mv.ReturnAllQuestionsFromDB(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
@@ -83,12 +87,14 @@ namespace BD.Views
             TargetChangeID = -1;
             _mv.AddNewUser(this);
             _mv.CloseMenu(this);
+            _mv.ResetCallback(this);
         } 
 
         private void CreateNewCourse_Click(object sender, RoutedEventArgs e)
         {
             TargetChangeID = -1;
             _mv.AddNewCourse(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
@@ -96,12 +102,14 @@ namespace BD.Views
         {
             TargetChangeID = -1;
             _mv.AddNewQuestion(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
         private void ShowAllTests_Click(object sender, RoutedEventArgs e)
         {
             _mv.ReturnAllTestsFromDB(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
@@ -109,17 +117,20 @@ namespace BD.Views
         {
             TargetChangeID = -1;
             _mv.AddNewTest(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
 
         private void Callback_Click(object sender, RoutedEventArgs e)
         {
             _mv.CallbackClick(this);
+            _mv.ResetCallback(this);
         }
 
         private void ShowAllResults_Click(object sender, RoutedEventArgs e)
         {
             _mv.ReturnAllResultsFromDB(this);
+            _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }
     }
