@@ -1813,22 +1813,36 @@ namespace BD.ViewModels
             stacking_panel.Children.Add(input);
 
             // Question type & shared
-            StackPanel inner = new StackPanel() // Change to grid??????
+            Grid inner = new Grid() // Change to grid??????
             {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(150, 0, 150, 0)
             };
+            var def = new ColumnDefinition()
+            {
+                Width = new GridLength(1, GridUnitType.Star),
+            };
+            inner.ColumnDefinitions.Add(def);
+            def = new ColumnDefinition()
+            {
+                Width = new GridLength(1, GridUnitType.Star),
+            };
+            inner.ColumnDefinitions.Add(def);
+            stacking_panel.Children.Add(inner);
+
             StackPanel inner_radio = new StackPanel()
             {
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
             };
             StackPanel inner_shared = new StackPanel()
             {
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            Grid.SetColumn(inner_radio, 0);
+            Grid.SetColumn(inner_shared, 1);
             inner.Children.Add(inner_radio);
             inner.Children.Add(inner_shared);
-            stacking_panel.Children.Add(inner);
 
             // Question type
             text = new TextBlock
@@ -1892,6 +1906,7 @@ namespace BD.ViewModels
             inner_shared.Children.Add(toggle_shared);
 
             // Question body
+            // Add ScrollViewer????
             text = new TextBlock
             {
                 Text = "Question body",
@@ -1914,7 +1929,8 @@ namespace BD.ViewModels
             {
                 Columns = 2,
                 Rows = 2,
-                Style = (Style)Application.Current.Resources["FormUniformGridStyle"]
+                //Style = (Style)Application.Current.Resources["FormUniformGridStyle"]    BRUH it doesn't exist. Thanks Karol, you fucked up again, again, again, again, again, again, again, again, again, again, again...
+                Margin = new Thickness(100, 30, 100, 0),
             };
 
             for (int i = 0; i < 4; i++)
@@ -1922,6 +1938,7 @@ namespace BD.ViewModels
                 var new_stack = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
+                    HorizontalAlignment = HorizontalAlignment.Center,
                     Style = (Style)Application.Current.Resources["CustomStackPanelStyle"]
                 };
 
@@ -1958,7 +1975,7 @@ namespace BD.ViewModels
                 var points = (stacking_panel.Children[5] as TextBox);
                 var questionText = (stacking_panel.Children[8] as TextBox);
 
-                var shared = ((stacking_panel.Children[6] as StackPanel).Children[1] as StackPanel).Children[1] as ToggleButton;
+                var shared = ((stacking_panel.Children[6] as Grid).Children[1] as StackPanel).Children[1] as ToggleButton;
                 var answ1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
                 var asnwBttn1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
                 var answ2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
@@ -2324,7 +2341,7 @@ namespace BD.ViewModels
                 var points = (stacking_panel.Children[5] as TextBox);
                 var text = (stacking_panel.Children[8] as TextBox);
 
-                var shared = ((stacking_panel.Children[6] as StackPanel).Children[1] as StackPanel).Children[1] as ToggleButton;
+                var shared = ((stacking_panel.Children[6] as Grid).Children[1] as StackPanel).Children[1] as ToggleButton;
                 var answ1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
                 var asnwBttn1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
                 var answ2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
@@ -2344,12 +2361,12 @@ namespace BD.ViewModels
                     case Question.QUESTION_TYPE.Closed:
                     case Question.QUESTION_TYPE.Invalid:
                         _parent.typeQuestion = Question.QUESTION_TYPE.Closed;
-                        ((((stacking_panel.Children[6] as StackPanel).Children[0] as StackPanel).Children[1] as StackPanel).Children[0] as RadioButton).IsChecked = true;
+                        ((((stacking_panel.Children[6] as Grid).Children[0] as StackPanel).Children[1] as StackPanel).Children[0] as RadioButton).IsChecked = true;
                         break;
 
                     case Question.QUESTION_TYPE.Open:
                         _parent.typeQuestion = Question.QUESTION_TYPE.Open;
-                        ((((stacking_panel.Children[6] as StackPanel).Children[0] as StackPanel).Children[1] as StackPanel).Children[1] as RadioButton).IsChecked = true;
+                        ((((stacking_panel.Children[6] as Grid).Children[0] as StackPanel).Children[1] as StackPanel).Children[1] as RadioButton).IsChecked = true;
                         break;
 
                 }
