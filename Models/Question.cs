@@ -67,11 +67,14 @@ namespace BD.Models
             Shared = shared;
             CorrectAnswers = corrAnsw;
             Points = points;
+
+            validateKey();
         }
 
         public Question()
         {
             ID = -1;
+            validateKey();
         }
         public void PrintQuestionOnConsole()
         {
@@ -97,6 +100,18 @@ namespace BD.Models
         {
             return ((CorrectAnswers & 1 << 3) >> 3 == 1 ? "A" : "") + ((CorrectAnswers & 1 << 2) >> 2 == 1 ? "B" : "") + 
                 ((CorrectAnswers & 1 << 1) >> 1 == 1 ? "C" : "") + ((CorrectAnswers & 1 << 0) >> 0 == 1 ? "D" : "");
+        }
+
+        void validateKey()
+        {
+            QUESTION_TYPE newType = QUESTION_TYPE.Invalid;
+            if (CorrectAnswers > 0)
+                newType = QUESTION_TYPE.Closed;
+            else
+                newType = QUESTION_TYPE.Open;
+
+            if (newType != QuestionType)
+                Debug.Print("WRONG QUESTION TYPE: " + Name);
         }
     }
 }

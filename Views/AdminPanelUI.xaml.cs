@@ -127,9 +127,16 @@ namespace BD.Views
             _mv.ResetCallback(this);
         }
 
-        private void ShowAllResults_Click(object sender, RoutedEventArgs e)
+        private void ShowAllAnswers_Click(object sender, RoutedEventArgs e)
         {
-            _mv.ReturnAllResultsFromDB(this);
+            _mv.ReturnAllAnswersFromDB(this);
+            _mv.ResetCallback(this);
+            _mv.CloseMenu(this);
+        }
+
+        private void ShowArchivedTests_Click(object sender, RoutedEventArgs e)
+        {
+            _mv.ReturnArchivedTestFromDB(this);
             _mv.ResetCallback(this);
             _mv.CloseMenu(this);
         }

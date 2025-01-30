@@ -205,6 +205,26 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
+                    <Button x:Name="ShowArchivedTestsButton" 
+                            Background="#434343" Foreground="White" 
+                            FontWeight="Bold"  FontSize="10" Height="25"
+                            Content="Show all archived tests" Visibility="Visible" Click="ShowArchivedTests_Click">
+                        <!-- Ustawienie nie domyslnego sylu-->
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <!-- Wewnętrzny element zmieniający tło -->
+                                <Border x:Name="BorderElement" Background="{TemplateBinding Background}" >
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BorderElement" Property="Background" Value="DodgerBlue"/>
+
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                     <Button x:Name="AddNewTestButton" 
                         Background="#434343" Foreground="White" 
                         FontWeight="Bold"  FontSize="10" Height="25"
@@ -226,10 +246,10 @@
                         </Button.Template>
                     </Button>
                     <Separator/>
-                    <Button x:Name="CheckAllResults" 
+                    <Button x:Name="CheckAllAnswers" 
                         Background="#434343" Foreground="White" 
                         FontWeight="Bold"  FontSize="10" Height="25"
-                        Content="Add new test" Visibility="Visible" Click="ShowAllResults_Click">
+                        Content="Show all answers" Visibility="Visible" Click="ShowAllAnswers_Click">
                         <!-- Ustawienie nie domyslnego sylu-->
                         <Button.Template>
                             <ControlTemplate TargetType="Button">

@@ -56,7 +56,6 @@ namespace BD
 
         public void ChangeAdminPanelV2DataContext()
         {
-            Debug.Print("XD");
             DataContext = new ViewModels.AdminPanelUIMV(this);
         }
     }

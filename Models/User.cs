@@ -40,8 +40,6 @@ namespace BD.Models
             }
         }
 
-        string[] names = { "Staszek", "Mathew", "Franio", "Domino", "Karol" };
-
         [JsonInclude]
         int _id;
 
@@ -118,6 +116,18 @@ namespace BD.Models
         public User()
         {
 
+        }
+
+        public static bool CorrectEmail(string email)
+        {
+            string check = @"^[^@\s]+@[^@\s]+\.(com|net|org|gov|edu|pl|kom)$";
+            // Add more stuff if you want, keko
+            return System.Text.RegularExpressions.Regex.IsMatch(email, check, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+        
+        public static bool CorrectPassword(string pass)
+        {
+            return false;
         }
 
         public void DebugPrintUser()

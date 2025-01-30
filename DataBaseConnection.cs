@@ -16,9 +16,6 @@ using Npgsql;
 
 namespace BD
 {
-    /*
-        * Admin Panel fix 'go back' button
-     */
     public class DataBaseConnection
     {
         string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
@@ -332,7 +329,7 @@ namespace BD
         public List<Test> ReturnTestsList()
         {
             var list = new List<Test>();
-            string query = "SELECT * FROM \"Test\" ORDER BY testid";
+            string query = "SELECT * FROM \"Test\" WHERE archived = 'false' ORDER BY testid";
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             NpgsqlCommand com = new NpgsqlCommand(query, con);
 
@@ -344,6 +341,34 @@ namespace BD
                 {
                     var c = ReturnCoursesListWithID(r.GetInt32(5));
                     var t = new Test(r.GetInt32(0), r.GetString(1), c[0], new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
+                    t.IsArchived = r.GetBoolean(6);
+                    list.Add(t);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+
+            return list;
+        }
+        
+        public List<Test> ReturnArchivedTestsList()
+        {
+            var list = new List<Test>();
+            string query = "SELECT * FROM \"Test\" WHERE archived = 'true' ORDER BY testid";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                while (r.Read())
+                {
+                    var c = ReturnCoursesListWithID(r.GetInt32(5));
+                    var t = new Test(r.GetInt32(0), r.GetString(1), c[0], new List<int>(), r.GetDateTime(2), r.GetDateTime(3), r.GetString(4));
+                    t.IsArchived = r.GetBoolean(6);
                     list.Add(t);
                 }
             }
@@ -384,7 +409,7 @@ namespace BD
         public List<Test> ReturnCourseTestsList(int id)
         {
             var list = new List<Test>();
-            string query = $"SELECT * FROM \"Test\" WHERE courseid = '{id}' ORDER BY testid";
+            string query = $"SELECT * FROM \"Test\" WHERE courseid = '{id}' AND archived = 'false' ORDER BY testid";
             NpgsqlConnection con = new NpgsqlConnection(connection_string);
             NpgsqlCommand com = new NpgsqlCommand(query, con);
 
@@ -407,25 +432,51 @@ namespace BD
             return list;
         }
 
-        public Answer FetchAnswer(int id)
+        public List<Answer> ReturnAllAnswersList()
         {
-            Answer answer = null;
-            string query1 = $"SELECT * FROM \"Answer\" WHERE answerid = '{id}' LIMIT 1";
-            NpgsqlConnection con = new NpgsqlConnection(connection_string);
-            NpgsqlCommand com = new NpgsqlCommand(query1, con);
-
+            List<Answer> answers = new List<Answer>();
+            string query = "SELECT a.*, t.name,q.name, u.name, u.surname FROM public.\"Answer\" a " +
+                "JOIN \"Test\" t on a.testid = t.testid " +
+                "JOIN \"Question\" q on a.questionid = q.questionid " +
+                "JOIN \"User\" u on a.userid = u.userid " +
+                "ORDER BY answerid ASC";
+            NpgsqlConnection _con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand _com = new NpgsqlCommand(query, _con);
             try
             {
-                con.Open();
-                var r = com.ExecuteReader();
+                _con.Open();
+                var r = _com.ExecuteReader();
                 while (r.Read())
                 {
-                    answer = new Answer(r.GetInt32(0), r.GetDouble(1), r.GetInt32(2), r.GetString(3));
+                    int id = r.GetInt32(0);
+                    int userid = r.GetInt32(9);
+                    int testid = r.GetInt32(8);
+                    int questid = r.GetInt32(7);
+                    double p = r.GetDouble(1);
+                    string text = r.GetString(2);
+                    bool a = r.GetBoolean(3);
+                    bool b = r.GetBoolean(4);
+                    bool c = r.GetBoolean(5);
+                    bool d = r.GetBoolean(6);
+                    int key = (a ? 8 : 0) + (b ? 4 : 0) + (c ? 2 : 0) + (d ? 1 : 0);
+
+                    string testName = r.GetString(10);
+                    string questName = r.GetString(11);
+                    string studentName = r.GetString(12) + " " + r.GetString(13);
+                    var answ = new Answer(id, userid, questid, testid, p, key, text);
+                    answ.TestName = testName;
+                    answ.QuestName = questName;
+                    answ.UserName = studentName;
+                    answers.Add(answ);
                 }
             }
-            catch (Exception e) { Debug.Print(e.ToString()); }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return new List<Answer>();
+            }
 
-            return answer;
+            return answers;
         }
 
         public bool AddUser(User user)
@@ -1083,6 +1134,26 @@ namespace BD
                 return new List<Question>();
             }
             return list;
+        }
+
+        public bool ToggleArchiveTest(Test test)
+        {
+            string query = $"UPDATE \"Test\" SET archived = '{!test.IsArchived}' WHERE testid = '{test.ID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+
+            try
+            {
+                con.Open();
+                com.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+            return true;
         }
 
         int courseStudentCount(Course course)

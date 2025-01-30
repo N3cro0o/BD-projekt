@@ -4,10 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using System.Globalization;
-using System.Reflection;
-using static BD.ViewModels.AdminPanelUIMV;
+
 
 
 namespace BD.ViewModels
@@ -61,14 +59,8 @@ namespace BD.ViewModels
 
         public void ReturnAllUsersFromDB(AdminPanelUI parent)
         {
-            _parent = parent;
+            preLogic(parent, "All Users list");
 
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "User list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
@@ -78,12 +70,6 @@ namespace BD.ViewModels
             {
                 AutoGenerateColumns = false,
                 CanUserAddRows = false,
-                //Style = (Style)Application.Current.Resources["CustomDataGridStyle"]
-                //Margin = new Thickness(10),
-                //AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                //Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                //BorderThickness = new Thickness(2),
-                //BorderBrush = System.Windows.Media.Brushes.Black
             };
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -209,15 +195,9 @@ namespace BD.ViewModels
         // Add common logic methods, like one for DataGrid
         void returnMainTeacherAndAllStudents(AdminPanelUI parent, Course? c)
         {
-            _parent = parent;
-            saved_course = c;
+            preLogic(parent, $"Teacher list for {c.Name}");
 
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "User list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            saved_course = c;
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
@@ -228,6 +208,7 @@ namespace BD.ViewModels
                 AutoGenerateColumns = false,
                 CanUserAddRows = false,
             };
+            myDataGrid.Style = customDataGridStyle;
 
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
@@ -270,7 +251,6 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("UserType"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            myDataGrid.Style = customDataGridStyle;
 
             var context = new ContextMenu();
             var item = new MenuItem { Header = "Modify User" };
@@ -387,16 +367,13 @@ namespace BD.ViewModels
         // Add error handling
         public void AddNewUser(AdminPanelUI parent)
         {
-            _parent = parent;
-
+            string title;
             if (parent.TargetChangeID != -1)
-                Debug.Print($"User id to change: {parent.TargetChangeID}");
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new User";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+                title = $"Update User {parent.TargetChangeID}";
+            else
+                title = "Create new User";
+            preLogic(parent, title);
+
             parent.type = User.TYPE.Student;
 
 
@@ -651,13 +628,7 @@ namespace BD.ViewModels
 
         public void ReturnAllQuestionsFromDB(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            parent.mainTitle.Text = "Question list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "Question list");
 
             var resourceDictionary = new ResourceDictionary
             {
@@ -756,14 +727,8 @@ namespace BD.ViewModels
 
         public void ReturnAnswerForQuestion(AdminPanelUI parent, int question_id)
         {
-            _parent = parent;
-
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
             var q = App.DBConnection.ReturnQuestionListByID(question_id)[0];
-            parent.mainTitle.Text = $"Answers for question {q.Name}";
+            preLogic(parent, $"Answers for question {q.Name}");
 
             var stacking_panel = new StackPanel();
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
@@ -846,14 +811,7 @@ namespace BD.ViewModels
 
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Course list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "All Course list");
 
             var resourceDictionary = new ResourceDictionary
             {
@@ -865,11 +823,6 @@ namespace BD.ViewModels
             {
                 AutoGenerateColumns = false,
                 Style = customDataGridStyle,
-                /*Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
 
             };
@@ -1030,7 +983,7 @@ namespace BD.ViewModels
                 parent.mainTitle.Text += $" for Course {c.Name}";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
-                parent.outputGrid.Children.RemoveAt(0);
+                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count - 1);
             }
             var resourceDictionary = new ResourceDictionary
             {
@@ -1042,16 +995,9 @@ namespace BD.ViewModels
             {
                 AutoGenerateColumns = false,
                 Style = customDataGridStyle,
-                /*Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
-
             };
 
-            // Dodanie kolumn
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "ID",
@@ -1106,6 +1052,17 @@ namespace BD.ViewModels
             };
             context.Items.Add(item);
 
+            item = new MenuItem { Header = "Archive test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    App.DBConnection.ToggleArchiveTest(test);
+                    ReturnArchivedTestFromDB(parent);
+                }
+            };
+            context.Items.Add(item);
+            
             item = new MenuItem { Header = "Update test" };
             item.Click += (s, e) =>
             {
@@ -1179,6 +1136,7 @@ namespace BD.ViewModels
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+
             myDataGrid.RowStyle = style;
             List<Test> list;
             if (c != null && !c.IsEmpty())
@@ -1186,23 +1144,264 @@ namespace BD.ViewModels
             else
                 list = App.DBConnection.ReturnTestsList();
             myDataGrid.ItemsSource = list;
+            Debug.Print(list.Count.ToString());
             parent.outputGrid.Children.Add(myDataGrid);
         }
 
-        public void ReturnAllResultsFromDB(AdminPanelUI parent)
+        public void ReturnAllAnswersFromDB(AdminPanelUI parent)
         {
             _parent = parent;
 
             // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Result list";
+            parent.mainTitle.Text = "Answer list";
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
                 parent.outputGrid.Children.RemoveAt(0);
             }
             var resourceDictionary = new ResourceDictionary
             {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
+            };
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false,
+                CanUserAddRows = false,
+            };
+            myDataGrid.Style = customDataGridStyle;
+
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Test name",
+                Binding = new System.Windows.Data.Binding("QuestName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Question name",
+                Binding = new System.Windows.Data.Binding("QuestName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Student name",
+                Binding = new System.Windows.Data.Binding("UserName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Points",
+                Binding = new System.Windows.Data.Binding("PointsString"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Answer text",
+                Binding = new System.Windows.Data.Binding("AnswerBody"),
+                Width = new DataGridLength(30, DataGridLengthUnitType.Star),
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Key",
+                Binding = new System.Windows.Data.Binding("AnswerKey"),
+                Width = new DataGridLength(10, DataGridLengthUnitType.Star)
+            });
+
+            var context = new ContextMenu();
+            context = universalItems(parent, context, ReturnAllCoursesFromDB);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+            myDataGrid.RowStyle = style;
+
+            var list = App.DBConnection.ReturnAllAnswersList();
+            myDataGrid.ItemsSource = list;
+            parent.outputGrid.Children.Add(myDataGrid);
+
+        }
+
+        public void ReturnArchivedTestFromDB(AdminPanelUI parent)
+        {
+            _parent = parent;
+
+            // Basic stuff, title and reset body
+            parent.mainTitle.Text = "Test list";
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count - 1);
+            }
+            var resourceDictionary = new ResourceDictionary
+            {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
             };
+
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false,
+                Style = customDataGridStyle,
+                CanUserAddRows = false
+            };
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Name",
+                Binding = new System.Windows.Data.Binding("Name"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Category",
+                Binding = new System.Windows.Data.Binding("Category"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Start Date",
+                Binding = new System.Windows.Data.Binding("StartDate"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "End Date",
+                Binding = new System.Windows.Data.Binding("EndDate"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Course name",
+                Binding = new System.Windows.Data.Binding("CourseObject.Name"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            var context = new ContextMenu();
+            var item = new MenuItem() { Header = "Preview test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    ShowTestStats(parent, test);
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "De-archive test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    App.DBConnection.ToggleArchiveTest(test);
+                    if(saved_course != null && !saved_course.IsEmpty())
+                        ReturnAllTestsFromDB(parent,saved_course);
+                    else
+                        ReturnAllTestsFromDB(parent);
+                }
+            };
+            context.Items.Add(item);
+            item = new MenuItem { Header = "Update test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    parent.TargetChangeID = test.ID;
+                    AddNewTest(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+
+                    var name = (stacking_panel.Children[1] as TextBox);
+                    var cat = (stacking_panel.Children[3] as TextBox);
+                    var cal_start = (stacking_panel.Children[6] as StackPanel).Children[1] as DatePicker;
+                    var cal_end = (stacking_panel.Children[6] as StackPanel).Children[3] as DatePicker;
+                    var question_panel = (stacking_panel.Children[8] as ScrollViewer).Content as StackPanel;
+
+                    name.Text = test.Name;
+                    cat.Text = test.Category;
+                    cal_start.SelectedDate = test.StartDate;
+                    cal_end.SelectedDate = test.EndDate;
+
+                    for (int i = 0; i < parent.radios.Count; i++)
+                    {
+                        if (test.CourseObject.ID == parent.IDs[i])
+                        {
+                            parent.radios[i].IsChecked = true;
+                        }
+                    }
+
+                    var list = App.DBConnection.ReturnConnectedQuestionsToTest(test);
+                    for (int i = 0; i < parent.IDs1.Count; i++)
+                    {
+                        Debug.Print($"Question to check ID: {parent.IDs1[i]}");
+                        foreach (int j in list)
+                        {
+                            Debug.Print($"Question checked ID: {j}");
+                            if (parent.IDs1[i] == j)
+                            {
+                                CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox;
+                                b.IsChecked = true;
+                                continue;
+                            }
+                        }
+                    }
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Remove test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {test.Name}?",
+                            "Remove single Test",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveTest(test);
+                        MessageBox.Show($"Test has been removed.");
+                        ReturnAllTestsFromDB(parent);
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            context = universalItems(parent, context, ReturnAllCoursesFromDB);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+
+            myDataGrid.RowStyle = style;
+            List<Test> list = App.DBConnection.ReturnArchivedTestsList();
+            myDataGrid.ItemsSource = list;
+            Debug.Print(list.Count.ToString());
+            parent.outputGrid.Children.Add(myDataGrid);
 
         }
 
@@ -2430,5 +2629,15 @@ namespace BD.ViewModels
             }
         }
 
+        void preLogic(AdminPanelUI parent, string title)
+        {
+            _parent = parent;
+            parent.mainTitle.Text = title;
+
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count - 1);
+            }
+        }
     }
 }
