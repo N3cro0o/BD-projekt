@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
+using System.Data.Common;
 
 
 
@@ -546,8 +547,13 @@ namespace BD.ViewModels
                         !string.IsNullOrEmpty(lname.Text))
                     {
                         User u = new User(parent.TargetChangeID, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
-                        u.DebugPrintUser();
-
+                        if (!User.ValidateUserData(u))
+                        {
+                            MessageBox.Show("Invalid email or password.", "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            pass.Text = "";
+                            login.Text = "Operation failed";
+                            return;
+                        }
                         if (parent.TargetChangeID > -1)
                         {
                             if (!App.DBConnection.UpdateUser(u, string.IsNullOrEmpty(pass.Text)).IsEmpty())
@@ -557,11 +563,15 @@ namespace BD.ViewModels
                             }
                             Debug.Print("Update failed, trying to add new User");
                         }
-                        if (App.DBConnection.AddUser(u))
+                        bool c;
+                        string err;
+                        (c, err) = App.DBConnection.AddUser(u);
+                        if (c)
                         {
                             ReturnAllUsersFromDB(parent);
                             return;
                         }
+                        MessageBox.Show(err, "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     pass.Text = "";
                     login.Text = "Operation failed";
@@ -1053,6 +1063,7 @@ namespace BD.ViewModels
                 {
                     Debug.Print("\n\n\n\nRemove debug prints!\n\n\n\n");
                     generateReportForTest(test);
+                    setupCallback(ReturnAllTestsFromDB);
                 }
             };
             context.Items.Add(item);
@@ -1226,59 +1237,93 @@ namespace BD.ViewModels
             stacking_panel.Children.Add(text_block);
 
             var results = _report.GenerateResults(allAnswers, t, score);
-            /*
-             * Check if report is generated
-             *      If not, generate new report
-             *      If yes, load from DB
-             * Since Result needs a report to be added to DB, we will check it
-             * ---------------
-             * Show some useful data
-             * Allow to see failed and passed students
-             */
 
             var resultsDB = App.DBConnection.ReturnTestResults(t);
-            Report report;
-            Debug.Print($"Generated size: {results.Count}, DB size: {resultsDB.Count}");
-            if (resultsDB == null || !resultsDB.FirstOrDefault(new Result()).HasReport())
+            Report? report;
+            bool reportCheck;
+            (reportCheck, report) = _report.GenerateReport(results, resultsDB);
+            if (reportCheck)
             {
-                report = new Report();
+#pragma warning disable CS8602
+                double allUsers = report.PassedUsers.Count + report.FailedUsers.Count + report.ToCheckUsers.Count;
+                string passedPercent = (report.PassedUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
+                string failedPercent = (report.FailedUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
+                string checkPercent = (report.ToCheckUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
+
+                text_block = new TextBlock()
+                {
+                    Text = $"Passed: {passedPercent}, Failed: {failedPercent}, To later check: {checkPercent}",
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
+                };
+                stacking_panel.Children.Add(text_block);
+
+                stacking_panel.Children.Add(new Separator()); 
+
+                var stacking_panel_inner = new StackPanel() 
+                {
+                    Style = (Style)Application.Current.Resources["VerticalCenterStackPanelStyle"],
+                };
+                stacking_panel.Children.Add(stacking_panel_inner);
+
+                foreach (Result u in report.PassedUsers)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                        Text = $"{u.Student.GetFullName()}, {u.Feedback}, {u.Points}",
+                    };
+                    StackPanel inner = new StackPanel()
+                    {
+                        Orientation = Orientation.Horizontal,
+                    };
+                    inner.Children.Add(text_block);
+                    stacking_panel_inner.Children.Add(inner);
+
+                }
+                
+                foreach (Result u in report.FailedUsers)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                        Text = $"{u.Student.GetFullName()}, {u.Feedback}, {u.Points}",
+                    };
+                    StackPanel inner = new StackPanel()
+                    {
+                        Orientation = Orientation.Horizontal,
+                    };
+                    inner.Children.Add(text_block);
+                    stacking_panel_inner.Children.Add(inner);
+
+                }
+                
+                foreach (Result u in report.ToCheckUsers)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                        Text = $"{u.Student.GetFullName()}, {u.Feedback}, {u.Points}",
+                    };
+                    StackPanel inner = new StackPanel()
+                    {
+                        Orientation = Orientation.Horizontal,
+                    };
+                    inner.Children.Add(text_block);
+                    stacking_panel_inner.Children.Add(inner);
+
+                }
+
+#pragma warning restore CS8602
             }
             else
             {
-                report = resultsDB.First().MainReport;
-                // Merge copies
-                for(int i = 0; i < resultsDB.Count; i++)
+                text_block = new TextBlock()
                 {
-                    bool check = false;
-                    var resDB = resultsDB[i];
-                    for (int j = 0; i < results.Count; i++)
-                    {
-                        var res = results[j];
-                        if (resDB.StudentID == res.StudentID)
-                        {
-                            results[j] = resDB;
-                            check = true;
-                            break;
-                        }
-                    }
-                    if (!check)
-                    {
-                        results.Add(resDB);
-                    }
-                }
+                    Text = $"Test doesn't have necessary data.",
+                    Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"]
+                };
+                stacking_panel.Children.Add(text_block);
             }
-            if (report == null)
-                ReturnAllTestsFromDB(_parent);
-
-            report.Results = results;
-            Debug.Print($"Report ID: {report.ID}");
-            foreach (Result res in results)
-            {
-                res.MainReport = report;
-                res.ReportID = report.ID;
-            }
-
-            App.DBConnection.AddResultsToTest(results);
         }
 
         public void ReturnAllAnswersFromDB(AdminPanelUI parent)

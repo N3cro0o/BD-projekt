@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Windows.Controls;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace BD.Models
 {
@@ -122,6 +123,11 @@ namespace BD.Models
             return System.Text.RegularExpressions.Regex.IsMatch(email, check, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
         
+        public static bool ValidateUserData(User user)
+        {
+            return isValidPassword(user.Password) && isValidEmail(user.Email);
+        }
+
         public static bool CorrectPassword(string pass)
         {
             return false;
@@ -163,5 +169,21 @@ namespace BD.Models
         {
             return ID < 0;
         }
+        public static bool isValidEmail(string email)
+        {
+            var regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            return regex.IsMatch(email);
+        }
+
+        public static bool isValidPassword(string password)
+        {
+            if (password.Length < 8)
+                return false;
+
+            // Minimum 1 uppercase letter, 1 special character, and 8 characters
+            var regex = new Regex(@"^(?=.*[A-Z])(?=.*[\W_]).{8,}$");
+            return regex.IsMatch(password);
+        }
+
     }
 }

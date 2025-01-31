@@ -279,6 +279,31 @@ namespace BD
             return list;
         }
 
+        public bool ReturnIfQuestionIsOpen(int questID)
+        {
+            string query = $"SELECT questiontype FROM \"Question\" WHERE questionid = '{questID}'";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                var r = com.ExecuteReader();
+                r.Read();
+                if (r.GetString(0).ToLower() == "open")
+                    return true;
+                else return false;
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return false;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
         public List<Question> ReturnQuestionListByID(int id)
         {
             string query = $"SELECT * FROM \"Question\" WHERE questionid = '{id}' ORDER BY questionid";
@@ -516,28 +541,37 @@ namespace BD
             return answers;
         }
 
-        public bool AddUser(User user)
+        public (bool, string) AddUser(User user)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             string query = "INSERT INTO \"User\"(login, name, surname, email, password, role) VALUES ";
+            string queryCheck = $"SELECT COUNT(*) FROM \"User\" WHERE login = '{user.Login}'";
             query += string.Format("(\'{0}\', \'{1}\', \'{2}\', \'{3}\', \'{4}\', \'{5}\')", user.Login, user.FirstName, user.LastName, user.Email, toSHA256(user.Password), user.UserType);
             Debug.Print(query);
             try
             {
                 connection.Open();
+                // Login check
+                using NpgsqlCommand npgsqlCommandCheck = new NpgsqlCommand(queryCheck, connection);
+                var result = npgsqlCommandCheck.ExecuteScalar();
+                if (result != null && (long)result != 0)
+                {
+                    return (false, "This login already exists");
+                }
+
                 using NpgsqlCommand npgsqlCommand = new NpgsqlCommand(query, connection);
                 npgsqlCommand.ExecuteNonQuery();
             }
-            catch
+            catch(Exception e)
             {
-                Debug.Print("Connection failed");
-                return false;
+                Debug.Print(e.ToString());
+                return (false, e.Message);
             }
             finally
             {
                 connection.Close();
             }
-            return true;
+            return (true, "");
         }
 
         public bool AddQuestion(Question quest)
@@ -842,6 +876,10 @@ namespace BD
 
         public void AddResultsToTest(List<Result> results)
         {
+            string queryDelete = "";
+            if (results.Count > 0)
+                queryDelete = $"DELETE FROM \"Results\" WHERE testid = '{results[0].Test.ID}'";
+
             string query = "INSERT INTO \"Results\" (userid, testid, points, feedback, reportid) VALUES ";
             for (int i = 0; i < results.Count - 1; i++)
             {
@@ -855,6 +893,11 @@ namespace BD
             try
             {
                 connection.Open();
+                if (results.Count > 0)
+                    using (var com1 = new NpgsqlCommand(queryDelete, connection))
+                    {
+                        com1.ExecuteNonQuery();
+                    }
                 com.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -877,11 +920,14 @@ namespace BD
                 var r = com.ExecuteReader();
                 while (r.Read())
                 {
-                    var result = new Result();
+                    var result = new Result(r.GetInt32(0), r.GetDouble(3), r.GetString(4), r.GetInt32(1), r.GetInt32(5), r.GetInt32(2));
+                    list.Add(result);
+                    Debug.Print(list.Count.ToString());
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Debug.Print(e.ToString());
                 return new List<Result>();
             }
             finally
@@ -921,7 +967,8 @@ namespace BD
         {
             int id = 0;
             string query = "INSERT INTO \"Report\" (passeduser, faileduser, result) VALUES " +
-                $"('{report.PassedUsers.Count}','{report.FailedUsers.Count}','{report.AverageScore().ToString(CultureInfo.InvariantCulture)}') " +
+                $"('{report.PassedUsers.Count}','{report.FailedUsers.Count + report.ToCheckUsers.Count}'," +
+                $"'{report.AverageScore().ToString(CultureInfo.InvariantCulture)}') " +
                 "RETURNING reportid";
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             using NpgsqlCommand com = new NpgsqlCommand(query, connection);
@@ -942,13 +989,33 @@ namespace BD
             return id;
         }
 
+        public void UpdateReport(Report report)
+        {
+            string query = $"UPDATE \"Report\" SET passeduser = '{report.PassedUsers.Count}',faileduser = '{report.FailedUsers.Count + report.ToCheckUsers.Count}'," +
+                $"result = '{report.AverageScore().ToString(CultureInfo.InvariantCulture)}' WHERE reportid= '{report.ID}'";
+            using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
+            using NpgsqlCommand com = new NpgsqlCommand(query, connection);
+            try
+            {
+                connection.Open();
+                com.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return ;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
         public User GetUserByID(int id)
         {
             var user = new User();
             string query = string.Format("SELECT * FROM \"User\" where \"userid\" = \'{0}\'", id);
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
-            Debug.Print(query);
-
             try
             {
                 connection.Open();
@@ -969,9 +1036,9 @@ namespace BD
 
                 user = new User(userID, login, pass, email, fname, lname, User.StringToType(type));
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.Print("Connection failed");
+                Debug.Print("Connection failed\n" + ex.ToString());
             }
             return user;
         }

@@ -12,36 +12,33 @@ namespace BD.Models
         int _ID;
 
         public int ID { get => _ID; }
-
-        public List<Result> Results { get; set; }
-        public List<User> PassedUsers { get; set; }
-        public List<User> FailedUsers { get; set; }
+        public List<Result> PassedUsers { get; set; }
+        public List<Result> FailedUsers { get; set; }
+        public List<Result> ToCheckUsers { get; set; }
 
         public int PassedUsersInt { get; set; }
         public int FailedUsersInt { get; set; }
         public double AvgScore { get; set; }
 
-        public Report(List<Result> results, List<User> passedUsers, List<User> failedUsers)
+        public Report(List<Result> passedUsers, List<Result> failedUsers)
         {
-            Results = results;
             PassedUsers = passedUsers;
             FailedUsers = failedUsers;
         }
 
         public Report()
         {
-            Results = new List<Result>();
-            PassedUsers = new List<User>();
-            FailedUsers = new List<User>();
+            PassedUsers = new List<Result>();
+            FailedUsers = new List<Result>();
+            ToCheckUsers = new List<Result>();
             _ID = App.DBConnection.AddEmptyReportToTest(this);
         }
-        
+
         public Report(int id, int failed, int succeed, double avg)
         {
-            Results = new List<Result>();
-            PassedUsers = new List<User>();
-            FailedUsers = new List<User>();
-            //_ID = App.DBConnection.AddEmptyReportToTest(this); Debug change
+            PassedUsers = new List<Result>();
+            FailedUsers = new List<Result>();
+            ToCheckUsers = new List<Result>();
             _ID = id;
             FailedUsersInt = failed;
             PassedUsersInt = succeed;
@@ -51,11 +48,19 @@ namespace BD.Models
         public double AverageScore()
         {
             double d = 0;
-            foreach (Result result in Results)
+            foreach (Result result in PassedUsers)
             {
                 d += result.Points;
             }
-            return d / Results.Count;
+            foreach (Result result in FailedUsers)
+            {
+                d += result.Points;
+            }
+            foreach (Result result in ToCheckUsers)
+            {
+                d += result.Points;
+            }
+            return d / (PassedUsers.Count + FailedUsers.Count + ToCheckUsers.Count);
         }
     }
 }
