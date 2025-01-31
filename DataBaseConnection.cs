@@ -1049,16 +1049,25 @@ namespace BD
             if (!samePassword)
                 query = string.Format("update \"User\" set \"login\" = '{0}', \"password\" = '{1}'," +
                     "\"email\" = '{2}', \"name\" = '{3}',\"surname\" = '{4}', \"role\" = '{5}' where \"userid\" = {6}",
-                    user.Login, user.Password, user.Email, user.FirstName, user.LastName, user.UserType, user.GetID());
+                    user.Login, toSHA256(user.Password), user.Email, user.FirstName, user.LastName, user.UserType, user.GetID());
             else
                 query = $"update \"User\" set \"login\" = '{user.Login}', " +
                     $"\"email\" = '{user.Email}', \"name\" = '{user.FirstName}',\"surname\" = '{user.LastName}', \"role\" = '{user.UserType}' where \"userid\" = {user.GetID()}";
             string queryEnd = string.Format("SELECT * FROM \"User\" WHERE \"userid\" = {0}", user.GetID());
-
+            string queryCheck = $"SELECT COUNT(*) FROM \"User\" WHERE login = '{user.Login}'";
+            
             using NpgsqlConnection connection = new NpgsqlConnection(connection_string);
             try
             {
                 connection.Open();
+
+                using NpgsqlCommand npgsqlCommandCheck = new NpgsqlCommand(queryCheck, connection);
+                var result = npgsqlCommandCheck.ExecuteScalar();
+                if (result != null && (long)result != 0)
+                {
+                    return new User();
+                }
+
                 using NpgsqlCommand com = new NpgsqlCommand(query, connection);
                 com.ExecuteNonQuery();
 
