@@ -62,9 +62,6 @@ namespace BD.Models
 
         TYPE _userType = TYPE.Guest;
 
-        [JsonInclude]
-        List<int> Courses = new List<int>();
-
         string Token = "";
         public string Login
         {

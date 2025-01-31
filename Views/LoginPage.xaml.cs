@@ -23,13 +23,13 @@ namespace BD.Views
     public partial class LoginPage : UserControl
     {
         string? password;
-        private LoginPageMV _mv;
+        private LoginPageVM _mv;
 
         public LoginPage()
         {
             InitializeComponent();
             ErrorTextBlock.Text = "";
-            _mv = App.Current.MainWindow.DataContext as LoginPageMV;
+            _mv = App.Current.MainWindow.DataContext as LoginPageVM;
             LoginB.Focus();
         }
 

@@ -34,12 +34,12 @@ namespace BD
 
         public void ChangeMainPageDataContext()
         {
-            DataContext = new ViewModels.MainPageMV(this);
+            DataContext = new ViewModels.MainPageVM(this);
         }
 
         public void ChangeLoginDataContext()
         {
-            DataContext = new ViewModels.LoginPageMV(this);
+            DataContext = new ViewModels.LoginPageVM(this);
         }
 
         public void ChangeLogoffDataContext()
@@ -51,12 +51,12 @@ namespace BD
 
         public void ChangeAdminPanelDataContext()
         {
-            DataContext = new ViewModels.AdminPanelMV(this);
+            DataContext = new ViewModels.AdminPanelVM(this);
         }
 
         public void ChangeAdminPanelV2DataContext()
         {
-            DataContext = new ViewModels.AdminPanelUIMV(this);
+            DataContext = new ViewModels.AdminPanelUIVM(this);
         }
     }
 }

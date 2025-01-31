@@ -9,7 +9,7 @@ using Npgsql;
 
 namespace BD.ViewModels
 {
-    public class LoginPageMV : INotifyPropertyChanged
+    public class LoginPageVM : INotifyPropertyChanged
     {
         private readonly MainWindow _mainwindow;
 
@@ -37,7 +37,7 @@ namespace BD.ViewModels
             _mainwindow.ChangeMainPageDataContext();
         }
 
-        public LoginPageMV(MainWindow mw)
+        public LoginPageVM(MainWindow mw)
         {
             _mainwindow = mw;
         }

@@ -20,7 +20,7 @@ namespace BD.Views
 {
     public partial class AdminPanelUI : UserControl
     {
-        private readonly AdminPanelUIMV _mv;
+        private readonly AdminPanelUIVM _mv;
 
         public int TargetChangeID = -1;
         public int TargetChangeIDSecond = -1;
@@ -34,7 +34,7 @@ namespace BD.Views
         public AdminPanelUI()
         {
             InitializeComponent();
-            _mv = App.Current.MainWindow.DataContext as AdminPanelUIMV;
+            _mv = App.Current.MainWindow.DataContext as AdminPanelUIVM;
             _mv.ShowMenu(this);
             _mv.ShowGreetPanel(this);
         }

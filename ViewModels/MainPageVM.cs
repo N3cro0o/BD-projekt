@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace BD.ViewModels
 {
-    public class MainPageMV : INotifyPropertyChanged
+    public class MainPageVM : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private MainWindow _mainwindow;
 
-        public MainPageMV(MainWindow mainWindow)
+        public MainPageVM(MainWindow mainWindow)
         {
             _mainwindow = mainWindow;
         }

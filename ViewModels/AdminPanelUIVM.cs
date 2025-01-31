@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace BD.ViewModels
 {
-    internal class AdminPanelUIMV
+    internal class AdminPanelUIVM
     {
         public delegate void StepMethodCallback(AdminPanelUI parent);
         public delegate void StepMethodCallbackTest(AdminPanelUI parent, Test? t);
@@ -25,19 +25,19 @@ namespace BD.ViewModels
         private StepMethodCallback _stepMethodCallback;
         private StepMethodCallbackTest _stepMethodCallbackTest;
         private StepMethodCallbackCourse _stepMethodCallbackCourse;
-        private ValidateVM _validateVM;
+        private ReportVM _report;
 
         void voidStepCallback(AdminPanelUI parent) { }
         void voidStepCallbackTest(AdminPanelUI parent, Test? t) { }
         void voidStepCallbackCourse(AdminPanelUI parent, Course? c) { }
 
-        public AdminPanelUIMV(MainWindow mainWindow)
+        public AdminPanelUIVM(MainWindow mainWindow)
         {
             _stepMethodCallback = voidStepCallback;
             _stepMethodCallbackTest = voidStepCallbackTest;
             _stepMethodCallbackCourse = voidStepCallbackCourse;
             _mainwindow = mainWindow;
-            _validateVM = new ValidateVM();
+            _report = new ReportVM(this);
         }
 
         public void CallbackClick(AdminPanelUI parent)
@@ -172,8 +172,10 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveUser(user);
-                        MessageBox.Show($"User has been removed.");
+                        if (App.DBConnection.RemoveUser(user))
+                            MessageBox.Show($"User has been removed.", "Remove user", MessageBoxButton.OK);
+                        else
+                            MessageBox.Show("Operation failed.", "Remove user", MessageBoxButton.OK, MessageBoxImage.Error);
                         ReturnAllUsersFromDB(parent);
                     }
                 }
@@ -601,13 +603,7 @@ namespace BD.ViewModels
 
         public void ShowGreetPanel(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            parent.mainTitle.Text = $"Welcome, {App.CurrentUser.GetFullName()}";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, $"Welcome, {App.CurrentUser.GetFullName()}");
 
             var stacking_panel = new StackPanel()
             {
@@ -951,8 +947,10 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveCourse(c);
-                        MessageBox.Show($"Course and all connected tests have been removed.");
+                        if (App.DBConnection.RemoveCourse(c))
+                            MessageBox.Show($"Course and all connected tests have been removed.", "Remove course");
+                        else
+                            MessageBox.Show("Operation failed", "Remove course", MessageBoxButton.OK, MessageBoxImage.Error);
                         ReturnAllCoursesFromDB(parent);
                     }
                 }
@@ -974,17 +972,13 @@ namespace BD.ViewModels
 
         public void ReturnAllTestsFromDB(AdminPanelUI parent, Course? c = null)
         {
-            _parent = parent;
+            string title = "Test list";
+            if (c != null && !c.IsEmpty())
+                title += $" for Course {c.Name}";
+
+            preLogic(parent, title);
             saved_course = c;
 
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Test list";
-            if (c != null && !c.IsEmpty())
-                parent.mainTitle.Text += $" for Course {c.Name}";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count - 1);
-            }
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
@@ -1052,6 +1046,17 @@ namespace BD.ViewModels
             };
             context.Items.Add(item);
 
+            item = new MenuItem { Header = "Generate Report" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    Debug.Print("\n\n\n\nRemove debug prints!\n\n\n\n");
+                    generateReportForTest(test);
+                }
+            };
+            context.Items.Add(item);
+
             item = new MenuItem { Header = "Archive test" };
             item.Click += (s, e) =>
             {
@@ -1062,7 +1067,7 @@ namespace BD.ViewModels
                 }
             };
             context.Items.Add(item);
-            
+
             item = new MenuItem { Header = "Update test" };
             item.Click += (s, e) =>
             {
@@ -1148,16 +1153,137 @@ namespace BD.ViewModels
             parent.outputGrid.Children.Add(myDataGrid);
         }
 
+        void generateReportForTest(Test t)
+        {
+            preLogic(_parent, $"Report screen for test: {t.Name}");
+            int studentsInCourse = t.CourseObject.StudentsCount;
+            int questionInTest = App.DBConnection.ReturnTestQuestionCount(t);
+            double score = App.DBConnection.ReturnTestMaxScore(t);
+            List<User> studentAnswers = App.DBConnection.ReturnStudentsWhoTookTest(t);
+            List<Answer> allAnswers = App.DBConnection.ReturnAllAnswersList(t);
+
+            // Załaduj ResourceDictionary z pliku stylów
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            // Dodaj style do zasobów aplikacji (jeśli nie zostały już dodane)
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            _parent.outputGrid.Children.Add(new ScrollViewer()
+            {
+                MaxHeight = double.PositiveInfinity,
+                Content = new StackPanel()
+                {
+                    Margin = new Thickness(50, 15, 50, 15),
+                    Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+                },
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
+            });
+
+            var stacking_panel = (StackPanel)((ScrollViewer)_parent.outputGrid.Children[0]).Content;
+
+            var text_block = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "General"
+            };
+
+            stacking_panel.Children.Add(text_block);
+
+            text_block = new TextBlock()
+            {
+                Text = $"Number of students in course: {studentsInCourse}",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            text_block = new TextBlock()
+            {
+                Text = $"Number of questions in test: {questionInTest}",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            text_block = new TextBlock()
+            {
+                Text = $"Number of students who started the test: {studentAnswers.Count}",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            stacking_panel.Children.Add(new Separator());
+
+            text_block = new TextBlock()
+            {
+                Text = $"Max score: {score.ToString(CultureInfo.InvariantCulture)}",
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            var results = _report.GenerateResults(allAnswers, t, score);
+            /*
+             * Check if report is generated
+             *      If not, generate new report
+             *      If yes, load from DB
+             * Since Result needs a report to be added to DB, we will check it
+             * ---------------
+             * Show some useful data
+             * Allow to see failed and passed students
+             */
+
+            var resultsDB = App.DBConnection.ReturnTestResults(t);
+            Report report;
+            Debug.Print($"Generated size: {results.Count}, DB size: {resultsDB.Count}");
+            if (resultsDB == null || !resultsDB.FirstOrDefault(new Result()).HasReport())
+            {
+                report = new Report();
+            }
+            else
+            {
+                report = resultsDB.First().MainReport;
+                // Merge copies
+                for(int i = 0; i < resultsDB.Count; i++)
+                {
+                    bool check = false;
+                    var resDB = resultsDB[i];
+                    for (int j = 0; i < results.Count; i++)
+                    {
+                        var res = results[j];
+                        if (resDB.StudentID == res.StudentID)
+                        {
+                            results[j] = resDB;
+                            check = true;
+                            break;
+                        }
+                    }
+                    if (!check)
+                    {
+                        results.Add(resDB);
+                    }
+                }
+            }
+            if (report == null)
+                ReturnAllTestsFromDB(_parent);
+
+            report.Results = results;
+            Debug.Print($"Report ID: {report.ID}");
+            foreach (Result res in results)
+            {
+                res.MainReport = report;
+                res.ReportID = report.ID;
+            }
+
+            App.DBConnection.AddResultsToTest(results);
+        }
+
         public void ReturnAllAnswersFromDB(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Answer list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "All Answers list");
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
@@ -1235,14 +1361,7 @@ namespace BD.ViewModels
 
         public void ReturnArchivedTestFromDB(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Test list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count - 1);
-            }
+            preLogic(parent, "Archived Test list");
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
@@ -1316,8 +1435,8 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem && menuItem.DataContext is Test test)
                 {
                     App.DBConnection.ToggleArchiveTest(test);
-                    if(saved_course != null && !saved_course.IsEmpty())
-                        ReturnAllTestsFromDB(parent,saved_course);
+                    if (saved_course != null && !saved_course.IsEmpty())
+                        ReturnAllTestsFromDB(parent, saved_course);
                     else
                         ReturnAllTestsFromDB(parent);
                 }
@@ -1407,14 +1526,7 @@ namespace BD.ViewModels
 
         public void AddNewCourse(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Course";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "Create new Course");
             parent.ResetParams();
 
             var resourceDictionary = new ResourceDictionary
@@ -1656,15 +1768,7 @@ namespace BD.ViewModels
 
         public void AddNewTest(AdminPanelUI parent)
         {
-            _parent = parent;
-
-            Debug.Print(parent.type.ToString());
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Test";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "Create new Test");
             parent.ResetParams();
 
             // Load ResourceDictionary for styles
@@ -1937,16 +2041,10 @@ namespace BD.ViewModels
 
         public void AddNewQuestion(AdminPanelUI parent)
         {
-            _parent = parent;
-
             if (parent.TargetChangeID != -1)
                 Debug.Print($"User id to change: {parent.TargetChangeID}");
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Question";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "Create new Question");
+
             parent.ResetParams();
             parent.typeQuestion = Question.QUESTION_TYPE.Closed;
 
@@ -2240,16 +2338,11 @@ namespace BD.ViewModels
         // Add better callback logic
         void ShowTestStats(AdminPanelUI parent, Test? t)
         {
-            _parent = parent;
+            preLogic(parent, $"Test {t.Name} preview");
+
             if (t == null || t.IsEmpty())
                 ReturnAllTestsFromDB(parent);
             saved_test = t;
-
-            parent.mainTitle.Text = $"Test {t.Name} preview";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
             parent.ResetParams();
             if (parent.outputGrid == null)
                 return;
@@ -2506,7 +2599,7 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem)
                 {
-                    _validateVM.ValidateQuestions();
+                    _report.ValidateQuestions();
                 }
             };
 
@@ -2636,7 +2729,7 @@ namespace BD.ViewModels
 
             if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
             {
-                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count - 1);
+                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count);
             }
         }
     }

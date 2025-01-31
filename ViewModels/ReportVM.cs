@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Diagnostics;
 using BD.Models;
 
 namespace BD.ViewModels
 {
-    internal class ValidateVM
+    internal class ReportVM
     {
+        private readonly AdminPanelUIVM _admin;
         public void ValidateQuestions()
         {
+
             //new Thread(() =>
             //{
             //    int count = 0;
@@ -43,6 +40,39 @@ namespace BD.ViewModels
             //        MessageBox.Show($"Incorrect number of questions:\n{count}.", "Validate questions", MessageBoxButton.OK, MessageBoxImage.Warning);
             //    }
             //}).Start();
+        }
+
+        public ReportVM(AdminPanelUIVM admin) 
+        {
+            _admin = admin;
+        }
+
+        public List<Result> GenerateResults(IEnumerable<Answer> answArr,Test test, double maxScore)
+        {
+            List<Result> results = new List<Result>();
+            Dictionary<int, double> scores = new Dictionary<int, double>();
+
+            foreach (Answer answ in answArr) 
+            {
+                if (!scores.ContainsKey(answ.UserID))
+                    scores[answ.UserID] = 0;
+                scores[answ.UserID] += answ.Points;
+            }
+            Debug.Print($"Scores size: {scores.Count}");
+            foreach (KeyValuePair<int, double> score in scores)
+            {
+                var r = new Result
+                {
+                    Test = test,
+                    StudentID = score.Key,
+                    Student = App.DBConnection.GetUserByID(score.Key),
+                    Points = score.Value,
+                    Feedback = (score.Value >= maxScore * 0.5) ? "Passed" : "Failed"
+                };
+                results.Add(r);
+            }
+
+            return results;
         }
     }
 }
