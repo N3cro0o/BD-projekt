@@ -14,16 +14,16 @@
         MinHeight="800" MinWidth="1100"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <DataTemplate x:Name="MainPageTemplate" DataType="{x:Type viewmodels:MainPageMV}">
+        <DataTemplate x:Name="MainPageTemplate" DataType="{x:Type viewmodels:MainPageVM}">
             <views:MainPage DataContext="{Binding}"/>
         </DataTemplate>
-        <DataTemplate x:Name="LoginPageTemplate" DataType="{x:Type viewmodels:LoginPageMV}">
+        <DataTemplate x:Name="LoginPageTemplate" DataType="{x:Type viewmodels:LoginPageVM}">
             <views:LoginPage DataContext="{Binding}"/>
         </DataTemplate>
-        <DataTemplate x:Name="AdminConsoleTemplate" DataType="{x:Type viewmodels:AdminPanelMV}">
+        <DataTemplate x:Name="AdminConsoleTemplate" DataType="{x:Type viewmodels:AdminPanelVM}">
             <views:AdminPanel DataContext="{Binding}"/>
         </DataTemplate>
-        <DataTemplate x:Name="AdminPanelIhopefinalTemplate" DataType="{x:Type viewmodels:AdminPanelUIMV}">
+        <DataTemplate x:Name="AdminPanelIhopefinalTemplate" DataType="{x:Type viewmodels:AdminPanelUIVM}">
             <views:AdminPanelUI DataContext="{Binding}"/>
         </DataTemplate>
     </Window.Resources>

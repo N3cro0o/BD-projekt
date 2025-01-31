@@ -25,6 +25,8 @@ namespace BD.Models
 
         public int ID { get => _id; set => _id = value; }
 
+        public bool IsArchived { get; set; } = false;
+
         public Test(int id, string name, Course course, List<int> quest, DateTime start, DateTime end, string cat)
         {
             ID = id;

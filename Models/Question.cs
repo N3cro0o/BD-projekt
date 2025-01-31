@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Collections;
 
 
 namespace BD.Models
@@ -44,11 +45,12 @@ namespace BD.Models
 
         public double Points { get; set; }
 
+        /// <summary>
+        /// In DB, we have columns A, B, C, D. Here, we store them inside a bitmask. To get binary string use CorrectAnswersBinary.
+        /// </summary>
         public int CorrectAnswers { get; set; } = 0;
 
         public string CorrectAnswersBinary { get => CorrectAnswers.ToString("b"); }
-
-        public int AnswerID { get; set; }
 
         int _id;
 
@@ -65,11 +67,14 @@ namespace BD.Models
             Shared = shared;
             CorrectAnswers = corrAnsw;
             Points = points;
+
+            validateKey();
         }
 
         public Question()
         {
             ID = -1;
+            validateKey();
         }
         public void PrintQuestionOnConsole()
         {
@@ -89,6 +94,24 @@ namespace BD.Models
         public bool IsEmpty()
         {
             return ID < 0;
+        }
+
+        public string ReturnCorrectAnswerString()
+        {
+            return ((CorrectAnswers & 1 << 3) >> 3 == 1 ? "A" : "") + ((CorrectAnswers & 1 << 2) >> 2 == 1 ? "B" : "") + 
+                ((CorrectAnswers & 1 << 1) >> 1 == 1 ? "C" : "") + ((CorrectAnswers & 1 << 0) >> 0 == 1 ? "D" : "");
+        }
+
+        void validateKey()
+        {
+            QUESTION_TYPE newType = QUESTION_TYPE.Invalid;
+            if (CorrectAnswers > 0)
+                newType = QUESTION_TYPE.Closed;
+            else
+                newType = QUESTION_TYPE.Open;
+
+            if (newType != QuestionType)
+                Debug.Print("WRONG QUESTION TYPE: " + Name);
         }
     }
 }

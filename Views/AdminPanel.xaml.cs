@@ -19,14 +19,14 @@ namespace BD.Views
 {
     public partial class AdminPanel : UserControl
     {
-        private readonly AdminPanelMV _mv;
+        private readonly AdminPanelVM _mv;
         public int EnterCounter = 0;
 
         public AdminPanel()
         {
             InitializeComponent();
 
-            _mv = App.Current.MainWindow.DataContext as AdminPanelMV;
+            _mv = App.Current.MainWindow.DataContext as AdminPanelVM;
         }
 
         private void OnPanelSubmit(object sender, RoutedEventArgs e)

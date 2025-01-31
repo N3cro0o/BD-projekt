@@ -23,13 +23,13 @@ namespace BD.Views
     public partial class LoginPage : UserControl
     {
         string? password;
-        private LoginPageMV _mv;
+        private LoginPageVM _mv;
 
         public LoginPage()
         {
             InitializeComponent();
             ErrorTextBlock.Text = "";
-            _mv = App.Current.MainWindow.DataContext as LoginPageMV;
+            _mv = App.Current.MainWindow.DataContext as LoginPageVM;
             LoginB.Focus();
         }
 
@@ -61,6 +61,11 @@ namespace BD.Views
         private void OnGoback_Click(object sender, RoutedEventArgs e)
         {
             _mv.GoBack();
+        }
+
+        private void OnLoginB_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus((TextBox)sender);
         }
     }
 }

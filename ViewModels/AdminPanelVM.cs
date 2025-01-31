@@ -14,7 +14,7 @@ using System.Globalization;
 
 namespace BD.ViewModels
 {
-    internal class AdminPanelMV
+    internal class AdminPanelVM
     {
         public delegate void StepMethodCallback(AdminPanel parent);
 
@@ -23,7 +23,7 @@ namespace BD.ViewModels
 
         List<string> strings = new List<string>();
 
-        public AdminPanelMV(MainWindow mainWindow)
+        public AdminPanelVM(MainWindow mainWindow)
         {
             _mainwindow = mainWindow;
         }

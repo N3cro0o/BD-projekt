@@ -21,13 +21,13 @@ namespace BD.Views
     /// </summary>
     public partial class MainPage : UserControl
     {
-        private readonly MainPageMV _mv;
+        private readonly MainPageVM _mv;
 
         public MainPage()
         {
             InitializeComponent();
 
-            _mv = App.Current.MainWindow.DataContext as MainPageMV;
+            _mv = App.Current.MainWindow.DataContext as MainPageVM;
             _checkButtonVisibility();
         }
 

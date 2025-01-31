@@ -4,35 +4,53 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using System.Globalization;
-using System.Reflection;
+using System.Data.Common;
+
 
 
 namespace BD.ViewModels
 {
-    internal class AdminPanelUIMV
+    internal class AdminPanelUIVM
     {
         public delegate void StepMethodCallback(AdminPanelUI parent);
+        public delegate void StepMethodCallbackTest(AdminPanelUI parent, Test? t);
+        public delegate void StepMethodCallbackCourse(AdminPanelUI parent, Course? c);
 
         private readonly MainWindow _mainwindow;
         public bool showMenu = false;
+        private AdminPanelUI? _parent;
+        private Course? saved_course;
+        private Test? saved_test;
+
         private StepMethodCallback _stepMethodCallback;
-        private ValidateVM _validateVM;
+        private StepMethodCallbackTest _stepMethodCallbackTest;
+        private StepMethodCallbackCourse _stepMethodCallbackCourse;
+        private ReportVM _report;
 
         void voidStepCallback(AdminPanelUI parent) { }
+        void voidStepCallbackTest(AdminPanelUI parent, Test? t) { }
+        void voidStepCallbackCourse(AdminPanelUI parent, Course? c) { }
 
-        public AdminPanelUIMV(MainWindow mainWindow)
+        public AdminPanelUIVM(MainWindow mainWindow)
         {
             _stepMethodCallback = voidStepCallback;
+            _stepMethodCallbackTest = voidStepCallbackTest;
+            _stepMethodCallbackCourse = voidStepCallbackCourse;
             _mainwindow = mainWindow;
-            _validateVM = new ValidateVM();
+            _report = new ReportVM(this);
         }
 
         public void CallbackClick(AdminPanelUI parent)
         {
+            if (saved_test != null)
+                Debug.Print(saved_test.Name);
+            _parent = parent;
             _stepMethodCallback(parent);
-            parent.CallbackButton.Visibility = Visibility.Collapsed;
+            _stepMethodCallbackTest(parent, saved_test);
+            _stepMethodCallbackCourse(parent, saved_course);
+            parent.ResetParams();
+            ResetCallback(parent);
         }
 
         public void GoBack()
@@ -42,12 +60,8 @@ namespace BD.ViewModels
 
         public void ReturnAllUsersFromDB(AdminPanelUI parent)
         {
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "User list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "All Users list");
+
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
@@ -57,12 +71,6 @@ namespace BD.ViewModels
             {
                 AutoGenerateColumns = false,
                 CanUserAddRows = false,
-                //Style = (Style)Application.Current.Resources["CustomDataGridStyle"]
-                //Margin = new Thickness(10),
-                //AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                //Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                //BorderThickness = new Thickness(2),
-                //BorderBrush = System.Windows.Media.Brushes.Black
             };
 
             myDataGrid.Columns.Add(new DataGridTextColumn
@@ -147,6 +155,7 @@ namespace BD.ViewModels
                             parent.type = User.TYPE.Admin;
                             break;
                     }
+                    setupCallback(ReturnAllUsersFromDB);
                 }
             };
             context.Items.Add(item);
@@ -164,8 +173,10 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveUser(user);
-                        MessageBox.Show($"User has been removed.");
+                        if (App.DBConnection.RemoveUser(user))
+                            MessageBox.Show($"User has been removed.", "Remove user", MessageBoxButton.OK);
+                        else
+                            MessageBox.Show("Operation failed.", "Remove user", MessageBoxButton.OK, MessageBoxImage.Error);
                         ReturnAllUsersFromDB(parent);
                     }
                 }
@@ -184,17 +195,188 @@ namespace BD.ViewModels
             parent.outputGrid.Children.Add(myDataGrid);
         }
 
+        // Add common logic methods, like one for DataGrid
+        void returnMainTeacherAndAllStudents(AdminPanelUI parent, Course? c)
+        {
+            preLogic(parent, $"Teacher list for {c.Name}");
+
+            saved_course = c;
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
+            };
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false,
+                CanUserAddRows = false,
+            };
+            myDataGrid.Style = customDataGridStyle;
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Login",
+                Binding = new System.Windows.Data.Binding("Login"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Email",
+                Binding = new System.Windows.Data.Binding("Email"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "First Name",
+                Binding = new System.Windows.Data.Binding("FirstName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Last Name",
+                Binding = new System.Windows.Data.Binding("LastName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "User role",
+                Binding = new System.Windows.Data.Binding("UserType"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            var context = new ContextMenu();
+            var item = new MenuItem { Header = "Modify User" };
+            item.Click += (s, e) => // LAMBDA SUPREMACY
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    parent.TargetChangeID = user.ID;
+                    AddNewUser(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+                    var login = stacking_panel.Children[1] as TextBox;
+                    var email = stacking_panel.Children[3] as TextBox;
+                    var fname = stacking_panel.Children[5] as TextBox;
+                    var lname = stacking_panel.Children[7] as TextBox;
+                    var pass = stacking_panel.Children[9] as TextBox;
+                    var radio_panel = stacking_panel.Children[11] as StackPanel;
+
+                    login.Text = user.Login;
+                    email.Text = user.Email;
+                    fname.Text = user.FirstName;
+                    lname.Text = user.LastName;
+                    pass.Text = "";
+                    switch (user.UserType)
+                    {
+                        case User.TYPE.Student:
+                        case User.TYPE.Guest:
+                            (radio_panel.Children[0] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Student;
+                            break;
+
+                        case User.TYPE.Teacher:
+                            (radio_panel.Children[1] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Teacher;
+                            break;
+
+                        case User.TYPE.Admin:
+                            (radio_panel.Children[2] as RadioButton).IsChecked = true;
+                            parent.type = User.TYPE.Admin;
+                            break;
+                    }
+                    setupCallback(returnMainTeacherAndAllStudents);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Delete User" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {user.Login}?",
+                            "Remove user",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveUser(user);
+                        MessageBox.Show($"User has been removed.");
+                        returnMainTeacherAndAllStudents(parent, c);
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem() { Header = "Delete User from course" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is User user)
+                {
+                    if (user.UserType == User.TYPE.Admin || user.UserType == User.TYPE.Teacher)
+                    {
+                        MessageBox.Show(
+                            "You cannot remove teacher from course",
+                            "Remove user from course",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information
+                            );
+                        return;
+                    }
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {user.Login} from course {c.Name}?",
+                            "Remove user from course",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveCourseToStudent(c, user);
+                        MessageBox.Show($"User has been removed.");
+                        returnMainTeacherAndAllStudents(parent, c);
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            context = universalItems(parent, context, ReturnAllUsersFromDB);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+            myDataGrid.RowStyle = style;
+
+            var list = new List<User>();
+            list.Add(c.Teachers[0]);
+            var student_list = App.DBConnection.ReturnConnectedStudentsToCourse(c);
+            foreach (int id in student_list)
+                list.Add(App.DBConnection.GetUserByID(id));
+            Debug.Print(list.Count.ToString());
+            myDataGrid.ItemsSource = list;
+            parent.outputGrid.Children.Add(myDataGrid);
+        }
+
         // Add error handling
         public void AddNewUser(AdminPanelUI parent)
         {
+            string title;
             if (parent.TargetChangeID != -1)
-                Debug.Print($"User id to change: {parent.TargetChangeID}");
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new User";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+                title = $"Update User {parent.TargetChangeID}";
+            else
+                title = "Create new User";
+            preLogic(parent, title);
+
             parent.type = User.TYPE.Student;
 
 
@@ -365,8 +547,13 @@ namespace BD.ViewModels
                         !string.IsNullOrEmpty(lname.Text))
                     {
                         User u = new User(parent.TargetChangeID, login.Text, pass.Text, email.Text, fname.Text, lname.Text, parent.type);
-                        u.DebugPrintUser();
-
+                        if (!User.ValidateUserData(u))
+                        {
+                            MessageBox.Show("Invalid email or password.", "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            pass.Text = "";
+                            login.Text = "Operation failed";
+                            return;
+                        }
                         if (parent.TargetChangeID > -1)
                         {
                             if (!App.DBConnection.UpdateUser(u, string.IsNullOrEmpty(pass.Text)).IsEmpty())
@@ -376,11 +563,15 @@ namespace BD.ViewModels
                             }
                             Debug.Print("Update failed, trying to add new User");
                         }
-                        if (App.DBConnection.AddUser(u))
+                        bool c;
+                        string err;
+                        (c, err) = App.DBConnection.AddUser(u);
+                        if (c)
                         {
                             ReturnAllUsersFromDB(parent);
                             return;
                         }
+                        MessageBox.Show(err, "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     pass.Text = "";
                     login.Text = "Operation failed";
@@ -394,9 +585,10 @@ namespace BD.ViewModels
             parent.outputGrid.ContextMenu = menu;
         }
 
-
         public void ShowMenu(AdminPanelUI parent)
         {
+            _parent = parent;
+
             Debug.Print($"Show menu: {showMenu}");
             if (showMenu == false)
             {
@@ -412,6 +604,8 @@ namespace BD.ViewModels
 
         public void CloseMenu(AdminPanelUI parent)
         {
+            _parent = parent;
+
             parent.showToolBox.SetValue(Grid.ColumnProperty, 1);
             showMenu = false;
             parent.menuColumn.Width = new System.Windows.GridLength(0, GridUnitType.Star);
@@ -419,11 +613,7 @@ namespace BD.ViewModels
 
         public void ShowGreetPanel(AdminPanelUI parent)
         {
-            parent.mainTitle.Text = $"Welcome, {App.CurrentUser.GetFullName()}";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, $"Welcome, {App.CurrentUser.GetFullName()}");
 
             var stacking_panel = new StackPanel()
             {
@@ -444,12 +634,8 @@ namespace BD.ViewModels
 
         public void ReturnAllQuestionsFromDB(AdminPanelUI parent)
         {
-            parent.mainTitle.Text = "Question list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
-            
+            preLogic(parent, "Question list");
+
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
@@ -503,7 +689,7 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("Points"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            
+
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "Type",
@@ -517,104 +703,22 @@ namespace BD.ViewModels
                 Binding = new System.Windows.Data.Binding("Shared"),
                 Width = new DataGridLength(20, DataGridLengthUnitType.Star)
             });
-            
+
             var context = new ContextMenu();
 
             var item = new MenuItem { Header = "Show answers for question" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Question question)
-                {
-                    ReturnAnswerForQuestion(parent, question.ID);
-                }
-            };
+            // Setup Callback manual
+            ResetCallback(parent);
+            _stepMethodCallback = ReturnAllQuestionsFromDB;
+            item.Click += showAnswerForQuestion;
             context.Items.Add(item);
 
             item = new MenuItem() { Header = "Update question" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Question q)
-                {
-                    parent.TargetChangeID = q.ID;
-                    AddNewQuestion(parent);
-                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
-                    var name = (stacking_panel.Children[1] as TextBox);
-                    var cat = (stacking_panel.Children[3] as TextBox);
-                    var points = (stacking_panel.Children[5] as TextBox);
-                    var text = (stacking_panel.Children[9] as TextBox);
-                    var answ1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn1 = ((stacking_panel.Children[10] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
-                    var answ2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn2 = ((stacking_panel.Children[10] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
-                    var answ3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn3 = ((stacking_panel.Children[10] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
-                    var answ4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
-                    var asnwBttn4 = ((stacking_panel.Children[10] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
-                    var a = App.DBConnection.FetchAnswer(q.AnswerID);
-                    parent.TargetChangeIDSecond = q.AnswerID;
-
-                    name.Text = q.Name;
-                    cat.Text = q.Category;
-                    points.Text = q.Points.ToString(CultureInfo.InvariantCulture);
-                    text.Text = q.Text;
-
-                    switch (q.QuestionType)
-                    {
-                        case Question.QUESTION_TYPE.Closed:
-                        case Question.QUESTION_TYPE.Invalid:
-                            parent.typeQuestion = Question.QUESTION_TYPE.Closed;
-                            ((stacking_panel.Children[7] as StackPanel).Children[0] as RadioButton).IsChecked = true;
-                            break;
-
-                        case Question.QUESTION_TYPE.Open:
-                            parent.typeQuestion = Question.QUESTION_TYPE.Open;
-                            ((stacking_panel.Children[7] as StackPanel).Children[1] as RadioButton).IsChecked = true;
-                            break;
-
-                    }
-
-                    var answer_list = a.AnswerBody.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    if (answer_list.Length != 4)
-                    {
-                        answ1.Text = "Invalid answer format";
-                        answ2.Text = "Invalid answer format";
-                        answ3.Text = "Invalid answer format";
-                        answ4.Text = "Invalid answer format";
-                    }
-                    else
-                    {
-                        answ1.Text = answer_list[0];
-                        answ2.Text = answer_list[1];
-                        answ3.Text = answer_list[2];
-                        answ4.Text = answer_list[3];
-                    }
-                    asnwBttn1.IsChecked = ((a.AnswerKey & 1 << 3) >> 3) == 1;
-                    asnwBttn2.IsChecked = ((a.AnswerKey & 1 << 2) >> 2) == 1;
-                    asnwBttn3.IsChecked = ((a.AnswerKey & 1 << 1) >> 1) == 1;
-                    asnwBttn4.IsChecked = ((a.AnswerKey & 1 << 0) >> 0) == 1;
-                }
-            };
+            item.Click += updateQuestion;
             context.Items.Add(item);
 
             item = new MenuItem { Header = "Delete Question" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem && menuItem.DataContext is Question question)
-                {
-                    MessageBoxResult result = MessageBox.Show(
-                            $"Do you want to remove: {question.Name}?",
-                            "Remove question with answer",
-                            MessageBoxButton.YesNo,
-                            MessageBoxImage.Warning
-                        );
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        App.DBConnection.RemoveQuestion(question);
-                        MessageBox.Show($"Question and answer have been removed.");
-                        ReturnAllQuestionsFromDB(parent);
-                    }
-                }
-            };
+            item.Click += deleteQuestion;
             context.Items.Add(item);
             context = universalItems(parent, context, ReturnAllQuestionsFromDB);
 
@@ -629,34 +733,12 @@ namespace BD.ViewModels
 
         public void ReturnAnswerForQuestion(AdminPanelUI parent, int question_id)
         {
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
             var q = App.DBConnection.ReturnQuestionListByID(question_id)[0];
-            var a = App.DBConnection.FetchAnswer(q.AnswerID);
-            parent.mainTitle.Text = $"Answers for question {q.Name}";
-            q.PrintQuestionOnConsole();
+            preLogic(parent, $"Answers for question {q.Name}");
 
             var stacking_panel = new StackPanel();
             stacking_panel.Margin = new Thickness(50, 15, 50, 15);
             parent.outputGrid.Children.Add(stacking_panel);
-
-            var stacking_panel_inner = new StackPanel()
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right,
-            };
-            Button button = new Button()
-            {
-                Content = "Go back"
-            };
-            button.Click += (o, e) =>
-            {
-                ReturnAllQuestionsFromDB(parent);
-            };
-            stacking_panel_inner.Children.Add(button);
-            stacking_panel.Children.Add(stacking_panel_inner);
 
             TextBlock block = new TextBlock()
             {
@@ -678,7 +760,7 @@ namespace BD.ViewModels
             stacking_panel.Children.Add(block);
 
             string[] answer_list;
-            answer_list = a.AnswerBody.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string t = "Correct";
             string t1 = "Incorrect";
             if (answer_list.Length == 4 && q.QuestionType == Question.QUESTION_TYPE.Closed)
@@ -693,7 +775,7 @@ namespace BD.ViewModels
                     var new_stack = new StackPanel();
                     new_stack.Orientation = Orientation.Horizontal;
                     var textBlock = new TextBlock();
-                    string t_this = (a.AnswerKey & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
+                    string t_this = (q.CorrectAnswers & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
                     textBlock.Text = $"{i + 1}. {answer_list[i]} - {t_this}";
                     new_stack.Children.Add(textBlock);
                     uniform.Children.Add(new_stack);
@@ -704,7 +786,7 @@ namespace BD.ViewModels
             {
                 block = new TextBlock()
                 {
-                    Text = a.AnswerBody,
+                    Text = q.Answers,
                 };
                 stacking_panel.Children.Add(block);
 
@@ -717,7 +799,7 @@ namespace BD.ViewModels
                     stacking_panel.Children.Add(block);
                     for (int i = 0; i < 4; i++)
                     {
-                        string t_this = (a.AnswerKey & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
+                        string t_this = (q.CorrectAnswers & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
                         block = new TextBlock()
                         {
                             Text = $"{i + 1}. {t_this}",
@@ -735,12 +817,7 @@ namespace BD.ViewModels
 
         public void ReturnAllCoursesFromDB(AdminPanelUI parent)
         {
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Course list";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "All Course list");
 
             var resourceDictionary = new ResourceDictionary
             {
@@ -752,11 +829,6 @@ namespace BD.ViewModels
             {
                 AutoGenerateColumns = false,
                 Style = customDataGridStyle,
-                /*Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
 
             };
@@ -810,7 +882,19 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Course c)
                 {
-                    ReturnAllTestsFromDB(parent, c.ID);
+                    ReturnAllTestsFromDB(parent, c);
+                    setupCallback(ReturnAllCoursesFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Show all assigned users" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Course c)
+                {
+                    returnMainTeacherAndAllStudents(parent, c);
+                    setupCallback(ReturnAllCoursesFromDB);
                 }
             };
             context.Items.Add(item);
@@ -849,12 +933,13 @@ namespace BD.ViewModels
                             Debug.Print($"Question checked ID: {j}");
                             if (parent.IDs1[i] == j)
                             {
-                                ToggleButton b = (student_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                                CheckBox b = (student_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                                 b.IsChecked = true;
                                 continue;
                             }
                         }
                     }
+                    setupCallback(ReturnAllCoursesFromDB);
                 }
             };
             context.Items.Add(item);
@@ -872,8 +957,10 @@ namespace BD.ViewModels
                         );
                     if (result == MessageBoxResult.Yes)
                     {
-                        App.DBConnection.RemoveCourse(c);
-                        MessageBox.Show($"Course and all connected tests have been removed.");
+                        if (App.DBConnection.RemoveCourse(c))
+                            MessageBox.Show($"Course and all connected tests have been removed.", "Remove course");
+                        else
+                            MessageBox.Show("Operation failed", "Remove course", MessageBoxButton.OK, MessageBoxImage.Error);
                         ReturnAllCoursesFromDB(parent);
                     }
                 }
@@ -893,16 +980,15 @@ namespace BD.ViewModels
             Grid.SetRow(myDataGrid, 1);
         }
 
-        public void ReturnAllTestsFromDB(AdminPanelUI parent, int courseID = -1)
+        public void ReturnAllTestsFromDB(AdminPanelUI parent, Course? c = null)
         {
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Test list";
-            if (courseID > -1)
-                parent.mainTitle.Text += $" for Course {App.DBConnection.ReturnCoursesListWithID(courseID)[0].Name}";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            string title = "Test list";
+            if (c != null && !c.IsEmpty())
+                title += $" for Course {c.Name}";
+
+            preLogic(parent, title);
+            saved_course = c;
+
             var resourceDictionary = new ResourceDictionary
             {
                 Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
@@ -913,16 +999,9 @@ namespace BD.ViewModels
             {
                 AutoGenerateColumns = false,
                 Style = customDataGridStyle,
-                /*Margin = new Thickness(10),
-                AlternatingRowBackground = System.Windows.Media.Brushes.LightGray,
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#82827D")),
-                BorderThickness = new Thickness(2),
-                BorderBrush = System.Windows.Media.Brushes.Black*/
                 CanUserAddRows = false
-
             };
 
-            // Dodanie kolumn
             myDataGrid.Columns.Add(new DataGridTextColumn
             {
                 Header = "ID",
@@ -966,7 +1045,41 @@ namespace BD.ViewModels
             });
 
             var context = new ContextMenu();
-            var item = new MenuItem { Header = "Update test" };
+            var item = new MenuItem() { Header = "Preview test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    ShowTestStats(parent, test);
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Generate Report" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    Debug.Print("\n\n\n\nRemove debug prints!\n\n\n\n");
+                    generateReportForTest(test);
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Archive test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    App.DBConnection.ToggleArchiveTest(test);
+                    ReturnArchivedTestFromDB(parent);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Update test" };
             item.Click += (s, e) =>
             {
                 if (s is MenuItem menuItem && menuItem.DataContext is Test test)
@@ -1003,12 +1116,13 @@ namespace BD.ViewModels
                             Debug.Print($"Question checked ID: {j}");
                             if (parent.IDs1[i] == j)
                             {
-                                ToggleButton b = (question_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                                CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                                 b.IsChecked = true;
                                 continue;
                             }
                         }
                     }
+                    setupCallback(ReturnAllTestsFromDB);
                 }
             };
             context.Items.Add(item);
@@ -1038,27 +1152,26 @@ namespace BD.ViewModels
 
             var style = new Style(typeof(DataGridRow));
             style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+
             myDataGrid.RowStyle = style;
             List<Test> list;
-            if (courseID > -1)
-                list = App.DBConnection.ReturnCourseTestsList(courseID);
+            if (c != null && !c.IsEmpty())
+                list = App.DBConnection.ReturnCourseTestsList(c.ID);
             else
                 list = App.DBConnection.ReturnTestsList();
             myDataGrid.ItemsSource = list;
+            Debug.Print(list.Count.ToString());
             parent.outputGrid.Children.Add(myDataGrid);
         }
 
-        public void AddNewCourse(AdminPanelUI parent)
+        void generateReportForTest(Test t)
         {
-            Debug.Print(parent.type.ToString());
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Course";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
-            parent.ResetParams();
-
+            preLogic(_parent, $"Report screen for test: {t.Name}");
+            int studentsInCourse = t.CourseObject.StudentsCount;
+            int questionInTest = App.DBConnection.ReturnTestQuestionCount(t);
+            double score = App.DBConnection.ReturnTestMaxScore(t);
+            List<User> studentAnswers = App.DBConnection.ReturnStudentsWhoTookTest(t);
+            List<Answer> allAnswers = App.DBConnection.ReturnAllAnswersList(t);
 
             // Załaduj ResourceDictionary z pliku stylów
             var resourceDictionary = new ResourceDictionary
@@ -1066,7 +1179,406 @@ namespace BD.ViewModels
                 Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
             };
 
-            // Dodaj style do zasobów aplikacji (jeśli jeszcze nie zostały dodane)
+            // Dodaj style do zasobów aplikacji (jeśli nie zostały już dodane)
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            _parent.outputGrid.Children.Add(new ScrollViewer()
+            {
+                MaxHeight = double.PositiveInfinity,
+                Content = new StackPanel()
+                {
+                    Margin = new Thickness(50, 15, 50, 15),
+                    Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+                },
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
+            });
+
+            var stacking_panel = (StackPanel)((ScrollViewer)_parent.outputGrid.Children[0]).Content;
+
+            var text_block = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "General"
+            };
+
+            stacking_panel.Children.Add(text_block);
+
+            text_block = new TextBlock()
+            {
+                Text = $"Number of students in course: {studentsInCourse}",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            text_block = new TextBlock()
+            {
+                Text = $"Number of questions in test: {questionInTest}",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            text_block = new TextBlock()
+            {
+                Text = $"Number of students who started the test: {studentAnswers.Count}",
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            stacking_panel.Children.Add(new Separator());
+
+            text_block = new TextBlock()
+            {
+                Text = $"Max score: {score.ToString(CultureInfo.InvariantCulture)}",
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"]
+            };
+            stacking_panel.Children.Add(text_block);
+
+            var results = _report.GenerateResults(allAnswers, t, score);
+
+            var resultsDB = App.DBConnection.ReturnTestResults(t);
+            Report? report;
+            bool reportCheck;
+            (reportCheck, report) = _report.GenerateReport(results, resultsDB);
+            if (reportCheck)
+            {
+#pragma warning disable CS8602
+                double allUsers = report.PassedUsers.Count + report.FailedUsers.Count + report.ToCheckUsers.Count;
+                string passedPercent = (report.PassedUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
+                string failedPercent = (report.FailedUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
+                string checkPercent = (report.ToCheckUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
+
+                text_block = new TextBlock()
+                {
+                    Text = $"Passed: {passedPercent}, Failed: {failedPercent}, To later check: {checkPercent}",
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
+                };
+                stacking_panel.Children.Add(text_block);
+
+                stacking_panel.Children.Add(new Separator()); 
+
+                var stacking_panel_inner = new StackPanel() 
+                {
+                    Style = (Style)Application.Current.Resources["VerticalCenterStackPanelStyle"],
+                };
+                stacking_panel.Children.Add(stacking_panel_inner);
+
+                foreach (Result u in report.PassedUsers)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                        Text = $"{u.Student.GetFullName()}, {u.Feedback}, {u.Points}",
+                    };
+                    StackPanel inner = new StackPanel()
+                    {
+                        Orientation = Orientation.Horizontal,
+                    };
+                    inner.Children.Add(text_block);
+                    stacking_panel_inner.Children.Add(inner);
+
+                }
+                
+                foreach (Result u in report.FailedUsers)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                        Text = $"{u.Student.GetFullName()}, {u.Feedback}, {u.Points}",
+                    };
+                    StackPanel inner = new StackPanel()
+                    {
+                        Orientation = Orientation.Horizontal,
+                    };
+                    inner.Children.Add(text_block);
+                    stacking_panel_inner.Children.Add(inner);
+
+                }
+                
+                foreach (Result u in report.ToCheckUsers)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                        Text = $"{u.Student.GetFullName()}, {u.Feedback}, {u.Points}",
+                    };
+                    StackPanel inner = new StackPanel()
+                    {
+                        Orientation = Orientation.Horizontal,
+                    };
+                    inner.Children.Add(text_block);
+                    stacking_panel_inner.Children.Add(inner);
+
+                }
+
+#pragma warning restore CS8602
+            }
+            else
+            {
+                text_block = new TextBlock()
+                {
+                    Text = $"Test doesn't have necessary data.",
+                    Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"]
+                };
+                stacking_panel.Children.Add(text_block);
+            }
+        }
+
+        public void ReturnAllAnswersFromDB(AdminPanelUI parent)
+        {
+            preLogic(parent, "All Answers list");
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml")
+            };
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false,
+                CanUserAddRows = false,
+            };
+            myDataGrid.Style = customDataGridStyle;
+
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Test name",
+                Binding = new System.Windows.Data.Binding("QuestName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Question name",
+                Binding = new System.Windows.Data.Binding("QuestName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Student name",
+                Binding = new System.Windows.Data.Binding("UserName"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Points",
+                Binding = new System.Windows.Data.Binding("PointsString"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Answer text",
+                Binding = new System.Windows.Data.Binding("AnswerBody"),
+                Width = new DataGridLength(30, DataGridLengthUnitType.Star),
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Key",
+                Binding = new System.Windows.Data.Binding("AnswerKey"),
+                Width = new DataGridLength(10, DataGridLengthUnitType.Star)
+            });
+
+            var context = new ContextMenu();
+            context = universalItems(parent, context, ReturnAllCoursesFromDB);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+            myDataGrid.RowStyle = style;
+
+            var list = App.DBConnection.ReturnAllAnswersList();
+            myDataGrid.ItemsSource = list;
+            parent.outputGrid.Children.Add(myDataGrid);
+
+        }
+
+        public void ReturnArchivedTestFromDB(AdminPanelUI parent)
+        {
+            preLogic(parent, "Archived Test list");
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/DataGridStyles.xaml", UriKind.Absolute)
+            };
+
+            Style customDataGridStyle = (Style)resourceDictionary["CustomDataGridStyle"];
+            DataGrid myDataGrid = new DataGrid
+            {
+                AutoGenerateColumns = false,
+                Style = customDataGridStyle,
+                CanUserAddRows = false
+            };
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "ID",
+                Binding = new System.Windows.Data.Binding("ID"),
+                Width = new DataGridLength(4, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Name",
+                Binding = new System.Windows.Data.Binding("Name"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Category",
+                Binding = new System.Windows.Data.Binding("Category"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Start Date",
+                Binding = new System.Windows.Data.Binding("StartDate"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "End Date",
+                Binding = new System.Windows.Data.Binding("EndDate"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            myDataGrid.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Course name",
+                Binding = new System.Windows.Data.Binding("CourseObject.Name"),
+                Width = new DataGridLength(20, DataGridLengthUnitType.Star)
+            });
+
+            var context = new ContextMenu();
+            var item = new MenuItem() { Header = "Preview test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    ShowTestStats(parent, test);
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "De-archive test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    App.DBConnection.ToggleArchiveTest(test);
+                    if (saved_course != null && !saved_course.IsEmpty())
+                        ReturnAllTestsFromDB(parent, saved_course);
+                    else
+                        ReturnAllTestsFromDB(parent);
+                }
+            };
+            context.Items.Add(item);
+            item = new MenuItem { Header = "Update test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    parent.TargetChangeID = test.ID;
+                    AddNewTest(parent);
+                    StackPanel stacking_panel = parent.outputGrid.Children[0] as StackPanel;
+
+                    var name = (stacking_panel.Children[1] as TextBox);
+                    var cat = (stacking_panel.Children[3] as TextBox);
+                    var cal_start = (stacking_panel.Children[6] as StackPanel).Children[1] as DatePicker;
+                    var cal_end = (stacking_panel.Children[6] as StackPanel).Children[3] as DatePicker;
+                    var question_panel = (stacking_panel.Children[8] as ScrollViewer).Content as StackPanel;
+
+                    name.Text = test.Name;
+                    cat.Text = test.Category;
+                    cal_start.SelectedDate = test.StartDate;
+                    cal_end.SelectedDate = test.EndDate;
+
+                    for (int i = 0; i < parent.radios.Count; i++)
+                    {
+                        if (test.CourseObject.ID == parent.IDs[i])
+                        {
+                            parent.radios[i].IsChecked = true;
+                        }
+                    }
+
+                    var list = App.DBConnection.ReturnConnectedQuestionsToTest(test);
+                    for (int i = 0; i < parent.IDs1.Count; i++)
+                    {
+                        Debug.Print($"Question to check ID: {parent.IDs1[i]}");
+                        foreach (int j in list)
+                        {
+                            Debug.Print($"Question checked ID: {j}");
+                            if (parent.IDs1[i] == j)
+                            {
+                                CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox;
+                                b.IsChecked = true;
+                                continue;
+                            }
+                        }
+                    }
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Remove test" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                            $"Do you want to remove: {test.Name}?",
+                            "Remove single Test",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning
+                        );
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        App.DBConnection.RemoveTest(test);
+                        MessageBox.Show($"Test has been removed.");
+                        ReturnAllTestsFromDB(parent);
+                    }
+                }
+            };
+            context.Items.Add(item);
+
+            context = universalItems(parent, context, ReturnAllCoursesFromDB);
+
+            var style = new Style(typeof(DataGridRow));
+            style.Setters.Add(new Setter(DataGridRow.ContextMenuProperty, context));
+
+            myDataGrid.RowStyle = style;
+            List<Test> list = App.DBConnection.ReturnArchivedTestsList();
+            myDataGrid.ItemsSource = list;
+            Debug.Print(list.Count.ToString());
+            parent.outputGrid.Children.Add(myDataGrid);
+
+        }
+
+        public void AddNewCourse(AdminPanelUI parent)
+        {
+            preLogic(parent, "Create new Course");
+            parent.ResetParams();
+
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
             if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
             {
                 Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
@@ -1182,7 +1694,7 @@ namespace BD.ViewModels
 
 
             // Students
-            text = new TextBlock() 
+            text = new TextBlock()
             {
                 Text = "Select students",
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
@@ -1191,31 +1703,25 @@ namespace BD.ViewModels
 
             scroll = new ScrollViewer()
             {
-                //Style = (Style)Application.Current.Resources["ScrolViewer1"],
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
                 MaxHeight = 150
             };
             stacking_panel_inner = new StackPanel();
             scroll.Content = stacking_panel_inner;
             stacking_panel.Children.Add(scroll);
             var list_students_to_add = App.DBConnection.ReturnStudentList();
-            foreach (User u in list_students_to_add) 
+            foreach (User u in list_students_to_add)
             {
-                var toggle = new ToggleButton() 
+                var toggle = new CheckBox()
                 {
-                    Content = "X",
-                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
+                    Style = (Style)Application.Current.Resources["FormCheckBoxStyle"],
+                    Content = u.GetFullName(),
                 };
-                text = new TextBlock()
-                {
-                    Text = u.GetFullName(),
-                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
-                };
-                StackPanel inner = new StackPanel() 
+                StackPanel inner = new StackPanel()
                 {
                     Orientation = Orientation.Horizontal,
                 };
                 inner.Children.Add(toggle);
-                inner.Children.Add(text);
                 stacking_panel_inner.Children.Add(inner);
 
                 parent.IDs1.Add(u.ID);
@@ -1247,7 +1753,7 @@ namespace BD.ViewModels
 
                 for (int i = 0; i < student_panel.Children.Count; i++)
                 {
-                    ToggleButton t = (student_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                    CheckBox t = (student_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                     if (t != null && t.IsChecked == true)
                     {
                         student_list.Add(list_students_to_add[i]);
@@ -1263,7 +1769,7 @@ namespace BD.ViewModels
 
                 User u = App.DBConnection.GetUserByID(teach);
                 Course c = new Course(parent.TargetChangeID, name.Text, cat.Text, new List<User>([u]));
-              
+
                 if (desc != null && !string.IsNullOrEmpty(desc.Text))
                 {
                     c.Description = desc.Text;
@@ -1273,7 +1779,7 @@ namespace BD.ViewModels
                 {
                     if (!App.DBConnection.UpdateCourse(c).IsEmpty())
                     {
-                        if (!App.DBConnection.UpdateCourseToStudent(c, student_list)) 
+                        if (!App.DBConnection.UpdateCourseToStudent(c, student_list))
                         {
                             Debug.Print("Updating Course-Student failed");
                         }
@@ -1307,13 +1813,7 @@ namespace BD.ViewModels
 
         public void AddNewTest(AdminPanelUI parent)
         {
-            Debug.Print(parent.type.ToString());
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Test";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "Create new Test");
             parent.ResetParams();
 
             // Load ResourceDictionary for styles
@@ -1488,10 +1988,9 @@ namespace BD.ViewModels
                     Style = (Style)Application.Current.Resources["FormInnerStackPanelStyle"]
                 };
 
-                var toggle = new ToggleButton
+                var toggle = new CheckBox
                 {
-                    Content = "X",
-                    Style = (Style)Application.Current.Resources["FormToggleButtonStyle"]
+
                 };
 
                 textBlock = new TextBlock
@@ -1531,7 +2030,7 @@ namespace BD.ViewModels
                 }
                 for (int i = 0; i < question_panel.Children.Count; i++)
                 {
-                    ToggleButton b = (question_panel.Children[i] as StackPanel).Children[0] as ToggleButton;
+                    CheckBox b = (question_panel.Children[i] as StackPanel).Children[0] as CheckBox;
                     if (b.IsChecked == true)
                     {
                         question_list.Add(list1[i]);
@@ -1568,7 +2067,7 @@ namespace BD.ViewModels
                     t.ID = id_test;
                     if (!App.DBConnection.ConnectTestToQuestion(t, question_list))
                         Debug.Print("Connecting test-question failed");
-                    ReturnAllTestsFromDB(parent, course);
+                    ReturnAllTestsFromDB(parent, c);
                 }
                 else
                 {   // Add error handling
@@ -1580,21 +2079,17 @@ namespace BD.ViewModels
 
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
-            menu = universalItems(parent, menu, AddNewTest);
+            saved_course = null;
+            menu = universalItems(parent, menu, ReturnAllTestsFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
-
 
         public void AddNewQuestion(AdminPanelUI parent)
         {
             if (parent.TargetChangeID != -1)
                 Debug.Print($"User id to change: {parent.TargetChangeID}");
-            // Basic stuff, title and reset body
-            parent.mainTitle.Text = "Create new Question";
-            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
-            {
-                parent.outputGrid.Children.RemoveAt(0);
-            }
+            preLogic(parent, "Create new Question");
+
             parent.ResetParams();
             parent.typeQuestion = Question.QUESTION_TYPE.Closed;
 
@@ -1659,13 +2154,45 @@ namespace BD.ViewModels
             };
             stacking_panel.Children.Add(input);
 
+            // Question type & shared
+            Grid inner = new Grid() // Change to grid??????
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(150, 0, 150, 0)
+            };
+            var def = new ColumnDefinition()
+            {
+                Width = new GridLength(1, GridUnitType.Star),
+            };
+            inner.ColumnDefinitions.Add(def);
+            def = new ColumnDefinition()
+            {
+                Width = new GridLength(1, GridUnitType.Star),
+            };
+            inner.ColumnDefinitions.Add(def);
+            stacking_panel.Children.Add(inner);
+
+            StackPanel inner_radio = new StackPanel()
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+            StackPanel inner_shared = new StackPanel()
+            {
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            Grid.SetColumn(inner_radio, 0);
+            Grid.SetColumn(inner_shared, 1);
+            inner.Children.Add(inner_radio);
+            inner.Children.Add(inner_shared);
+
             // Question type
             text = new TextBlock
             {
                 Text = "Question type",
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
-            stacking_panel.Children.Add(text);
+            inner_radio.Children.Add(text);
 
             var radio_panel = new StackPanel
             {
@@ -1702,14 +2229,30 @@ namespace BD.ViewModels
                 }
             };
             radio_panel.Children.Add(radio);
+            // stacking_panel 6 -> inner 0 -> inner_radio 1 -> radio_panel x -> RadioButton
+            inner_radio.Children.Add(radio_panel);
 
-            stacking_panel.Children.Add(radio_panel);
+            // Shared check
+            text = new TextBlock()
+            {
+                Text = "Queston visibility",
+                ToolTip = (new ToolTip().Content = "Select if question should be seen in Question Pool."),
+                Style = (Style)Application.Current.Resources["FormLabelStyle"]
+            };
+            inner_shared.Children.Add(text);
+
+            var toggle_shared = new ToggleButton()
+            {
+                Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"],
+            };
+            inner_shared.Children.Add(toggle_shared);
 
             // Question body
+            // Add ScrollViewer????
             text = new TextBlock
             {
                 Text = "Question body",
-                
+
                 Style = (Style)Application.Current.Resources["FormLabelStyle"]
             };
             stacking_panel.Children.Add(text);
@@ -1728,7 +2271,8 @@ namespace BD.ViewModels
             {
                 Columns = 2,
                 Rows = 2,
-                Style = (Style)Application.Current.Resources["FormUniformGridStyle"]
+                //Style = (Style)Application.Current.Resources["FormUniformGridStyle"]    BRUH it doesn't exist. Thanks Karol, you fucked up again, again, again, again, again, again, again, again, again, again, again...
+                Margin = new Thickness(100, 30, 100, 0),
             };
 
             for (int i = 0; i < 4; i++)
@@ -1736,12 +2280,13 @@ namespace BD.ViewModels
                 var new_stack = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
+                    HorizontalAlignment = HorizontalAlignment.Center,
                     Style = (Style)Application.Current.Resources["CustomStackPanelStyle"]
                 };
 
                 var toggle = new ToggleButton
                 {
-                    
+
                     Style = (Style)Application.Current.Resources["CustomToggleButtonStyle"]
                 };
 
@@ -1767,20 +2312,21 @@ namespace BD.ViewModels
 
             bttn.Click += (o, e) =>
             {
-                var name = stacking_panel.Children[1] as TextBox;
-                var cat = stacking_panel.Children[3] as TextBox;
-                var points = stacking_panel.Children[5] as TextBox;
-                var questionText = stacking_panel.Children[9] as TextBox;
+                var name = (stacking_panel.Children[1] as TextBox);
+                var cat = (stacking_panel.Children[3] as TextBox);
+                var points = (stacking_panel.Children[5] as TextBox);
+                var questionText = (stacking_panel.Children[8] as TextBox);
 
-                var uniformGrid = stacking_panel.Children[10] as UniformGrid;
-                var answ1 = (uniformGrid.Children[0] as StackPanel).Children[1] as TextBox;
-                var asnwBttn1 = (uniformGrid.Children[0] as StackPanel).Children[0] as ToggleButton;
-                var answ2 = (uniformGrid.Children[1] as StackPanel).Children[1] as TextBox;
-                var asnwBttn2 = (uniformGrid.Children[1] as StackPanel).Children[0] as ToggleButton;
-                var answ3 = (uniformGrid.Children[2] as StackPanel).Children[1] as TextBox;
-                var asnwBttn3 = (uniformGrid.Children[2] as StackPanel).Children[0] as ToggleButton;
-                var answ4 = (uniformGrid.Children[3] as StackPanel).Children[1] as TextBox;
-                var asnwBttn4 = (uniformGrid.Children[3] as StackPanel).Children[0] as ToggleButton;
+                var shared = ((stacking_panel.Children[6] as Grid).Children[1] as StackPanel).Children[1] as ToggleButton;
+                var answ1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
+                var asnwBttn1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
+                var answ2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
+                var asnwBttn2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
+                var answ3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
+                var asnwBttn3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
+                var answ4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
+                var asnwBttn4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+
 
                 if (name != null && cat != null && points != null && questionText != null && answ1 != null && answ2 != null && answ3 != null && answ4 != null)
                 {
@@ -1797,15 +2343,13 @@ namespace BD.ViewModels
                     answ += answ2.Text + "\n";
                     answ += answ3.Text + "\n";
                     answ += answ4.Text;
-                    Question q = new Question(name.Text, questionText.Text, parent.typeQuestion, answ, p, key, cat.Text);
+                    Question q = new Question(name.Text, questionText.Text, parent.typeQuestion, answ, p, key, cat.Text, shared.IsChecked == true);
                     q.ID = parent.TargetChangeID;
-                    q.AnswerID = parent.TargetChangeIDSecond;
                     q.PrintQuestionOnConsole();
                     if (parent.TargetChangeID > -1)
                     {
                         Question q1;
-                        Answer a1;
-                        (q1, a1) = App.DBConnection.UpdateQuestion(q);
+                        q1 = App.DBConnection.UpdateQuestion(q);
                         if (!q1.IsEmpty())
                         {
                             ReturnAllQuestionsFromDB(parent);
@@ -1813,6 +2357,7 @@ namespace BD.ViewModels
                         }
                         Debug.Print("Update failed, trying to add new Question");
                     }
+                    Debug.Print("Creating new Question");
                     if (App.DBConnection.AddQuestion(q))
                     {
                         ReturnAllQuestionsFromDB(parent);
@@ -1831,11 +2376,229 @@ namespace BD.ViewModels
 
             // Stacking_panel contex menu
             ContextMenu menu = new ContextMenu();
-            menu = universalItems(parent, menu, AddNewQuestion);
+            menu = universalItems(parent, menu, ReturnAllQuestionsFromDB);
             parent.outputGrid.ContextMenu = menu;
         }
 
+        // Add better callback logic
+        void ShowTestStats(AdminPanelUI parent, Test? t)
+        {
+            preLogic(parent, $"Test {t.Name} preview");
+
+            if (t == null || t.IsEmpty())
+                ReturnAllTestsFromDB(parent);
+            saved_test = t;
+            parent.ResetParams();
+            if (parent.outputGrid == null)
+                return;
+
+            // Load ResourceDictionary for styles
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
+            // Main stack panel
+            StackPanel stacking_panel = new StackPanel()
+            {
+                Style = (Style)Application.Current.Resources["FormStackPanelStyle"]
+            };
+            parent.outputGrid.Children.Add(stacking_panel);
+
+            List<Question> questions = App.DBConnection.ReturnQuestionListByTest(t);
+
+            // General
+            var text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "General:",
+            };
+            stacking_panel.Children.Add(text);
+
+            // Score
+            double score = 0;
+            var text_score = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Max points: "
+            };
+            stacking_panel.Children.Add(text_score);
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Category: " + t.Category
+            };
+            stacking_panel.Children.Add(text);
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Course: " + $"{t.CourseObject.Name}, {t.CourseObject.MainTeacherName}"
+            };
+            stacking_panel.Children.Add(text);
+
+            stacking_panel.Children.Add(new Separator());
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "Questions:",
+            };
+            stacking_panel.Children.Add(text);
+
+            // Question list 
+            StackPanel inner = new StackPanel();
+            ScrollViewer scroll = new ScrollViewer()
+            {
+                Style = (Style)Application.Current.Resources["FormScrollViewerStyle"],
+                MaxHeight = 200
+            };
+            scroll.Content = inner;
+            stacking_panel.Children.Add(scroll);
+            foreach (Question quest in questions)
+            {
+                ContextMenu context = new ContextMenu()
+                {
+
+                };
+
+                var item = new MenuItem { Header = "Show answers for question", DataContext = quest };
+                // Setup callback manual
+                ResetCallback(parent);
+                saved_test = t;
+                _stepMethodCallbackTest = ShowTestStats;
+                item.Click += showAnswerForQuestion;
+                context.Items.Add(item);
+
+                item = new MenuItem() { Header = "Update question", DataContext = quest };
+                item.Click += updateQuestion;
+                context.Items.Add(item);
+
+                item = new MenuItem { Header = "Delete Question", DataContext = quest };
+                item.Click += deleteQuestion;
+                context.Items.Add(item);
+
+                context = universalItems(parent, context, ShowTestStats);
+
+                TextBlock text_inner = new TextBlock()
+                {
+                    Text = quest.Name + ", " + quest.Points.ToString(CultureInfo.InvariantCulture) + ", " + /*Which answers are correct*/ quest.ReturnCorrectAnswerString(),
+                    ContextMenu = context,
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"]
+                };
+
+                inner.Children.Add(text_inner);
+
+                score += quest.Points;
+            }
+            // Max score
+            text_score.Text += score.ToString(CultureInfo.InvariantCulture);
+            stacking_panel.Children.Add(new Separator());
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                Text = "Time frame:",
+            };
+            stacking_panel.Children.Add(text);
+
+            inner = new StackPanel()
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            stacking_panel.Children.Add(inner);
+
+            // Add if test stared or has ended
+            // Start date
+            StackPanel inner1 = new StackPanel()
+            {
+                Margin = new Thickness(5),
+            };
+            inner.Children.Add(inner1);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "Start date:"
+            };
+            inner1.Children.Add(text);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = t.StartDate.ToString(),
+            };
+            inner1.Children.Add(text);
+
+            // End date
+            inner1 = new StackPanel()
+            {
+                Margin = new Thickness(5),
+            };
+            inner.Children.Add(inner1);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = "End date:"
+            };
+            inner1.Children.Add(text);
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = t.EndDate.ToString()
+            };
+            inner1.Children.Add(text);
+        }
+
+        public void ResetCallback(AdminPanelUI parent)
+        {
+            _parent = parent;
+
+            _stepMethodCallback = voidStepCallback;
+            _stepMethodCallbackTest = voidStepCallbackTest;
+            _stepMethodCallbackCourse = voidStepCallbackCourse;
+            parent.CallbackButton.Visibility = Visibility.Collapsed;
+        }
+
+        void setupCallback(StepMethodCallback callback)
+        {
+            setupCallback(callback, voidStepCallbackTest, voidStepCallbackCourse);
+        }
+
+        void setupCallback(StepMethodCallbackCourse callbackC)
+        {
+            setupCallback(voidStepCallback, voidStepCallbackTest, callbackC);
+        }
+
+        void setupCallback(StepMethodCallback callback, StepMethodCallbackTest callbackT, StepMethodCallbackCourse callbackC)
+        {
+            _stepMethodCallback = callback;
+            _stepMethodCallbackTest = callbackT;
+            _stepMethodCallbackCourse = callbackC;
+            _parent.CallbackButton.Visibility = Visibility.Visible;
+        }
+
         ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback)
+        {
+            return universalItems(parent, addTo, callback, voidStepCallbackTest, voidStepCallbackCourse);
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallbackTest callbackT)
+        {
+            return universalItems(parent, addTo, voidStepCallback, callbackT, voidStepCallbackCourse);
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallbackCourse callbackC)
+        {
+            return universalItems(parent, addTo, voidStepCallback, voidStepCallbackTest, callbackC);
+        }
+
+        ContextMenu universalItems(AdminPanelUI parent, ContextMenu addTo, StepMethodCallback callback, StepMethodCallbackTest callbackT, StepMethodCallbackCourse callbackC)
         {
             addTo.Items.Add(new Separator()); // Users
             var item = new MenuItem { Header = "Add new User" };
@@ -1844,8 +2607,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewUser(parent);
                 }
             };
@@ -1858,8 +2620,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewUser(parent);
                 }
             };
@@ -1872,8 +2633,7 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewQuestion(parent);
                 }
             };
@@ -1884,7 +2644,7 @@ namespace BD.ViewModels
             {
                 if (s is MenuItem menuItem)
                 {
-                    _validateVM.ValidateQuestions();
+                    _report.ValidateQuestions();
                 }
             };
 
@@ -1896,14 +2656,126 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem)
                 {
                     parent.TargetChangeID = -1;
-                    _stepMethodCallback = callback;
-                    parent.CallbackButton.Visibility = Visibility.Visible;
+                    setupCallback(callback, callbackT, callbackC);
                     AddNewTest(parent);
                 }
             };
             addTo.Items.Add(item);
             return addTo;
         }
-    }
 
+        void updateQuestion(object s, RoutedEventArgs e)
+        {
+            if (s is MenuItem menu && menu.DataContext is Question q)
+            {
+                if (_parent == null)
+                    return;
+                _parent.TargetChangeID = q.ID;
+                AddNewQuestion(_parent);
+                StackPanel stacking_panel = _parent.outputGrid.Children[0] as StackPanel;
+                var name = (stacking_panel.Children[1] as TextBox);
+                var cat = (stacking_panel.Children[3] as TextBox);
+                var points = (stacking_panel.Children[5] as TextBox);
+                var text = (stacking_panel.Children[8] as TextBox);
+
+                var shared = ((stacking_panel.Children[6] as Grid).Children[1] as StackPanel).Children[1] as ToggleButton;
+                var answ1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[1] as TextBox;
+                var asnwBttn1 = ((stacking_panel.Children[9] as UniformGrid).Children[0] as StackPanel).Children[0] as ToggleButton;
+                var answ2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[1] as TextBox;
+                var asnwBttn2 = ((stacking_panel.Children[9] as UniformGrid).Children[1] as StackPanel).Children[0] as ToggleButton;
+                var answ3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[1] as TextBox;
+                var asnwBttn3 = ((stacking_panel.Children[9] as UniformGrid).Children[2] as StackPanel).Children[0] as ToggleButton;
+                var answ4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[1] as TextBox;
+                var asnwBttn4 = ((stacking_panel.Children[9] as UniformGrid).Children[3] as StackPanel).Children[0] as ToggleButton;
+
+                name.Text = q.Name;
+                cat.Text = q.Category;
+                points.Text = q.Points.ToString(CultureInfo.InvariantCulture);
+                text.Text = q.Text;
+
+                switch (q.QuestionType)
+                {
+                    case Question.QUESTION_TYPE.Closed:
+                    case Question.QUESTION_TYPE.Invalid:
+                        _parent.typeQuestion = Question.QUESTION_TYPE.Closed;
+                        ((((stacking_panel.Children[6] as Grid).Children[0] as StackPanel).Children[1] as StackPanel).Children[0] as RadioButton).IsChecked = true;
+                        break;
+
+                    case Question.QUESTION_TYPE.Open:
+                        _parent.typeQuestion = Question.QUESTION_TYPE.Open;
+                        ((((stacking_panel.Children[6] as Grid).Children[0] as StackPanel).Children[1] as StackPanel).Children[1] as RadioButton).IsChecked = true;
+                        break;
+
+                }
+
+                shared.IsChecked = q.Shared;
+
+                var answer_list = q.Answers.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (answer_list.Length != 4)
+                {
+                    answ1.Text = "Invalid answer format";
+                    answ2.Text = "Invalid answer format";
+                    answ3.Text = "Invalid answer format";
+                    answ4.Text = "Invalid answer format";
+                }
+                else
+                {
+                    answ1.Text = answer_list[0];
+                    answ2.Text = answer_list[1];
+                    answ3.Text = answer_list[2];
+                    answ4.Text = answer_list[3];
+                }
+                asnwBttn1.IsChecked = ((q.CorrectAnswers & 1 << 3) >> 3) == 1;
+                asnwBttn2.IsChecked = ((q.CorrectAnswers & 1 << 2) >> 2) == 1;
+                asnwBttn3.IsChecked = ((q.CorrectAnswers & 1 << 1) >> 1) == 1;
+                asnwBttn4.IsChecked = ((q.CorrectAnswers & 1 << 0) >> 0) == 1;
+                _parent.CallbackButton.Visibility = Visibility.Visible;
+            }
+
+        }
+
+        void showAnswerForQuestion(object s, RoutedEventArgs e)
+        {
+            if (s is MenuItem menuItem && menuItem.DataContext is Question question)
+            {
+                if (_parent == null)
+                    return;
+                ReturnAnswerForQuestion(_parent, question.ID);
+                _parent.CallbackButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        void deleteQuestion(object s, RoutedEventArgs e)
+        {
+            if (s is MenuItem menuItem && menuItem.DataContext is Question question)
+            {
+                if (_parent == null)
+                    return;
+
+                MessageBoxResult result = MessageBox.Show(
+                        $"Do you want to remove: {question.Name}?",
+                        "Remove question with answer",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning
+                    );
+                if (result == MessageBoxResult.Yes)
+                {
+                    App.DBConnection.RemoveQuestion(question);
+                    MessageBox.Show($"Question and answer have been removed.");
+                    ReturnAllQuestionsFromDB(_parent);
+                }
+            }
+        }
+
+        void preLogic(AdminPanelUI parent, string title)
+        {
+            _parent = parent;
+            parent.mainTitle.Text = title;
+
+            if (parent.outputGrid != null && parent.outputGrid.Children.Count > 0)
+            {
+                parent.outputGrid.Children.RemoveRange(0, parent.outputGrid.Children.Count);
+            }
+        }
+    }
 }
