@@ -43,9 +43,9 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <TextBlock x:Name="mainTitle" Text="Output" TextWrapping="WrapWithOverflow" 
-                           FontSize="18" TextAlignment="Center" FontWeight="Bold"
-                           HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Padding="5" Margin="5" >
+                           FontSize="19" TextAlignment="Center" FontWeight="Bold"
+                           HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                           Padding="5" Margin="5" Foreground="White" >
                 </TextBlock>
                 <Button x:Name="CallbackButton" Grid.Row="0" HorizontalAlignment="Right" Click="Callback_Click" Visibility="Collapsed">
                     <TextBlock>Return</TextBlock>
