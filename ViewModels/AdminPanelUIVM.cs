@@ -1257,9 +1257,9 @@ namespace BD.ViewModels
                 };
                 stacking_panel.Children.Add(text_block);
 
-                stacking_panel.Children.Add(new Separator()); 
+                stacking_panel.Children.Add(new Separator());
 
-                var stacking_panel_inner = new StackPanel() 
+                var stacking_panel_inner = new StackPanel()
                 {
                     Style = (Style)Application.Current.Resources["VerticalCenterStackPanelStyle"],
                 };
@@ -1280,7 +1280,7 @@ namespace BD.ViewModels
                     stacking_panel_inner.Children.Add(inner);
 
                 }
-                
+
                 foreach (Result u in report.FailedUsers)
                 {
                     text_block = new TextBlock()
@@ -1296,7 +1296,7 @@ namespace BD.ViewModels
                     stacking_panel_inner.Children.Add(inner);
 
                 }
-                
+
                 foreach (Result u in report.ToCheckUsers)
                 {
                     text_block = new TextBlock()
@@ -1324,6 +1324,15 @@ namespace BD.ViewModels
                 };
                 stacking_panel.Children.Add(text_block);
             }
+
+            // Context menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(_parent, menu, ReturnAllQuestionsFromDB);
+            _parent.outputGrid.ContextMenu = menu;
+
+            menu = new ContextMenu();
+            menu = universalItems(_parent, menu, ReturnAllQuestionsFromDB);
+            stacking_panel.ContextMenu = menu;
         }
 
         public void ReturnAllAnswersFromDB(AdminPanelUI parent)
@@ -1469,6 +1478,18 @@ namespace BD.ViewModels
                 if (s is MenuItem menuItem && menuItem.DataContext is Test test)
                 {
                     ShowTestStats(parent, test);
+                    setupCallback(ReturnAllTestsFromDB);
+                }
+            };
+            context.Items.Add(item);
+
+            item = new MenuItem { Header = "Generate Report" };
+            item.Click += (s, e) =>
+            {
+                if (s is MenuItem menuItem && menuItem.DataContext is Test test)
+                {
+                    Debug.Print("\n\n\n\nRemove debug prints!\n\n\n\n");
+                    generateReportForTest(test);
                     setupCallback(ReturnAllTestsFromDB);
                 }
             };
