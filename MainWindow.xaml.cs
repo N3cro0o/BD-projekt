@@ -29,7 +29,7 @@ namespace BD
             _Title = Title;
             Logged = false;
 
-            ChangeAdminPanelV2DataContext();
+            ChangeMainPageDataContext();
         }
 
         public void ChangeMainPageDataContext()
