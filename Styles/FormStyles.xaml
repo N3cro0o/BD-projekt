@@ -2,12 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style TargetType="TextBlock" x:Key="FormLabelStyle">
-        <Setter Property="FontSize" Value="14" />
-		<Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Margin" Value="0,10,0,5" />
         <Setter Property="Foreground" Value="White" />
     </Style>
+
 
     <Style TargetType="TextBlock" x:Key="FormLabelHeaderStyle">
         <Setter Property="FontSize" Value="24" />
@@ -18,14 +19,36 @@
     </Style>
 
     <Style TargetType="TextBox" x:Key="FormInputStyle">
-        <Setter Property="Margin" Value="0,0,0,10" />
-        <Setter Property="Padding" Value="5" />
-        <Setter Property="BorderBrush" Value="LightGray" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="14" />
-		<Setter Property="Width" Value="300" />
-		<Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Width" Value="320" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="CaretBrush" Value="White" />
+        <Setter Property="Background" Value="#404040" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="BorderBrush" Value="Black" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Background="{TemplateBinding Background}"
+                        VerticalAlignment="Center"
+                        CornerRadius="5" Padding="2"> 
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalScrollBarVisibility="Hidden" />
+
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
+
+
+
+
 
     <Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
         <Setter Property="Margin" Value="10,0,10,0" />
@@ -70,28 +93,52 @@
         <Setter Property="Background" Value="DodgerBlue" />
         <Setter Property="Foreground" Value="Black" />
         <Setter Property="FontSize" Value="16" />
+        <Setter Property="Width" Value="180"/>
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="BorderBrush" Value="DodgerBlue" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="5"
+                        Padding="{TemplateBinding Padding}">
+
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="SkyBlue" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
+
+
 
     <Style TargetType="StackPanel" x:Key="FormStackPanelStyle">
         <Setter Property="Margin" Value="50,15,50,15" />
 		
     </Style>
 
-	<Style x:Key="FormCheckBoxStyle" TargetType="CheckBox">
-		<!--<Setter Property="Width" Value="50" />
-		<Setter Property="Height" Value="50" />-->
-		<Setter Property="Margin" Value="5" />
+    <Style x:Key="FormCheckBoxStyle" TargetType="CheckBox">
+        <Setter Property="Margin" Value="0,10,0,5" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Margin" Value="0,10,0,5" />
         <Setter Property="Foreground" Value="White" />
-        
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#303030" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="5" />
     </Style>
+
 
     <Style x:Key="CustomBorderStyle" TargetType="Border">
         <Setter Property="Margin" Value="10,0,10,0" />
@@ -116,53 +163,65 @@
     <Style x:Key="CustomToggleButtonStyle" TargetType="ToggleButton">
         <Setter Property="Width" Value="60" />
         <Setter Property="Height" Value="30" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="BorderBrush" Value="Gray" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Content" Value="OFF" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
 
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid>
-
-                        <Border x:Name="SwitchBackground" 
-                            Width="60" Height="30" 
-                            CornerRadius="15" 
-                            Background="Gray" 
-                            BorderBrush="Gray" 
-                            BorderThickness="1">
+                     
+                        <Border x:Name="SwitchBackground"
+                            Width="60"
+                            Height="30"
+                            CornerRadius="15"
+                            Background="#B0B0B0"
+                            BorderThickness="0"
+                            Opacity="0.8">
                         </Border>
 
-                        <Ellipse x:Name="SwitchThumb" 
-                             Width="20" Height="20" 
-                             Fill="White" 
-                             HorizontalAlignment="Left" 
-                             Margin="2"/>
-
-                        <ContentPresenter HorizontalAlignment="Center" 
-                                      VerticalAlignment="Center" />
+                      
+                        <Ellipse x:Name="SwitchThumb"
+                             Width="26"
+                             Height="26"
+                             Fill="White"
+                             RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <TranslateTransform X="3"/>
+                            </Ellipse.RenderTransform>
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="4"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
                     </Grid>
 
                     <ControlTemplate.Triggers>
 
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="SwitchBackground" Property="Background" Value="Green"/>
-                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
-                            <Setter Property="Content" Value=""/>
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="#4CAF50"/>
+                            <Setter TargetName="SwitchThumb" Property="RenderTransform">
+                                <Setter.Value>
+                                    <TranslateTransform X="13"/>
+                                 
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
-
 
                         <Trigger Property="IsChecked" Value="False">
-                            <Setter TargetName="SwitchBackground" Property="Background" Value="Red"/>
-                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Left"/>
-                            <Setter Property="Content" Value=""/>
+                            <Setter TargetName="SwitchThumb" Property="RenderTransform">
+                                <Setter.Value>
+                                    <TranslateTransform X="-13"/>
+                                   
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
+
+
+
 
 
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="SwitchBackground" Property="BorderBrush" Value="DodgerBlue"/>
+                            <Setter TargetName="SwitchBackground" Property="Opacity" Value="1"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -170,15 +229,40 @@
         </Setter>
     </Style>
 
-	<Style x:Key="CustomTextBoxStyle" TargetType="TextBox">
-		<Setter Property="Width" Value="200"/>
-		<Setter Property="Height" Value="30"/>
-		<Setter Property="Margin" Value="5"/>
-		<Setter Property="FontSize" Value="14"/>
-		<Setter Property="Background" Value="White"/>
-		<Setter Property="BorderBrush" Value="Gray"/>
-		<Setter Property="BorderThickness" Value="1"/>
-	</Style>
+
+
+
+
+    <Style x:Key="CustomTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="BorderBrush" Value="Black" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Width" Value="160" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="#303030" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Background="{TemplateBinding Background}"
+                        VerticalAlignment="Center"
+                        CornerRadius="5"
+                        Padding="2">
+
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalScrollBarVisibility="Hidden" />
+
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
 
     <Style x:Key="FormScrollViewerStyle" TargetType="ScrollViewer">
         <Setter Property="MaxHeight" Value="175"/>
