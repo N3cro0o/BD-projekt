@@ -44,7 +44,7 @@
                         
                         Username:
                     </TextBlock>
-                    <TextBox Grid.Row="2" x:Name="LoginB" BorderThickness="0,0,0,1" TextAlignment="Left" Loaded="OnLoginB_Loaded">
+                    <TextBox Grid.Row="2" x:Name="LoginB" Foreground="White" BorderThickness="0,0,0,1" TextAlignment="Left" Loaded="OnLoginB_Loaded" Height="25">
                         <TextBox.Background>
                             <ImageBrush ImageSource="../image/loginimage2.png" Stretch="None" AlignmentX="Right"/>
                         </TextBox.Background>
@@ -55,8 +55,8 @@
     
                         Password:
                     </TextBlock>
-                    <PasswordBox Grid.Row="4" x:Name="PasswordB" PasswordChanged="Password_Changed"
-                                 KeyDown="OnLoginSubmit_key" BorderThickness="0,0,0,1" >
+                    <PasswordBox Grid.Row="4" x:Name="PasswordB" PasswordChanged="Password_Changed" Height="25"
+                                 KeyDown="OnLoginSubmit_key" BorderThickness="0,0,0,1" Foreground="White">
                         <PasswordBox.Background>
                             <ImageBrush ImageSource="../image/passwordImg2.png" Stretch="None" AlignmentX="Right"/>
                         </PasswordBox.Background>

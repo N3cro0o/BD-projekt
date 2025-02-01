@@ -11,7 +11,7 @@
         mc:Ignorable="d"
         Icon="/lastgenrichtofen.png"
         Title="Testy wiedzy - admin" Height="800" Width="1100" WindowState="Normal" ResizeMode="CanResize"
-        MinHeight="800" MinWidth="1100"
+        MinHeight="800" MinWidth="1100" Background="#181818"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <DataTemplate x:Name="MainPageTemplate" DataType="{x:Type viewmodels:MainPageVM}">
@@ -27,9 +27,9 @@
             <views:AdminPanelUI DataContext="{Binding}"/>
         </DataTemplate>
     </Window.Resources>
-    
 
-    <Grid Background="#A7A7A7">
+
+    <Grid Background="#252525">
         <ContentControl Content="{Binding}" />
     </Grid>
 </Window>
