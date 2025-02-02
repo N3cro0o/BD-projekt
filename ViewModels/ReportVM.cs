@@ -186,9 +186,13 @@ namespace BD.ViewModels
                         break;
                 }
             }
-            App.DBConnection.AddResultsToTest(results);
-            App.DBConnection.UpdateReport(report);
-            return (true,  report);
+            if (results.Count > 0)
+            {
+                App.DBConnection.AddResultsToTest(results);
+                App.DBConnection.UpdateReport(report);
+                return (true, report);
+            }
+            return (true, null);
         }
     }
 

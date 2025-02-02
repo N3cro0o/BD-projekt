@@ -4,18 +4,18 @@
     <Style TargetType="TextBlock" x:Key="FormLabelStyle">
         <Setter Property="FontSize" Value="18" />
         <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="Margin" Value="0,10,0,5" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#f0f0ff" />
     </Style>
 
 
     <Style TargetType="TextBlock" x:Key="FormLabelHeaderStyle">
         <Setter Property="FontSize" Value="24" />
-		<Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Margin" Value="0,15,0,10" />
-        <Setter Property="Foreground" Value="#050508" />
+        <Setter Property="Foreground" Value="White" />
     </Style>
 
     <Style TargetType="TextBox" x:Key="FormInputStyle">
@@ -23,7 +23,7 @@
         <Setter Property="FontSize" Value="18" />
         <Setter Property="Width" Value="320" />
         <Setter Property="Height" Value="40" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#f0f0ff" />
         <Setter Property="CaretBrush" Value="White" />
         <Setter Property="Background" Value="#404040" />
         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -46,14 +46,10 @@
         </Setter>
     </Style>
 
-
-
-
-
     <Style TargetType="RadioButton" x:Key="FormRadioButtonStyle">
         <Setter Property="Margin" Value="5" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#f0f0ff" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Template">
@@ -137,7 +133,7 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#f0f0ff" />
         <Setter Property="Background" Value="White" />
         <Setter Property="BorderBrush" Value="#303030" />
         <Setter Property="BorderThickness" Value="2" />
@@ -264,9 +260,6 @@
     </Style>
 
 
-
-
-
     <Style x:Key="CustomTextBoxStyle" TargetType="TextBox">
         <Setter Property="Margin" Value="5" />
         <Setter Property="BorderBrush" Value="Black" />
@@ -275,7 +268,7 @@
         <Setter Property="Width" Value="160" />
         <Setter Property="Height" Value="40" />
         <Setter Property="TextWrapping" Value="Wrap" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#f0f0ff" />
         <Setter Property="Background" Value="#303030" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="Template">
@@ -296,8 +289,6 @@
         </Setter>
     </Style>
 
-
-
     <Style x:Key="FormScrollViewerStyle" TargetType="ScrollViewer">
         <Setter Property="MaxHeight" Value="175"/>
         <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
@@ -316,9 +307,5 @@
         <Setter Property="Padding" Value="5" />
        
     </Style>
-
-
-
-
 
 </ResourceDictionary>

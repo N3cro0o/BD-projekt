@@ -47,9 +47,30 @@
                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
                            Padding="5" Margin="5" Foreground="White" >
                 </TextBlock>
-                <Button x:Name="CallbackButton" Grid.Row="0" HorizontalAlignment="Right" Click="Callback_Click" Visibility="Collapsed">
-                    <TextBlock>Return</TextBlock>
+                <Button VerticalAlignment="Center"  HorizontalAlignment="Right" x:Name="CallbackButton"
+                    Grid.Row="0" Background="#404040" Foreground="White" 
+                    FontWeight="Bold" Margin="10, 0" FontSize="10" Height="30" Width="90"
+                    Visibility="Collapsed" Click="Callback_Click" >
+                    <TextBlock TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center">Return </TextBlock>
+                    <!-- Ustawienie nie domyslnego sylu-->
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <!-- Wewnętrzny element zmieniający tło -->
+                            <Border x:Name="BorderElement" Background="{TemplateBinding Background}" CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- Zmiana tlla przy najechaniu -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BorderElement" Property="Background" Value="#924040"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
+                <!--<Button x:Name="CallbackButton" Grid.Row="0" HorizontalAlignment="Right" Click="Callback_Click" Visibility="Collapsed">
+                    <TextBlock>Return</TextBlock>
+                </Button>-->
                 <Grid Grid.Row="1" x:Name="outputGrid" Background="#303030">
                     
                 </Grid>

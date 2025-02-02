@@ -12,6 +12,99 @@ namespace BD
     {
         string connection_string = "Host=localhost; Port = 5432; Database = TesatWiezy; User Id = postgres; Password = 12345;";
 
+        // Count returns
+        public int ReturnCountUser()
+        {
+            int count = -0;
+            string query = "SELECT COUNT(*) FROM \"User\"";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                count = Convert.ToInt32(com.ExecuteScalar());
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return -1;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return count;
+        }
+
+        public int ReturnCountCourse()
+        {
+            int count = -0;
+            string query = "SELECT COUNT(*) FROM \"Course\"";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                count = Convert.ToInt32(com.ExecuteScalar());
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return -1;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return count;
+        }
+        
+        public int ReturnCountTest()
+        {
+            int count = -0;
+            string query = "SELECT COUNT(*) FROM \"Test\"";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                count = Convert.ToInt32(com.ExecuteScalar());
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return -1;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return count;
+        }
+        
+        public int ReturnCountQuestion()
+        {
+            int count = -0;
+            string query = "SELECT COUNT(*) FROM \"Question\"";
+            NpgsqlConnection con = new NpgsqlConnection(connection_string);
+            NpgsqlCommand com = new NpgsqlCommand(query, con);
+            try
+            {
+                con.Open();
+                count = Convert.ToInt32(com.ExecuteScalar());
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                return -1;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return count;
+        }
+
         public List<Dictionary<string, string>> Login(string login, string pass)
         {
             string query = "SELECT * FROM \"User\" WHERE \"login\" = \'" + login + "\' AND \"password\" = \'" + toSHA256(pass) + "\'";

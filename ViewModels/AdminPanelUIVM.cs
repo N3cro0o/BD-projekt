@@ -615,6 +615,18 @@ namespace BD.ViewModels
         {
             preLogic(parent, $"Welcome, {App.CurrentUser.GetFullName()}");
 
+            // Załaduj ResourceDictionary z pliku stylów
+            var resourceDictionary = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/FormStyles.xaml")
+            };
+
+            // Dodaj style do zasobów aplikacji (jeśli nie zostały już dodane)
+            if (!Application.Current.Resources.MergedDictionaries.Contains(resourceDictionary))
+            {
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
             var stacking_panel = new StackPanel()
             {
                 Margin = new Thickness(50, 15, 50, 15),
@@ -623,6 +635,7 @@ namespace BD.ViewModels
 
             TextBlock text = new TextBlock()
             {
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
                 FontSize = 36,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -630,6 +643,37 @@ namespace BD.ViewModels
             };
             text.Text = "Please select an option in the menu";
             stacking_panel.Children.Add(text);
+
+            stacking_panel.Children.Add(new Separator());
+
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = $"Users in system: {App.DBConnection.ReturnCountUser()}"
+            };
+            stacking_panel.Children.Add(text);
+            
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = $"Courses in system: {App.DBConnection.ReturnCountCourse()}"
+            };
+            stacking_panel.Children.Add(text);
+            
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = $"Tests in system: {App.DBConnection.ReturnCountTest()}"
+            };
+            stacking_panel.Children.Add(text);
+            
+            text = new TextBlock()
+            {
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
+                Text = $"Questions in system: {App.DBConnection.ReturnCountQuestion()}"
+            };
+            stacking_panel.Children.Add(text);
+
         }
 
         public void ReturnAllQuestionsFromDB(AdminPanelUI parent)
@@ -1203,8 +1247,16 @@ namespace BD.ViewModels
                 Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
                 Text = "General"
             };
-
             stacking_panel.Children.Add(text_block);
+
+            // Context menu
+            ContextMenu menu = new ContextMenu();
+            menu = universalItems(_parent, menu, ReturnAllQuestionsFromDB);
+            _parent.outputGrid.ContextMenu = menu;
+
+            menu = new ContextMenu();
+            menu = universalItems(_parent, menu, ReturnAllQuestionsFromDB);
+            stacking_panel.ContextMenu = menu;
 
             text_block = new TextBlock()
             {
@@ -1244,7 +1296,18 @@ namespace BD.ViewModels
             (reportCheck, report) = _report.GenerateReport(results, resultsDB);
             if (reportCheck)
             {
-#pragma warning disable CS8602
+
+                if (report == null)
+                {
+                    text_block = new TextBlock()
+                    {
+                        Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
+                        Text = $"Not enough data to generate a Report.",
+                    };
+                    StackPanel inner = new StackPanel();
+                    return;
+                }
+
                 double allUsers = report.PassedUsers.Count + report.FailedUsers.Count + report.ToCheckUsers.Count;
                 string passedPercent = (report.PassedUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
                 string failedPercent = (report.FailedUsers.Count / allUsers).ToString("P", CultureInfo.InvariantCulture);
@@ -1313,7 +1376,6 @@ namespace BD.ViewModels
 
                 }
 
-#pragma warning restore CS8602
             }
             else
             {
@@ -1324,15 +1386,6 @@ namespace BD.ViewModels
                 };
                 stacking_panel.Children.Add(text_block);
             }
-
-            // Context menu
-            ContextMenu menu = new ContextMenu();
-            menu = universalItems(_parent, menu, ReturnAllQuestionsFromDB);
-            _parent.outputGrid.ContextMenu = menu;
-
-            menu = new ContextMenu();
-            menu = universalItems(_parent, menu, ReturnAllQuestionsFromDB);
-            stacking_panel.ContextMenu = menu;
         }
 
         public void ReturnAllAnswersFromDB(AdminPanelUI parent)
@@ -2011,7 +2064,7 @@ namespace BD.ViewModels
 
                 var toggle = new CheckBox
                 {
-
+                    Style = (Style)Application.Current.Resources["FormCheckBoxStyle"],
                 };
 
                 textBlock = new TextBlock
