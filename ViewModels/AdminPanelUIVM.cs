@@ -551,7 +551,7 @@ namespace BD.ViewModels
                         {
                             MessageBox.Show("Invalid email or password.", "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
                             pass.Text = "";
-                            login.Text = "Operation failed";
+                            login.Text = "";
                             return;
                         }
                         if (parent.TargetChangeID > -1)
@@ -574,7 +574,8 @@ namespace BD.ViewModels
                         MessageBox.Show(err, "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     pass.Text = "";
-                    login.Text = "Operation failed";
+                    login.Text = "";
+                    MessageBox.Show("One or more fields were empty", "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             };
             stacking_panel.Children.Add(bttn);
@@ -788,18 +789,21 @@ namespace BD.ViewModels
             {
                 Text = "Question Body",
                 FontWeight = FontWeights.Bold,
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
             };
             stacking_panel.Children.Add(block);
 
             block = new TextBlock()
             {
                 Text = q.Text,
+                Style = (Style)Application.Current.Resources["FormLabelStyle"],
             };
             stacking_panel.Children.Add(block);
             block = new TextBlock()
             {
                 Text = "Answers",
                 FontWeight = FontWeights.Bold,
+                Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
             };
             stacking_panel.Children.Add(block);
 
@@ -818,7 +822,7 @@ namespace BD.ViewModels
                 {
                     var new_stack = new StackPanel();
                     new_stack.Orientation = Orientation.Horizontal;
-                    var textBlock = new TextBlock();
+                    var textBlock = new TextBlock() { Style = (Style)Application.Current.Resources["FormLabelStyle"], };
                     string t_this = (q.CorrectAnswers & (1 << (3 - i))) >> (3 - i) == 1 ? t : t1;
                     textBlock.Text = $"{i + 1}. {answer_list[i]} - {t_this}";
                     new_stack.Children.Add(textBlock);
@@ -831,6 +835,7 @@ namespace BD.ViewModels
                 block = new TextBlock()
                 {
                     Text = q.Answers,
+                    Style = (Style)Application.Current.Resources["FormLabelStyle"],
                 };
                 stacking_panel.Children.Add(block);
 
@@ -839,6 +844,7 @@ namespace BD.ViewModels
                     block = new TextBlock()
                     {
                         Text = "Answer key",
+                        Style = (Style)Application.Current.Resources["FormLabelStyle"],
                     };
                     stacking_panel.Children.Add(block);
                     for (int i = 0; i < 4; i++)
@@ -847,6 +853,7 @@ namespace BD.ViewModels
                         block = new TextBlock()
                         {
                             Text = $"{i + 1}. {t_this}",
+                            Style = (Style)Application.Current.Resources["FormLabelStyle"],
                         };
                         stacking_panel.Children.Add(block);
                     }
@@ -2711,17 +2718,6 @@ namespace BD.ViewModels
                     AddNewQuestion(parent);
                 }
             };
-            addTo.Items.Add(item);
-
-            item = new MenuItem { Header = "Validate all questions" };
-            item.Click += (s, e) =>
-            {
-                if (s is MenuItem menuItem)
-                {
-                    _report.ValidateQuestions();
-                }
-            };
-
             addTo.Items.Add(item);
 
             item = new MenuItem { Header = "Add new Test" };
