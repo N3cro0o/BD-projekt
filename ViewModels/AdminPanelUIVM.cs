@@ -1304,7 +1304,7 @@ namespace BD.ViewModels
                         Style = (Style)Application.Current.Resources["FormLabelHeaderStyle"],
                         Text = $"Not enough data to generate a Report.",
                     };
-                    StackPanel inner = new StackPanel();
+                    stacking_panel.Children.Add(text_block);
                     return;
                 }
 
