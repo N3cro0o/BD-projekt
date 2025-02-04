@@ -2415,6 +2415,14 @@ namespace BD.ViewModels
                         return;
 
                     double p = double.Parse(points.Text, CultureInfo.InvariantCulture);
+                    if (p <= 0 || p > 100)
+                    {
+                        MessageBox.Show("Max points must be between 100 and 0", "Invalid data", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    // Magic trick to truncate excess numbers
+                    p = double.Truncate(p * 100) / 100;
+
                     int key = 0;
                     key += asnwBttn1.IsChecked == true ? 1 << 3 : 0;
                     key += asnwBttn2.IsChecked == true ? 1 << 2 : 0;
